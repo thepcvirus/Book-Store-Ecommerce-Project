@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT"
+      crossorigin="anonymous"
+    />
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <title>Reset password</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="forgot-conatiner">
+      <h2 class="text-center mb-4" id="title">Reset Password</h2>
+      <p class="text-center mb-4">Enter email to send link to reset password</p>
+      <form id="forgotpassword" class="row g-3">
+        <div class="col-12">
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            required
+            placeholder="Enter Email address"
+          />
+        </div>
+
+        <div class="col-12">
+          <button type="submit" class="btn btn-custom">Send email</button>
+        </div>
+        <div class="col-12 text-center mt-3">
+          <a href="login.html" class="text-custom">Back to Login</a>
+        </div>
+      </form>
+    </div>
+
+    <script type="module">
+      import { firebaseConfig as firebaseConfig } from './ConfigFile.js';
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth(); // For Authentication
+      const database = firebase.firestore();
+
+      document
+        .getElementById("forgotpassword")
+        .addEventListener("submit", (e) => {
+          e.preventDefault();
+          const email = document.getElementById("email").value;
+          const messageDiv = document.getElementById("message");
+          const success = document.getElementById("title");
+          success.textContent = "email sent successfully ✅";
+          const messsage = document.querySelector("p");
+          messsage.textContent =
+            "You will be redirect to the login page in 5 seconds ...";
+          const button = document.querySelector("button");
+          button.remove();
+
+          setTimeout(() => {
+            window.location.href = "login.html";
+          }, 5000);
+
+          if (!email) {
+            messageDiv.innerHTML =
+              '<div class="alert alert-danger">enter vlaid email</div>';
+            return;
+          }
+
+          auth
+            .sendPasswordResetEmail(email)
+            .then(() => {
+              console.log("Password reset email sent");
+              messageDiv.innerHTML =
+                '<div class="alert alert-success">email sent success please check your email</div>';
+              document.getElementById("resetPasswordForm").reset();
+            })
+            .catch((error) => {
+              console.error("Reset password error:", error.message);
+              let errorMessage = error.message;
+              if (error.code === "auth/invalid-email") {
+                errorMessage = " email not valid";
+              } else if (error.code === "auth/user-not-found") {
+                errorMessage = "  email not register .";
+              }
+              messageDiv.innerHTML =
+                '<div class="alert alert-danger">error: ' +
+                errorMessage +
+                "</div>";
+            });
+        });
+    </script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
