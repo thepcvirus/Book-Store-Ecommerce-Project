@@ -246,10 +246,10 @@ export async function displayBooksForUser(bookContainer) {
             bookName.textContent = book.name;
 
             let author = document.createElement("p");
-            author.textContent = `Author: ${book.author}`;
+            author.textContent = `✍️ Author: ${book.author}`;
 
             let genre = document.createElement("p");
-            genre.textContent = `Genre: ${book.gener}`;
+            genre.textContent = `📖 Genre: ${book.gener}`;
 
             // let description = document.createElement("p");
             // description.textContent = book.description;
@@ -319,7 +319,7 @@ export function addToCart(book) {
         alert("Book added to cart");
 
     }
-    
+
     // store the cart into localstorage
     localStorage.setItem("cart", JSON.stringify(cart));
     loadCart();
@@ -455,4 +455,95 @@ export function removeFromCart(bookId) {
         localStorage.setItem("cart", JSON.stringify(cart));
         loadCart();
     }
+}
+
+// Search function for books
+export function searchBooks(searchBook) {
+    let db = firebase.firestore();
+    let bookcontainer = document.getElementById('ProductsList');
+    bookcontainer.innerHTML = "";
+
+    db.collection("cars").get()
+        .then((querySnapshot) => {
+            if (querySnapshot.empty) {
+                let alert = document.createElement("p");
+                alert.className = "text-center";
+                alert.textContent = "No books found.";
+                bookcontainer.appendChild(alert);
+                return;
+            }
+            let matchedBooks = false;
+            querySnapshot.forEach(doc => {
+                let book = doc.data();
+                book.id = doc.id;
+                // make search book and books in the firestore to lowercase to avoid case sensitive
+                let searchBookLower = searchBook.toLowerCase();
+                let bookNameLower = book.name.toLowerCase();
+
+                // Check if the search book match books in firestore
+                if (bookNameLower.includes(searchBookLower)) {
+                    matchedBooks = true;
+                    createProductCard(
+                        'ProductsList',
+                        book.url_image,
+                        book.name,
+                        book.author,
+                        book.gener,
+                        book.price,
+                        book
+                    );
+                }
+            });
+
+            // there is no matched books 
+            if (!matchedBooks) {
+                let noResults = document.createElement("p");
+                noResults.className = "text-center";
+                noResults.textContent = "No matched books";
+                bookcontainer.appendChild(noResults);
+            }
+        })
+        .catch((error) => {
+            console.error("Error searching books:", error);
+            let errorMsg = document.createElement("p");
+            errorMsg.className = "text-danger";
+            errorMsg.textContent = "Error searching books.";
+            bookcontainer.appendChild(errorMsg);
+        });
+}
+
+// start payment with paypal
+export function paypalPayment(totalAmount) {
+    paypal.Buttons({
+        // Set up the transaction
+        createOrder: function (data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: totalAmount // The total amount from the cart
+                    }
+                }]
+            });
+        },
+
+        // Finalize the transaction
+        onApprove: function (data, actions) {
+            return actions.order.capture().then(function (details) {
+                // Show success message
+                alert('Transaction completed by ' + details.payer.name.given_name);
+                // Clear the cart
+                localStorage.removeItem("cart");
+                // Update the display
+                loadCart();
+                // Redirect to success page or show success message
+                window.location.href = "profile.html";
+            });
+        },
+
+        // Handle errors
+        onError: function (err) {
+            console.error('PayPal Error:', err);
+            alert('An error occurred during the payment process. Please try again.');
+        }
+    }).render('#paypal-button-container');
 }
