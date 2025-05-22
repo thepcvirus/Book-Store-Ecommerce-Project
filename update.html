@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Car</title>
+    <title>Update Book</title>
     <link rel="stylesheet" href="style/R_style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Firebase Compat SDKs -->
@@ -19,16 +19,21 @@
 
 <body>
     <script type="module">
-    import { createNavbar } from './GeneralFunctions.js';
-    document.body.prepend(createNavbar());
-  </script>
-  
+        import { createNavbar } from './GeneralFunctions.js';
+        document.body.prepend(createNavbar());
+    </script>
+
     <div class="container mt-5">
         <h2 class="mb-4 text-center">Update Book</h2>
         <form id="R_bookForm">
             <div class="mb-3">
-                <label for="carName" class="form-label">Book Name</label>
+                <label for="bookName" class="form-label">Book Name</label>
                 <input type="text" class="form-control" id="R_bookName" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="bookAuthor" class="form-label">Book Author</label>
+                <input type="text" class="form-control" id="R_bookAuthor" required>
             </div>
 
             <div class="mb-3">
@@ -75,94 +80,99 @@
     <script type="module">
         import { firebaseConfig as firebaseConfig } from './ConfigFile.js';
 
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-      const database = firebase.firestore();
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.firestore();
 
         document.addEventListener("DOMContentLoaded", async () => {
-    try {
-        let Rurl = new URLSearchParams(window.location.search);
-        let RbookId = Rurl.get("id");
-
-        if (!RbookId) {
-            alert("Ther is no book id");
-            return;
-        }
-        let RbookRef = database.collection("cars").doc(RbookId);
-        let Rdoc = await RbookRef.get();
-        if (!Rdoc.exists) {
-            alert("book not found");
-            return;
-        }
-        let Rdata = Rdoc.data();
-        // return the old value about the car in the form
-        document.getElementById("R_bookName").value = Rdata.name || "";
-        document.getElementById("R_bookGener").value = Rdata.gener || "";
-        document.getElementById("R_price").value = Rdata.price || "";
-        document.getElementById("R_bookImage").value = Rdata.url_image || "";
-        document.getElementById("R_description").value = Rdata.description || "";
-        document.getElementById("R_status").value = Rdata.status || "available";
-
-        document.getElementById("R_bookForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            // update car name with capitalize it
-            let RbookUpdatedName = document.getElementById("R_bookName").value.trim();
-            let RbookCapitalizeName = RcapitalizeCarName(RbookUpdatedName);
-            // update car price with validation
-            let RbookUpdatedPrice = document.getElementById("R_price").value.trim();
-            if (!RisPriceInteger(RbookUpdatedPrice)) {
-                alert("please enter a positive integer price");
-                return;
-            }
-            // update car url_image
-            let RbookUpdatedImage = document.getElementById("R_bookImage").value.trim();
-            // update book gener
-            let RbookUpdatedGener = document.getElementById("R_bookGener").value.trim();
-            // update car description
-            let RbookUpdatedDesc = document.getElementById("R_description").value.trim();
-            // update car status
-            let RbookUpdatedStatus = document.getElementById("R_status").value;
             try {
-                await RbookRef.update({
-                    name: RbookCapitalizeName,
-                    price: RbookUpdatedPrice,
-                    url_image: RbookUpdatedImage,
-                    description: RbookUpdatedDesc,
-                    status: RbookUpdatedStatus,
-                    gener: RbookUpdatedGener,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                let Rurl = new URLSearchParams(window.location.search);
+                let RbookId = Rurl.get("id");
+
+                if (!RbookId) {
+                    alert("Ther is no book id");
+                    return;
+                }
+                let RbookRef = database.collection("cars").doc(RbookId);
+                let Rdoc = await RbookRef.get();
+                if (!Rdoc.exists) {
+                    alert("book not found");
+                    return;
+                }
+                let Rdata = Rdoc.data();
+                // return the old value about the book in the form
+                document.getElementById("R_bookName").value = Rdata.name || "";
+                document.getElementById("R_bookAuthor").value = Rdata.author || "";
+                document.getElementById("R_bookGener").value = Rdata.gener || "";
+                document.getElementById("R_price").value = Rdata.price || "";
+                document.getElementById("R_bookImage").value = Rdata.url_image || "";
+                document.getElementById("R_description").value = Rdata.description || "";
+                document.getElementById("R_status").value = Rdata.status || "available";
+
+                document.getElementById("R_bookForm").addEventListener("submit", async (e) => {
+                    e.preventDefault();
+                    // update book name with capitalize it
+                    let RbookUpdatedName = document.getElementById("R_bookName").value.trim();
+                    let RbookCapitalizeName = RcapitalizeBookName(RbookUpdatedName);
+                    // update book author with capitalize it
+                    let RbookUpdatedAuthor = document.getElementById("R_bookAuthor").value.trim();
+                    let RbookCapitalizeAuthor = RcapitalizeBookName(RbookUpdatedAuthor);
+                    // update book price with validation
+                    let RbookUpdatedPrice = document.getElementById("R_price").value.trim();
+                    if (!RisPriceInteger(RbookUpdatedPrice)) {
+                        alert("please enter a positive integer price");
+                        return;
+                    }
+                    // update book url_image
+                    let RbookUpdatedImage = document.getElementById("R_bookImage").value.trim();
+                    // update book gener
+                    let RbookUpdatedGener = document.getElementById("R_bookGener").value.trim();
+                    // update book description
+                    let RbookUpdatedDesc = document.getElementById("R_description").value.trim();
+                    // update book status
+                    let RbookUpdatedStatus = document.getElementById("R_status").value;
+                    try {
+                        await RbookRef.update({
+                            name: RbookCapitalizeName,
+                            author: RbookCapitalizeAuthor,
+                            price: RbookUpdatedPrice,
+                            url_image: RbookUpdatedImage,
+                            description: RbookUpdatedDesc,
+                            status: RbookUpdatedStatus,
+                            gener: RbookUpdatedGener,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        alert("book updated successfully");
+                        window.location.href = "admin.html";
+                    } catch (error) {
+                        console.error("Error updating book:", error);
+                        alert("failed to update book");
+                    }
                 });
-                alert("book updated successfully");
-                window.location.href = "admin.html";
             } catch (error) {
-                console.error("Error updating book:", error);
-                alert("failed to update book");
+                console.error("Error loading book data:", error);
+                alert("error loading book data");
             }
         });
-    } catch (error) {
-        console.error("Error loading book data:", error);
-        alert("error loading book data");
-    }
-});
 
 
-// capitalize car name
-function RcapitalizeCarName(bookName) {
-    return bookName
-        .toLowerCase()
-        .split(' ')
-        .filter(word => word)
-        .map(word => word[0].toUpperCase() + word.slice(1))
-        .join(' ');
-}
-// check if price is integer or not
-function RisPriceInteger(price) {
-    let num = Number(price);
-    if (Number.isInteger(num) && num > 0) {
-        return true;
-    }
-    return false;
-}
+        // capitalize book name
+        function RcapitalizeBookName(bookName) {
+            return bookName
+                .toLowerCase()
+                .split(' ')
+                .filter(word => word)
+                .map(word => word[0].toUpperCase() + word.slice(1))
+                .join(' ');
+        }
+        // check if price is integer or not
+        function RisPriceInteger(price) {
+            let num = Number(price);
+            if (Number.isInteger(num) && num > 0) {
+                return true;
+            }
+            return false;
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js">

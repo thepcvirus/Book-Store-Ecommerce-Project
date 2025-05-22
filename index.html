@@ -9,6 +9,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script
+    src="https://www.paypal.com/sdk/js?client-id=AUfaltD2k-zDTIvW9PWXSYbCAhipu0Hvwv5Ktfte4FInp_Rz4_kQO8xspI0cdZud1vV2TqYrDmtCk8NU"></script>
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -25,10 +27,9 @@
       <div id="bookContainer" class="book-grid"></div>
     </section>
 
-    <div id="cartContainer" class="row gy-4"></div>
     <div class="text-end">
       <h5 id="totalCost">Total: <span id="totalCost">0</span> EP</h5>
-      <!-- <button class="btn btn-primary" id="checkoutBtn">Checkout</button> -->
+      <div id="paypal-button-container"></div>
     </div>
 
     <div class="col-12 Cart m-1">
@@ -62,7 +63,10 @@
 
 
     <hr>
-    <input class="input-group-text" type="text" placeholder="Search" id="SearchInput">
+    <div class="input-group mb-3">
+      <input class="input-group-text" type="text" placeholder="Search" id="searchInput">
+      <button class="btn btn-primary" id="searchBtn">Search</button>
+    </div>
     <hr>
     <div class="dropdown">
       <button class="btn btn-secondary dropdown-toggle" type="button" id="sortingDropdown" data-bs-toggle="dropdown"
@@ -164,10 +168,12 @@
     window.addEventListener("DOMContentLoaded", () => {
       displayBooksForUser('ProductsList');
     });
-
+    // import paypal function
+    import { paypalPayment } from './GeneralFunctions.js';
     async function checkout() {
       let cart = JSON.parse(localStorage.getItem("cart")) || [];
       let total = calculateTotal(cart);
+
       // let userId = firebase.auth().currentUser.uid; //if there is auth in firebase
       let budget = parseFloat(localStorage.getItem("budget") || 0);
       if (cart.length === 0) {
@@ -210,18 +216,31 @@
         //     budget: currentBudget - total
         // });
         // ==================================
-        // delete the order cart from the localstorage
-        localStorage.removeItem("cart");
-        // if the order made successfully
-        alert("Order made successfully");
-        // return the user to home page 
-        window.location.href = "profile.html";
+        // Initialize PayPal payment
+        paypalPayment(total);
       } catch (error) {
         console.error("Error make order:", error);
         alert("something went wrong during checkout");
       }
     }
+    import { searchBooks } from './GeneralFunctions.js';
+    // Add event listener for search button
+    document.getElementById('searchBtn').addEventListener('click', () => {
+      let searchBook = document.getElementById('searchInput').value.trim();
+      if (searchBook === '') {
+        // if search is empty it will show all books
+        displayBooksForUser('ProductsList');
+      } else {
+        searchBooks(searchBook);
+      }
+    });
 
+    // search by click "enter" on keyboard
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('searchBtn').click();
+      }
+    });
   </script>
 
 </body>

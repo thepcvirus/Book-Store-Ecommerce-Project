@@ -63,6 +63,11 @@
             </div>
 
             <div class="mb-3">
+              <label for="bookAuthor" class="form-label">Book Author</label>
+              <input type="text" class="form-control" id="R_bookAuthor" required>
+            </div>
+
+            <div class="mb-3">
               <label for="price" class="form-label">Price (EP)</label>
               <input type="text" class="form-control" id="R_price" required>
             </div>
@@ -145,29 +150,32 @@
         e.preventDefault();
 
         // get the values from the form and delete spaces from it
-        // get car name and make it capital to be the same at every car
+        // get book name and make it capital to be the same at every book
         let RbookName = document.getElementById("R_bookName").value.trim();
         let RbookNameCapital = RcapitalizeBookName(RbookName);
-        // get car model
+        // get book author and make it's first letter from every word capital
+        let RbookAuthor = document.getElementById("R_bookAuthor").value.trim();
+        let RbookAuthorCapital = RcapitalizeBookName(RbookAuthor);
+        // get book genre
         let RbookGener = document.getElementById("R_bookGener").value.trim();
-        // get car price
+        // get book price
         let RbookPrice = document.getElementById("R_price").value.trim();
-        // check if car price is integer 
+        // check if book price is integer 
         if (!RisPriceInteger(RbookPrice)) {
           alert("please enter a positive integer price");
           return;
         }
-        // get car url_image
+        // get book url_image
         let RbookImage = document.getElementById("R_bookImage").value.trim();
-        // get car description
+        // get book description
         let RbookDescription = document.getElementById("R_description").value.trim();
-        // get car status
+        // get book status
         let RbookStatus = document.getElementById("R_status").value;
         // for test
-        // console.log({ RcarNameCapital, RcarPrice, RcarImage, RcarDescription, RcarStatus });
+        // console.log({ RbookNameCapital, RbookPrice, RbookImage, RbookDescription, RbookStatus });
 
         try {
-          // return cars from fire store and check dublicated 
+          // return books from fire store and check dublicated 
           let RbooksCollection = database.collection("cars");
           let RquerySnapshot = await RbooksCollection.where("name", "==", RbookNameCapital).get();
           if (!RquerySnapshot.empty) {
@@ -176,6 +184,7 @@
           }
           await RbooksCollection.add({
             name: RbookNameCapital,
+            author: RbookAuthorCapital,
             url_image: RbookImage,
             price: RbookPrice,
             description: RbookDescription,
@@ -192,7 +201,7 @@
           alert("failed to add book");
         }
       });
-      // capitalize car name
+      // capitalize book name
       function RcapitalizeBookName(bookName) {
         return bookName
           .toLowerCase()
@@ -253,6 +262,11 @@
               RbookName.textContent = book.name;
               RbookName.className = "RbookModelStyle text-primary";
 
+              // Create book title
+              let RbookAuthor = document.createElement("h3");
+              RbookAuthor.textContent = `✍️ Author: ${book.author}`; 
+              RbookAuthor.className = "text-secondary fw-semibold";
+
               // Create book genre
               let RbookGener = document.createElement("p");
               RbookGener.textContent = `📖 Genre: ${book.gener}`;
@@ -260,7 +274,7 @@
 
               // Create book price
               let RbookPrice = document.createElement("p");
-              RbookPrice.textContent = ` ${book.price} EP`;
+              RbookPrice.textContent = ` ${book.price} $`;
               RbookPrice.className = "RbookPriceStyle fw-bold text-danger";
 
               // Create book status
@@ -306,6 +320,7 @@
               // Append elements
               Rdiv.appendChild(Rimage);
               Rdiv.appendChild(RbookName);
+              Rdiv.appendChild(RbookAuthor);
               Rdiv.appendChild(RbookGener);
               Rdiv.appendChild(RbookPrice);
               Rdiv.appendChild(RbookStatus);
