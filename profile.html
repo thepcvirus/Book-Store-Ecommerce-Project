@@ -18,19 +18,31 @@
     document.body.prepend(createNavbar());
   </script>
 
-  <div class="container mt-5">
-    <h2>Profile</h2>
-    <div id="userInfo" class="card p-3 mb-3">
-      <p><strong>Username:</strong> <span id="username">Loading...</span></p>
-      <p><strong>Email:</strong> <span id="email">Loading...</span></p>
-      <p><strong>Budget:</strong> <span id="budget">Loading...</span></p>
-      <h3>Orders</h3>
-      <ul id="orderList" class="list-group">
-        <li class="list-group-item">item1</li>
-        <li class="list-group-item">item2</li>
-      </ul>
 
+    </div><div class="container mt-5">
+  <h2 class="text-center mb-4 text-primary"> User Profile</h2>
+
+  <div class="card shadow-lg p-4 text-center">
+    <!-- Circular Profile Image -->
+    <div class="mb-3">
+      <img id="userPhoto" src="https://via.placeholder.com/150" class="rounded-circle border border-2" alt="User Photo" width="150" height="150">
     </div>
+
+    <!-- User Info -->
+    <h4 class="mb-3"><strong>Username:</strong> <span id="username" class="text-dark">Loading...</span></h4>
+    <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+    <p><strong>Budget:</strong> <span id="budget">Loading...</span> EP</p>
+
+    <!-- Orders -->
+    <div class="mt-4 text-start">
+      <h5 class="text-primary fw-bold">Orders</h5>
+      <ul id="orderList" class="list-group mt-2">
+        <!-- Orders will be appended here -->
+      </ul>
+    </div>
+  </div>
+</div>
+
     <script type="module">
       import { firebaseConfig as firebaseConfig } from './ConfigFile.js';
 
