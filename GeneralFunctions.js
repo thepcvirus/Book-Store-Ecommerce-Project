@@ -214,89 +214,117 @@ export function addTableRow(tableId, number, name, price, book) {
 // or append to a specific element:
 // document.getElementById('header').appendChild(createNavbar());
 
-export async function displayBooksForUser(bookContainer) {
-    let db = firebase.firestore();
-    let bookcontainer = document.getElementById(bookContainer);
+let lastVisibleDocs = new Map(); // يجب أن تكون في أعلى الملف خارج أي دالة
+
+export async function displayBooksForUser(
+  bookContainer,
+  selectedCategory = "all",
+  append = false
+) {
+  let db = firebase.firestore();
+  let bookcontainer = document.getElementById(bookContainer);
+
+  if (!append) {
     bookcontainer.innerHTML = "";
-    try {
-        let books = await db.collection("cars").get();
+    lastVisibleDocs = new Map(); // إعادة تعيين عند بحث/تصفية جديد
+  }
 
-        if (books.empty) {
-            let alert = document.createElement("p");
-            alert.className = "text-center";
-            alert.textContent = "No books found.";
-            bookcontainer.appendChild(alert);
-            return;
-        }
+  try {
+    let query = db.collection("cars");
 
-        books.forEach(doc => {
-            let book = doc.data();
-
-            book.id = doc.id;
-
-            let bookDiv = document.createElement("div");
-            bookDiv.className = "book-card";
-
-            let bookImage = document.createElement("img");
-            bookImage.src = book.url_image;
-            bookImage.alt = book.name;
-            bookImage.className = "book-image";
-
-            let bookName = document.createElement("h3");
-            bookName.textContent = book.name;
-
-            let author = document.createElement("p");
-            author.textContent = `✍️ Author: ${book.author}`;
-
-            let genre = document.createElement("p");
-            genre.textContent = `📖 Genre: ${book.gener}`;
-
-            // let description = document.createElement("p");
-            // description.textContent = book.description;
-
-            let price = document.createElement("p");
-            price.textContent = `Price: ${book.price} EP`;
-
-            let status = document.createElement("p");
-            status.textContent = `Status: ${book.status}`;
-
-            let addToCartBtn = document.createElement("button");
-            addToCartBtn.textContent = "Add to Cart";
-            addToCartBtn.className = "btn btn-success";
-            addToCartBtn.addEventListener("click", () => {
-                addToCart(book);
-            });
-            createProductCard(
-                bookContainer,           // The ID of the div where the card should be added
-                book.url_image,        // Image URL
-                book.name,  // Book name
-                book.author,          // Author name
-                book.gener,       // Genre
-                book.price,                // Price
-                book
-            );
-            //addTableRow('CartList', book.id, book.name, book.price);
-
-            //bookDiv.appendChild(bookImage);
-            //bookDiv.appendChild(bookName);
-            //bookDiv.appendChild(author);
-            //bookDiv.appendChild(genre);
-            // bookDiv.appendChild(description);
-            //bookDiv.appendChild(price);
-            //bookDiv.appendChild(status);
-            //bookDiv.appendChild(addToCartBtn);
-
-            //bookcontainer.appendChild(bookDiv);
-        });
-    } catch (error) {
-        console.error("Error fetching books:", error);
-
-        let errorMsg = document.createElement("p");
-        errorMsg.className = "text-danger";
-        errorMsg.textContent = "Error loading books.";
-        bookcontainer.appendChild(errorMsg);
+    // تطبيق الفلتر حسب الفئة
+    if (selectedCategory !== "all") {
+      query = query.where("gener", "==", selectedCategory);
     }
+
+    
+// تطبيق الترتيب والحد
+    //query = query.orderBy("name").limit(9);
+    
+
+    // تطبيق Pagination إذا وجد
+    if (append && lastVisibleDocs.get(selectedCategory)) {
+      query = query.startAfter(lastVisibleDocs.get(selectedCategory));
+    }
+
+    //const snapshot = await query.get();
+    let booksQuery;
+    const booksRef = db.collection("cars");
+
+    if (selectedCategory === "all") {
+      booksQuery = lastVisibleDocs.get("all")
+        ? booksRef
+            //.orderBy("name")
+            .startAfter(lastVisibleDocs.get("all"))
+            .limit(9)
+        : booksRef.orderBy("name").limit(9);
+    } else {
+      booksQuery = lastVisibleDocs.get(selectedCategory)
+        ? booksRef
+            .where("gener", "==", selectedCategory)
+            //.orderBy("name")
+            .startAfter(lastVisibleDocs.get(selectedCategory))
+            .limit(9)
+        : booksRef
+            .where("gener", "==", selectedCategory)
+            //.orderBy("name")
+            .limit(9);
+    }
+
+    let booksSnapshot = await booksQuery.get();
+
+    if (booksSnapshot.empty) {
+      if (!append) {
+        let alert = document.createElement("p");
+        alert.className = "text-center";
+        alert.textContent = "No books found.";
+        bookcontainer.appendChild(alert);
+      }
+      return;
+    }
+
+    // حفظ آخر مستند لكل فئة
+    const lastVisible = booksSnapshot.docs[booksSnapshot.docs.length - 1];
+    if (selectedCategory === "all") {
+      lastVisibleDocs.set("all", lastVisible);
+    } else {
+      lastVisibleDocs.set(selectedCategory, lastVisible);
+    }
+
+    booksSnapshot.forEach((doc) => {
+      let book = doc.data();
+      book.id = doc.id;
+
+      createProductCard(
+        bookContainer,
+        book.url_image || "0356.png",
+        book.name || "Unknown Book",
+        book.author || "Unknown Author",
+        book.gener || "Unknown Genre",
+        book.price || 0,
+        book
+      );
+    });
+
+    // التحكم في ظهور زر "Load More"
+    const loadMoreBtn = document.getElementById("loadMoreBtn");
+    if (loadMoreBtn) {
+      loadMoreBtn.style.display = booksSnapshot.size < 9 ? "none" : "block";
+    }
+  } catch (error) {
+    console.error("Error fetching books:", error);
+    let errorMsg = document.createElement("p");
+    errorMsg.className = "text-danger";
+    errorMsg.textContent = "Error loading books: " + error.message;
+    bookcontainer.appendChild(errorMsg);
+  }
 }
+export function loadMoreBooks() {
+  const categoryFilter = document.getElementById("categoryFilter");
+  const selectedCategory = categoryFilter ? categoryFilter.value : "all";
+  displayBooksForUser("ProductsList", selectedCategory, true);
+}
+// last edit from osama
 
 
 // add to cart function
@@ -546,82 +574,6 @@ export function paypalPayment(totalAmount) {
             alert('An error occurred during the payment process. Please try again.');
         }
     }).render('#paypal-button-container');
-}
-
-export function UploadImage(ImgInputFieldID,storage){//needs the id of the files input field        and usually called on pressing the upload image button
-    const imageUpload = document.getElementById(ImgInputFieldID);
-    const file = imageUpload.files[0];
-  
-  if (!file) {
-    console.log("Please select an image first");
-    //statusDiv.textContent = "Please select an image first";
-    return;
-  }
-
-  // Create a storage reference
-//   const storageRef = storage.ref();
-//   const imageRef = storageRef.child(`images/${file.name}`);
-
-//   // Upload the file
-//   const uploadTask = imageRef.put(file);
-
-//   uploadTask.on('state_changed',
-//     (snapshot) => {
-//       // Progress monitoring
-//       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-//       console.log(`Uploading: ${Math.round(progress)}%`);
-      
-//       //statusDiv.textContent = `Uploading: ${Math.round(progress)}%`;
-//     },
-//     (error) => {
-//       // Handle unsuccessful uploads
-//       console.log(`Upload failed: ${error.message}`);
-//       //statusDiv.textContent = `Upload failed: ${error.message}`;
-//     },
-//     () => {
-//       // Handle successful uploads
-//       uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-//         //statusDiv.textContent = "Upload complete!";
-//         //previewDiv.innerHTML = `<img src="${downloadURL}" style="max-width: 300px;">`;
-//         console.log("File available at", downloadURL);
-//         return downloadURL;
-//       });
-//     }
-//   );
-
-const imageRef = ref(storage, `images/${file.name}`);
-
-// Create upload task with progress monitoring
-const uploadTask = uploadBytesResumable(imageRef, file);
-
-// Set up event listeners
-uploadTask.on('state_changed',
-  (snapshot) => {
-    // Progress monitoring
-    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-    console.log(`Uploading: ${Math.round(progress)}%`);
-    // statusDiv.textContent = `Uploading: ${Math.round(progress)}%`;
-  },
-  (error) => {
-    // Handle unsuccessful uploads
-    console.log(`Upload failed: ${error.message}`);
-    // statusDiv.textContent = `Upload failed: ${error.message}`;
-  },
-  async () => {
-    // Handle successful uploads
-    try {
-      const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-      console.log("File available at", downloadURL);
-      // statusDiv.textContent = "Upload complete!";
-      // previewDiv.innerHTML = `<img src="${downloadURL}" style="max-width: 300px;">`;
-      return downloadURL;
-    } catch (error) {
-      console.log("Error getting download URL:", error);
-      // statusDiv.textContent = `Error getting URL: ${error.message}`;
-    }
-  }
-);
-
 }
 
 function getImageUrlFromImagesFolder(filename) {//needs the file name from the database to get it's url

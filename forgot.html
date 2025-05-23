@@ -29,7 +29,9 @@
             placeholder="Enter Email address"
           />
         </div>
-
+        <div class="col-12">
+          <div id="message"></div>
+        </div>
         <div class="col-12">
           <button type="submit" class="btn btn-custom">Send email</button>
         </div>
@@ -40,7 +42,7 @@
     </div>
 
     <script type="module">
-      import { firebaseConfig as firebaseConfig } from './ConfigFile.js';
+      import { firebaseConfig as firebaseConfig } from "./ConfigFile.js";
 
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
@@ -51,46 +53,62 @@
         .getElementById("forgotpassword")
         .addEventListener("submit", (e) => {
           e.preventDefault();
-          const email = document.getElementById("email").value;
+          const email = document.getElementById("email").value.trim();
           const messageDiv = document.getElementById("message");
-          const success = document.getElementById("title");
-          success.textContent = "email sent successfully ✅";
-          const messsage = document.querySelector("p");
-          messsage.textContent =
-            "You will be redirect to the login page in 5 seconds ...";
-          const button = document.querySelector("button");
-          button.remove();
 
-          setTimeout(() => {
-            window.location.href = "login.html";
-          }, 5000);
+          messageDiv.innerHTML = "";
 
           if (!email) {
             messageDiv.innerHTML =
-              '<div class="alert alert-danger">enter vlaid email</div>';
+              '<div class="alert alert-danger">Enter a valid email</div>';
             return;
           }
 
-          auth
-            .sendPasswordResetEmail(email)
-            .then(() => {
-              console.log("Password reset email sent");
-              messageDiv.innerHTML =
-                '<div class="alert alert-success">email sent success please check your email</div>';
-              document.getElementById("resetPasswordForm").reset();
+          // Check if email in Firestore
+          database
+            .collection("users")
+            .where("email", "==", email)
+            .get()
+            .then((querySnapshot) => {
+              if (querySnapshot.empty) {
+                messageDiv.innerHTML = `<div class="alert alert-danger">Email is not registered.</div>`;
+                setTimeout(() => {
+                  messageDiv.innerHTML = "";
+                }, 4000);
+                return;
+              }
+
+              // Send password reset email
+              auth
+                .sendPasswordResetEmail(email)
+                .then(() => {
+                  console.log("Password reset email sent");
+                  const success = document.getElementById("title");
+                  success.textContent = "Email sent successfully ✅";
+                  const message = document.querySelector("p");
+                  message.textContent =
+                    "You will be redirected to the login page in 5 seconds ...";
+                  const button = document.querySelector("button");
+                  button.remove();
+                  document.getElementById("forgotpassword").reset();
+
+                  setTimeout(() => {
+                    window.location.href = "login.html";
+                  }, 5000);
+                })
+                .catch((error) => {
+                  console.error("Reset password error:", error.message);
+                  let errorMessage = error.message;
+
+                  messageDiv.innerHTML =
+                    '<div class="alert alert-danger">Error: ' +
+                    errorMessage +
+                    "</div>";
+                });
             })
             .catch((error) => {
-              console.error("Reset password error:", error.message);
-              let errorMessage = error.message;
-              if (error.code === "auth/invalid-email") {
-                errorMessage = " email not valid";
-              } else if (error.code === "auth/user-not-found") {
-                errorMessage = "  email not register .";
-              }
-              messageDiv.innerHTML =
-                '<div class="alert alert-danger">error: ' +
-                errorMessage +
-                "</div>";
+              console.error("Firestore error:", error.message);
+              messageDiv.innerHTML = `<div class="alert alert-danger">Check your internet connection or try again later.</div>`;
             });
         });
     </script>

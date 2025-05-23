@@ -27,10 +27,6 @@
       <div id="bookContainer" class="book-grid"></div>
     </section>
 
-    <div class="text-end">
-      <h5 id="totalCost">Total: <span id="totalCost">0</span> EP</h5>
-      <div id="paypal-button-container"></div>
-    </div>
 
     <div class="col-12 Cart m-1">
       <table class="table w-100" id="CartList">
@@ -59,6 +55,10 @@
         </tbody>
       </table>
       <button class="btn btn-warning Check_Out col-12" id="checkoutBtn">Check Out</Button>
+      <div class="text-center">
+        <h5>Total: <span id="totalCost">0</span> USD</h5>
+        <div id="paypal-button-container"></div>
+      </div>
     </div>
 
 
@@ -80,10 +80,23 @@
         <li><a class="dropdown-item" href="#" data-sort="name-desc">Name DESC</a></li>
       </ul>
     </div>
+    <hr />
+      <div class="mb-3">
+        <label for="categoryFilter" class="form-label">Book Categories</label>
+        <select class="form-select" id="categoryFilter">
+          <option value="all">All Categories</option>
+          <option value="Fantasy">Fantasy</option>
+          <option value="Science Fiction">Science Fiction</option>
+          <option value="Action & Adventure">Action & Adventure</option>
+          <option value="Detective & Mystery">Detective & Mystery</option>
+          <option value="Romance">Romance</option>
+          <option value="Horror">Horror</option>
+          <option value="Historical Fiction">Historical Fiction</option>
+          <option value="Short Story">Short Story</option>
+        </select>
+      </div>
     <hr>
-    <input class="input-group-text" type="text" placeholder="CategoryFilter" id="CategoryFilterInput">
-    <hr>
-    <h3 class="text-center">All Products</h3>
+    <h3 class="text-center" id="titleProducts">All Products</h3>
     <div class="col-12 row" id="ProductsList">
       <div class="card Product_Card col-6 col-md-3">
         <img src="0356.png" class="card-img-top" alt="...">
@@ -97,6 +110,9 @@
       </div>
 
     </div>
+    <div class="text-center mt-3">
+        <button class="btn btn-primary" id="loadMoreBtn">Load More</button>
+      </div>
   </div>
 
   <script type="module">
@@ -160,14 +176,39 @@
     }
     document.getElementById("checkoutBtn").addEventListener("click", checkout);
 
-    window.addEventListener("DOMContentLoaded", () => {
-      loadCart();
-    });
+//osama edit first
+      // Add this event listener for category filter
+      document
+        .getElementById("categoryFilter")
+        .addEventListener("change", function () {
+          const selectedCategory = this.value;
+          displayBooksForUser("ProductsList", selectedCategory);
+          document.getElementById("titleProducts").textContent =
+            selectedCategory === "all" ? "All Products" : selectedCategory;
+        });
+
+      // Add this event listener for load more button
+      document.getElementById("loadMoreBtn").addEventListener("click", () => {
+        const categoryFilter = document.getElementById("categoryFilter");
+        const selectedCategory = categoryFilter ? categoryFilter.value : "all";
+        displayBooksForUser("ProductsList", selectedCategory, true); // append books
+      });
+
+      // Initialize with all books
+      window.addEventListener("DOMContentLoaded", () => {
+        displayBooksForUser("ProductsList", "all");
+        loadCart();
+      });
+      //osama edit last
+
+    // window.addEventListener("DOMContentLoaded", () => {
+    //   loadCart();
+    // });
 
     // run display books function 
-    window.addEventListener("DOMContentLoaded", () => {
-      displayBooksForUser('ProductsList');
-    });
+    // window.addEventListener("DOMContentLoaded", () => {
+    //   displayBooksForUser('ProductsList');
+    // });
     // import paypal function
     import { paypalPayment } from './GeneralFunctions.js';
     async function checkout() {
