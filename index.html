@@ -62,6 +62,26 @@
     </div>
 
 
+
+
+
+
+
+
+
+
+
+   <div class="my-3">
+  <label for="priceRange" class="form-label">
+    Filter by Price: <span id="priceValue">1000</span> EP
+  </label>
+  <input type="range" class="form-range" id="priceRange" min="0" max="1000" value="1000" step="10">
+</div>
+
+
+
+
+
     <hr>
     <div class="input-group mb-3">
       <input class="input-group-text" type="text" placeholder="Search" id="searchInput">
@@ -282,6 +302,49 @@
         document.getElementById('searchBtn').click();
       }
     });
+
+
+
+    
+
+    import { displayBooksSorted } from './GeneralFunctions.js';
+
+// Sorting dropdown event listener
+document.querySelectorAll('.dropdown-item').forEach(item => {
+  item.addEventListener('click', (e) => {
+    e.preventDefault();
+    const sortType = item.getAttribute('data-sort');
+    displayBooksSorted(sortType);
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+    import { filterBooksByPrice } from './GeneralFunctions.js';
+
+// Update price label while sliding
+const priceSlider = document.getElementById("priceRange");
+const priceValue = document.getElementById("priceValue");
+
+priceSlider.addEventListener("input", () => {
+  priceValue.textContent = priceSlider.value;
+});
+
+// Trigger filtering on change
+priceSlider.addEventListener("change", () => {
+  filterBooksByPrice(Number(priceSlider.value));
+});
+
   </script>
 
 </body>

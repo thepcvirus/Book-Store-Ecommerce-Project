@@ -20,90 +20,80 @@
   </script>
 
   <div class="container mt-5">
-    <h2>Admin Profile</h2>
-    <div id="userInfo" class="card p-3 mb-3">
-      <p><strong>Username:</strong> <span id="username">Loading...</span></p>
-      <p><strong>Email:</strong> <span id="email">Loading...</span></p>
-      <p><strong>Budget:</strong> <span id="budget">Loading...</span></p>
-    </div>
-    <div class="container row">
-      <div class="container row">
-        <button class="btn btn-warning col-6">Check Out</Button>
-        <button class="btn btn-warning col-6">Check Out</Button>
-        <button class="btn btn-warning  col-6">Check Out</Button>
-        <button class="btn btn-warning  col-6">Check Out</Button>
-        <button class="btn btn-warning  col-6">Check Out</Button>
-        <button class="btn btn-warning  col-6">Check Out</Button>
+  <h2 class="text-center mb-4 text-primary"> Admin Dashboard</h2>
+
+  <!-- User Info -->
+  <div class="card shadow p-4 mb-4">
+    <h4 class="mb-3">👤 Admin Profile</h4>
+    <p><strong>Username:</strong> <span id="username">Loading...</span></p>
+    <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+    <p><strong>Budget:</strong> <span id="budget">Loading...</span></p>
+  </div>
+
+  <!-- Book Form -->
+  <div class="card shadow p-4 mb-5">
+    <h4 class="text-center text-success fw-bold mb-4"> Add New Book</h4>
+    <form id="R_bookForm" class="row g-3">
+      <div class="col-md-6">
+        <label for="R_bookName" class="form-label">Book Name</label>
+        <input type="text" class="form-control" id="R_bookName" required>
       </div>
-      <div class="container" id="DataSection">
-        <h2 class="mb-4 text-center fw-bold text-dark">ADD Books</h2>
-        <div id="R_bookList" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-        </div>
+
+      <div class="col-md-6">
+        <label for="R_bookAuthor" class="form-label">Author</label>
+        <input type="text" class="form-control" id="R_bookAuthor" required>
       </div>
-      <div class="container" id="DataSection">
-        <h2 class="mb-4 text-center fw-bold text-dark">Book List</h2>
-        <div id="R_bookList" class="row g-4">
-          <form id="R_bookForm">
-            <div class="mb-3">
-              <label for="bookName" class="form-label">Book Name</label>
-              <input type="text" class="form-control" id="R_bookName" required>
-            </div>
 
-            <div class="mb-3">
-              <label for="bookGener" class="form-label">Book Gener</label>
-              <select class="form-select" id="R_bookGener">
-                <option value="Fantasy">Fantasy</option>
-                <option value="Science Fiction">Science Fiction</option>
-                <option value="Action & Adventure">Action & Adventure</option>
-                <option value="Detective & Mystery">Detective & Mystery</option>
-                <option value="Romance">Romance</option>
-                <option value="Horror">Horror</option>
-                <option value="Historical Fiction">Historical Fiction</option>
-                <option value="Short Story">Short Story</option>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <label for="bookAuthor" class="form-label">Book Author</label>
-              <input type="text" class="form-control" id="R_bookAuthor" required>
-            </div>
-
-            <div class="mb-3">
-              <label for="price" class="form-label">Price (EP)</label>
-              <input type="text" class="form-control" id="R_price" required>
-            </div>
-
-            <!-- <div class="mb-3">
-              <label for="bookImage" class="form-label">Book Image</label>
-              <input type="text" class="form-control" id="R_bookImage">
-            </div> -->
-
-            <input type="file" id="imageUpload" accept="image/*" required>
-            <!-- <button id="uploadButton" onclick="UploadImage('imageUpload')">Upload Image</button>
-  <div id="preview"></div>
-  <div id="status"></div> -->
-
-            <div id="imageContainer"></div>
-
-            <div class="mb-3">
-              <label for="description" class="form-label">Description</label>
-              <textarea class="form-control" id="R_description" rows="3"></textarea>
-            </div>
-
-            <div class="mb-3">
-              <label for="availability" class="form-label">Availability</label>
-              <select class="form-select" id="R_status">
-                <option value="available">Available</option>
-                <option value="not-available">Not Available</option>
-              </select>
-            </div>
-            <div class="text-center">
-              <button type="submit" class="btn btn-success w-50 px-4 py-2">Submit</button>
-            </div>
-          </form>
-        </div>
+      <div class="col-md-4">
+        <label for="R_bookGener" class="form-label">Genre</label>
+        <select class="form-select" id="R_bookGener">
+          <option value="Fantasy">Fantasy</option>
+          <option value="Science Fiction">Science Fiction</option>
+          <option value="Action & Adventure">Action & Adventure</option>
+          <option value="Detective & Mystery">Detective & Mystery</option>
+          <option value="Romance">Romance</option>
+          <option value="Horror">Horror</option>
+          <option value="Historical Fiction">Historical Fiction</option>
+          <option value="Short Story">Short Story</option>
+        </select>
       </div>
-    </div>
+
+      <div class="col-md-4">
+        <label for="R_price" class="form-label">Price (EP)</label>
+        <input type="text" class="form-control" id="R_price" required>
+      </div>
+
+      <div class="col-md-4">
+        <label for="R_bookImage" class="form-label">Image URL</label>
+        <input type="text" class="form-control" id="R_bookImage">
+      </div>
+
+      <div class="col-12">
+        <label for="R_description" class="form-label">Description</label>
+        <textarea class="form-control" id="R_description" rows="2"></textarea>
+      </div>
+
+      <div class="col-md-4">
+        <label for="R_status" class="form-label">Availability</label>
+        <select class="form-select" id="R_status">
+          <option value="available">Available</option>
+          <option value="not-available">Not Available</option>
+        </select>
+      </div>
+
+      <div class="col-12 text-center">
+        <button type="submit" class="btn btn-success px-5 py-2 mt-2"> Add Book</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Book List -->
+  <div class="card shadow p-4">
+    <h4 class="text-center text-dark fw-bold mb-4">📖 All Books</h4>
+    <div id="R_bookList" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>
+  </div>
+</div>
+
 
 
     <script type="module">

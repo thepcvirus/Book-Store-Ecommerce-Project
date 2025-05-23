@@ -593,3 +593,121 @@ function getImageUrlFromImagesFolder(filename) {//needs the file name from the d
       throw error;
     });
 }
+
+
+
+
+
+export async function displayBooksSorted(sortType = null) {
+    let db = firebase.firestore();
+    let bookContainer = document.getElementById('ProductsList');
+    bookContainer.innerHTML = "";
+
+    try {
+        let books = [];
+        let snapshot = await db.collection("cars").get();
+        snapshot.forEach(doc => {
+            let book = doc.data();
+            book.id = doc.id;
+            books.push(book);
+        });
+
+        // Apply sorting based on sortType
+        if (sortType === "price-asc") {
+            books.sort((a, b) => a.price - b.price);
+        } else if (sortType === "price-desc") {
+            books.sort((a, b) => b.price - a.price);
+        } else if (sortType === "name-asc") {
+            books.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (sortType === "name-desc") {
+            books.sort((a, b) => b.name.localeCompare(a.name));
+        }
+
+        // Render books
+        books.forEach(book => {
+            createProductCard(
+                'ProductsList',
+                book.url_image,
+                book.name,
+                book.author,
+                book.gener,
+                book.price,
+                book
+            );
+        });
+    } catch (error) {
+        console.error("Error sorting books:", error);
+        let errorMsg = document.createElement("p");
+        errorMsg.className = "text-danger";
+        errorMsg.textContent = "Error loading sorted books.";
+        bookContainer.appendChild(errorMsg);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function filterBooksByPrice(maxPrice) {
+    let db = firebase.firestore();
+    let bookContainer = document.getElementById('ProductsList');
+    bookContainer.innerHTML = "";
+
+    try {
+        let books = [];
+        let snapshot = await db.collection("cars").get();
+        snapshot.forEach(doc => {
+            let book = doc.data();
+            book.id = doc.id;
+            books.push(book);
+        });
+
+        let filtered = books.filter(book => parseFloat(book.price) <= maxPrice);
+
+        if (filtered.length === 0) {
+            let alert = document.createElement("p");
+            alert.className = "text-center";
+            alert.textContent = "No books found under this price.";
+            bookContainer.appendChild(alert);
+        } else {
+            filtered.forEach(book => {
+                createProductCard(
+                    'ProductsList',
+                    book.url_image,
+                    book.name,
+                    book.author,
+                    book.gener,
+                    book.price,
+                    book
+                );
+            });
+        }
+
+    } catch (error) {
+        console.error("Error filtering books:", error);
+        let errorMsg = document.createElement("p");
+        errorMsg.className = "text-danger";
+        errorMsg.textContent = "Error loading books.";
+        bookContainer.appendChild(errorMsg);
+    }
+}
