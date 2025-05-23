@@ -547,3 +547,97 @@ export function paypalPayment(totalAmount) {
         }
     }).render('#paypal-button-container');
 }
+
+export function UploadImage(ImgInputFieldID,storage){//needs the id of the files input field        and usually called on pressing the upload image button
+    const imageUpload = document.getElementById(ImgInputFieldID);
+    const file = imageUpload.files[0];
+  
+  if (!file) {
+    console.log("Please select an image first");
+    //statusDiv.textContent = "Please select an image first";
+    return;
+  }
+
+  // Create a storage reference
+//   const storageRef = storage.ref();
+//   const imageRef = storageRef.child(`images/${file.name}`);
+
+//   // Upload the file
+//   const uploadTask = imageRef.put(file);
+
+//   uploadTask.on('state_changed',
+//     (snapshot) => {
+//       // Progress monitoring
+//       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+//       console.log(`Uploading: ${Math.round(progress)}%`);
+      
+//       //statusDiv.textContent = `Uploading: ${Math.round(progress)}%`;
+//     },
+//     (error) => {
+//       // Handle unsuccessful uploads
+//       console.log(`Upload failed: ${error.message}`);
+//       //statusDiv.textContent = `Upload failed: ${error.message}`;
+//     },
+//     () => {
+//       // Handle successful uploads
+//       uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+//         //statusDiv.textContent = "Upload complete!";
+//         //previewDiv.innerHTML = `<img src="${downloadURL}" style="max-width: 300px;">`;
+//         console.log("File available at", downloadURL);
+//         return downloadURL;
+//       });
+//     }
+//   );
+
+const imageRef = ref(storage, `images/${file.name}`);
+
+// Create upload task with progress monitoring
+const uploadTask = uploadBytesResumable(imageRef, file);
+
+// Set up event listeners
+uploadTask.on('state_changed',
+  (snapshot) => {
+    // Progress monitoring
+    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+    console.log(`Uploading: ${Math.round(progress)}%`);
+    // statusDiv.textContent = `Uploading: ${Math.round(progress)}%`;
+  },
+  (error) => {
+    // Handle unsuccessful uploads
+    console.log(`Upload failed: ${error.message}`);
+    // statusDiv.textContent = `Upload failed: ${error.message}`;
+  },
+  async () => {
+    // Handle successful uploads
+    try {
+      const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+      console.log("File available at", downloadURL);
+      // statusDiv.textContent = "Upload complete!";
+      // previewDiv.innerHTML = `<img src="${downloadURL}" style="max-width: 300px;">`;
+      return downloadURL;
+    } catch (error) {
+      console.log("Error getting download URL:", error);
+      // statusDiv.textContent = `Error getting URL: ${error.message}`;
+    }
+  }
+);
+
+}
+
+function getImageUrlFromImagesFolder(filename) {//needs the file name from the database to get it's url
+  // Get Firebase Storage reference
+  //const storage = firebase.storage();
+  
+  // Create reference to the image in the 'images' folder
+  const imageRef = storage.ref().child(`images/${filename}`);
+  
+  // Return the download URL promise
+  return imageRef.getDownloadURL()
+    .then((url) => {
+      return url;
+    })
+    .catch((error) => {
+      console.error("Error getting image URL:", error);
+      throw error;
+    });
+}
