@@ -55,14 +55,25 @@
           >
         </div>
         <div class="col-12">
-            <!-- <button type="submit" class="btn btn-custom" onclick="window.location.href='index.html'">Login</button> -->
-             <button type="submit" class="btn btn-custom">Login</button>
+          <!-- <button type="submit" class="btn btn-custom" onclick="window.location.href='index.html'">Login</button> -->
+          <button type="submit" class="btn btn-custom">Login</button>
         </div>
         <div class="col-12 text-center mt-3">
           <p>
             Don't have an account?
             <a href="signup.html" class="text-custom">Sign Up here</a>
           </p>
+          <button
+            type="button"
+            class="btn btn-light mt-2"
+            onclick="signInWithGoogle()"
+          >
+            <img
+              src="https://img.icons8.com/color/16/000000/google-logo.png"
+              alt="Google Logo"
+            />
+            sign in with Google
+          </button>
         </div>
       </form>
     </div>
@@ -78,7 +89,22 @@
       //   measurementId: "G-XKSNCZ34EL",
       // };
 
-      import { firebaseConfig as firebaseConfig } from './ConfigFile.js';
+      import { firebaseConfig as firebaseConfig } from "./ConfigFile.js";
+      //singin with google
+      // window.signInWithGoogle = function () {
+      //   const provider = new firebase.auth.GoogleAuthProvider();
+      //   auth
+      //     .signInWithPopup(provider)
+      //     .then((result) => {
+      //       const user = result.user;
+      //       alert("تم تسجيل الدخول: " + user.email);
+      //       // Redirect or handle user as needed
+      //       window.location.href = "profile.html";
+      //     })
+      //     .catch((error) => {
+      //       alert("Error with sign in: " + error.message);
+      //     });
+      // };
 
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
@@ -86,18 +112,57 @@
       const database = firebase.firestore(); // For Firestore (not used here, but for consistency)
       console.log("Hi");
       //  Handle form submission
+      // document.getElementById("loginForm").addEventListener("submit", (e) => {
+      //   e.preventDefault();
+      //   const email = document.getElementById("email").value;
+      //   const password = document.getElementById("password").value;
+      //   auth
+      //     .signInWithEmailAndPassword(email, password)
+      //     .then(() => {
+      //       alert("login success");
+      //       window.location.href = "profile.html";
+      //     })
+      //     .catch((error) => {
+      //       alert("Wrong Password", error.message);
+      //     });
+      const adminEmails = ["oo@gmail.com", "admin2@example.com"];
+      function checkUserRole(email) {
+        if (adminEmails.includes(email)) {
+          window.location.href = "admin.html";
+        } else {
+          window.location.href = "profile.html";
+        }
+      }
+
+      // Google sign-in
+      window.signInWithGoogle = function () {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth
+          .signInWithPopup(provider)
+          .then((result) => {
+            const user = result.user;
+            alert("تم تسجيل الدخول: " + user.email);
+            checkUserRole(user.email); // Check role after Google sign-in
+          })
+          .catch((error) => {
+            alert("Error with sign in: " + error.message);
+          });
+      };
+
+      // Email/password sign-in
       document.getElementById("loginForm").addEventListener("submit", (e) => {
         e.preventDefault();
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
         auth
           .signInWithEmailAndPassword(email, password)
-          .then(() => {
-            alert("login success");
-            window.location.href = "profile.html";
+          .then((userCredential) => {
+            const user = userCredential.user;
+            alert("تسجيل الدخول ناجح");
+            checkUserRole(user.email); // Check role after email/password sign-in
           })
           .catch((error) => {
-            alert("Wrong Password", error.message);
+            alert("خطأ في كلمة السر أو الإيميل: " + error.message);
           });
       });
     </script>
