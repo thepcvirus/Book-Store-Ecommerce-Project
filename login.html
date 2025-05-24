@@ -141,7 +141,7 @@
           .signInWithPopup(provider)
           .then((result) => {
             const user = result.user;
-            alert("تم تسجيل الدخول: " + user.email);
+            //alert("تم تسجيل الدخول: " + user.email);
             checkUserRole(user.email); // Check role after Google sign-in
           })
           .catch((error) => {
@@ -158,7 +158,7 @@
           .signInWithEmailAndPassword(email, password)
           .then((userCredential) => {
             const user = userCredential.user;
-            alert("تسجيل الدخول ناجح");
+            //alert("تسجيل الدخول ناجح");
             checkUserRole(user.email); // Check role after email/password sign-in
           })
           .catch((error) => {
