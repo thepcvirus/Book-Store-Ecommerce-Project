@@ -71,7 +71,7 @@
             placeholder="Enter Password"
           />
         </div>
-        
+
         <div class="col-12">
           <button type="submit" class="btn btn-custom">Sign Up</button>
         </div>
@@ -85,7 +85,7 @@
     </div>
 
     <script type="module">
-      import { firebaseConfig as firebaseConfig } from './ConfigFile.js';
+      import { firebaseConfig as firebaseConfig } from "./ConfigFile.js";
 
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth(); // For Authentication
@@ -99,7 +99,6 @@
         const userName = document.getElementById("userName").value;
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
-        const budget = parseFloat(document.getElementById("budget").value);
 
         // Create user in Authentication
         auth
@@ -110,7 +109,6 @@
             return database.collection("users").doc(user.uid).set({
               username: userName,
               email: email,
-              budget: budget,
               createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             });
           })

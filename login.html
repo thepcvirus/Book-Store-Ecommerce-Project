@@ -141,8 +141,25 @@
           .signInWithPopup(provider)
           .then((result) => {
             const user = result.user;
-            //alert("تم تسجيل الدخول: " + user.email);
-            checkUserRole(user.email); // Check role after Google sign-in
+            // Check if user exists in Firestore
+            database
+              .collection("users")
+              .doc(user.uid)
+              .get()
+              .then((doc) => {
+                if (!doc.exists) {
+                  // Create user document with Google info
+                  database
+                    .collection("users")
+                    .doc(user.uid)
+                    .set({
+                      username: user.displayName || "Google User",
+                      email: user.email,
+                      budget: 0, // default value
+                    });
+                }
+                checkUserRole(user.email); // Redirect after ensuring user doc exists
+              });
           })
           .catch((error) => {
             alert("Error with sign in: " + error.message);
