@@ -15,10 +15,10 @@
 
 <body>
     <script type="module">
-    import { createNavbar } from './GeneralFunctions.js';
-    document.body.prepend(createNavbar()); 
-  </script>
-  
+        import { createNavbar } from './GeneralFunctions.js';
+        document.body.prepend(createNavbar()); 
+    </script>
+
     <div class="container mt-5">
         <h2 class="mb-4">Book Details</h2>
         <div id="RbookDetails" class="card p-4">
@@ -29,69 +29,112 @@
 
         import { firebaseConfig as firebaseConfig } from './ConfigFile.js';
 
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-      const database = firebase.firestore();
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.firestore();
 
 
         window.addEventListener('DOMContentLoaded', async () => {
-    let Rurl = new URLSearchParams(window.location.search);
-    let RbookId = Rurl.get("id");
+            let Rurl = new URLSearchParams(window.location.search);
+            let RbookId = Rurl.get("id");
 
-    if (!RbookId) {
-        alert("Ther is no book id");
-        return;
-    }
-    let RbookRef = database.collection("cars").doc(RbookId);
+            // Get the book details container
+            let Rbookcontainer = document.getElementById("RbookDetails");
 
-    try {
-        let Rdoc = await RbookRef.get();
-        if (!Rdoc.exists) {
-            alert("Book not found");
-            return;
-        }
-        let book = Rdoc.data();
-        // create card for car
-        let Rbookcontainer = document.getElementById("RbookDetails");
-        // create car name
-        let RbookName = document.createElement("h3");
-        RbookName.textContent = book.name;
-        // create url_image
-        let Rimage = document.createElement("img");
-        Rimage.src = book.url_image;
-        Rimage.className = "RbookImageStyle";
-        // create car price
-        let RbookPrice = document.createElement("p");
-        RbookPrice.textContent = "price: " + book.price + " EP";
-        RbookPrice.className = "RbookPriceStyle";
-        // create car description
-        let RbookDesc = document.createElement("p");
-        RbookDesc.textContent = book.description;
-        // create book gener
-        let RbookGener = document.createElement("p");
-        RbookGener.textContent = book.gener;
-        // create car status
-        let RbookStatus = document.createElement("p");
-        RbookStatus.textContent = "Availabity: " + book.status;
-        // console.log(RbookName, Rimage, RbookPrice, RbookGener, RbookDesc, RbookStatus);
+            if (!RbookId) {
+                alert("Ther is no book id");
+                return;
+            }
+            let RbookRef = database.collection("cars").doc(RbookId);
 
-        // add elements to the main div
-        Rbookcontainer.appendChild(RbookName);
-        Rbookcontainer.appendChild(Rimage);
-        Rbookcontainer.appendChild(RbookPrice);
-        Rbookcontainer.appendChild(RbookGener);
-        Rbookcontainer.appendChild(RbookDesc);
-        Rbookcontainer.appendChild(RbookStatus);
-    } catch (error) {
-        console.error("Error loading book:", error);
-        alert("Error loading book data.");
-    }
-});
+            try {
+                let Rdoc = await RbookRef.get();
+                if (!Rdoc.exists) {
+                    alert("Book not found");
+                    return;
+                }
+                let book = Rdoc.data();
+                // clear the container
+                Rbookcontainer.innerHTML = '';
 
-// back button to return to the previos page
-document.getElementById("RbackBtn").addEventListener("click", () => {
-    window.history.back();
-});
+                // Create a row for the two-column layout
+                let rowDiv = document.createElement('div');
+                rowDiv.className = 'row';
+
+                // Create column for image
+                let imgCol = document.createElement('div');
+                imgCol.className = 'col-md-4 mb-3';
+
+                // create url_image
+                let Rimage = document.createElement("img");
+                Rimage.src = book.url_image;
+                Rimage.className = "img-fluid rounded"; // Added Bootstrap classes for responsive image
+                Rimage.alt = book.name;
+
+                imgCol.appendChild(Rimage);
+
+                // Create column for details
+                let detailsCol = document.createElement('div');
+                detailsCol.className = 'col-md-8';
+
+                // create book name
+                let RbookName = document.createElement("h3");
+                RbookName.textContent = book.name;
+                RbookName.className = 'mb-3';
+
+                // create book author (assuming you have author data)
+                if (book.author) {
+                    let RbookAuthor = document.createElement("p");
+                    RbookAuthor.textContent = `Author: ${book.author}`;
+                    RbookAuthor.className = 'text-muted mb-2';
+                    detailsCol.appendChild(RbookAuthor);
+                }
+
+                // create book gener
+                let RbookGener = document.createElement("p");
+                RbookGener.textContent = `Genre: ${book.gener}`;
+                RbookGener.className = 'text-muted mb-2';
+
+                // create car price
+                let RbookPrice = document.createElement("p");
+                RbookPrice.textContent = `Price: ${book.price} EP`;
+                RbookPrice.className = 'fw-bold text-success fs-5'; // Added Bootstrap classes for price style
+
+                // create car description
+                let RbookDesc = document.createElement("p");
+                RbookDesc.textContent = `Description: ${book.description}`;
+                RbookDesc.className = 'mb-3';
+
+                // create car status
+                let RbookStatus = document.createElement("p");
+                RbookStatus.textContent = `Availability: ${book.status}`;
+                RbookStatus.className = `fw-bold ${book.status === 'available' ? 'text-success' : 'text-danger'}`;
+
+
+                // add elements to the details column
+                detailsCol.appendChild(RbookName);
+                detailsCol.appendChild(RbookGener);
+                detailsCol.appendChild(RbookPrice);
+                detailsCol.appendChild(RbookDesc);
+                detailsCol.appendChild(RbookStatus);
+
+                // Append columns to the row
+                rowDiv.appendChild(imgCol);
+                rowDiv.appendChild(detailsCol);
+
+                // add the row to the main div
+                Rbookcontainer.appendChild(rowDiv);
+
+            } catch (error) {
+                console.error("Error loading book:", error);
+                alert("Error loading book data.");
+            }
+        });
+
+        // back button to return to the previos page
+        document.getElementById("RbackBtn").addEventListener("click", () => {
+            window.history.back();
+        });
 
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js">

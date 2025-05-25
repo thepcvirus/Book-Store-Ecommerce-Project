@@ -93,7 +93,12 @@ export function createProductCard(
   img.src = ImageUrl || "0356.png"; // Default image if not provided
   img.className = "card-img-top";
   img.alt = "Book Cover";
-  card.appendChild(img);
+
+  // Create an anchor tag for the image
+  const imgLink = document.createElement('a');
+  imgLink.href = `show.html?id=${book.id}`;
+  imgLink.appendChild(img);
+  card.appendChild(imgLink);
 
   // Create the card body
   const cardBody = document.createElement("div");
@@ -103,7 +108,12 @@ export function createProductCard(
   const title = document.createElement("h3");
   title.className = "card-title col-12";
   title.textContent = BookName || "Book Name"; // Default if not provided
-  cardBody.appendChild(title);
+
+  // Create an anchor tag for the title
+  const titleLink = document.createElement('a');
+  titleLink.href = `show.html?id=${book.id}`;
+  titleLink.appendChild(title);
+  cardBody.appendChild(titleLink);
 
   // Create and append the author
   const author = document.createElement("h4");
@@ -484,56 +494,106 @@ let lastVisibleSearch = null;
 export async function searchBooks(searchBook, append = false) {
   let db = firebase.firestore();
   let bookContainer = document.getElementById("ProductsList");
+  const searchTermLower = searchBook.toLowerCase().trim();
+
   if (!append) {
     bookContainer.innerHTML = "";
     lastVisibleSearch = null;
   }
 
-  let query = db
-    .collection("cars")
-    .orderBy("name")
-    .startAt(searchBook)
-    .endAt(searchBook + "\uf8ff")
-    .limit(9);
+  try {
+    // Fetch all books that potentially match the search term
+    // We fetch more than the limit initially to allow for client-side filtering
+    // Adjust this number based on typical search result size
+    let query = db.collection("cars")
+      .orderBy("name");
 
-  if (append && lastVisibleSearch) {
-    query = query.startAfter(lastVisibleSearch);
-  }
+    // Fetch all documents that start with the search term (case-insensitive check will be done later)
+    // Using startAt and endAt still provides some initial filtering on the server
+    if (searchTermLower) {
+      // To handle case-insensitivity with startAt/endAt, we'd ideally need a lowercase field.
+      // For a quick client-side filter, we'll fetch a broader range or all and filter.
+      // Fetching all might be inefficient, so let's still use a range based on the original field
+      // and refine client-side. The user will still need to match the case of the first letter
+      // for this server-side part, but the subsequent filtering will be case-insensitive.
+      // A better solution involves adding a lowercase field in Firestore.
+      // For now, let's fetch a reasonable number and filter client-side.
+      query = query.limit(50); // Fetch up to 50 results to filter
+      if (append && lastVisibleSearch) {
+        query = query.startAfter(lastVisibleSearch);
+      }
+    } else {
+      // If no search term, display all books with standard pagination
+      query = query.limit(9);
+      if (append && lastVisibleSearch) {
+        query = query.startAfter(lastVisibleSearch);
+      }
+    }
 
-  let snapshot = await query.get();
+    let snapshot = await query.get();
 
-  if (snapshot.empty) {
-    if (!append) {
+    if (snapshot.empty) {
+      if (!append) {
+        let alert = document.createElement("p");
+        alert.className = "text-center";
+        alert.textContent = "No matched books";
+        bookContainer.appendChild(alert);
+      }
+      const loadMoreBtn = document.getElementById("loadMoreBtn");
+      if (loadMoreBtn) loadMoreBtn.style.display = "none";
+      return;
+    }
+
+    // Store last visible doc for pagination (based on the server query result)
+    lastVisibleSearch = snapshot.docs[snapshot.docs.length - 1];
+
+    // Client-side filtering based on lowercase name
+    const filteredBooks = snapshot.docs.map(doc => {
+      let book = doc.data();
+      book.id = doc.id;
+      return book;
+    }).filter(book => {
+      // Perform case-insensitive check
+      return book.name && book.name.toLowerCase().includes(searchTermLower);
+    });
+
+
+    if (filteredBooks.length === 0 && !append) {
       let alert = document.createElement("p");
       alert.className = "text-center";
       alert.textContent = "No matched books";
       bookContainer.appendChild(alert);
+      const loadMoreBtn = document.getElementById("loadMoreBtn");
+      if (loadMoreBtn) loadMoreBtn.style.display = "none";
+      return;
     }
+
+    filteredBooks.forEach((book) => {
+      createProductCard(
+        "ProductsList",
+        book.url_image,
+        book.name,
+        book.author,
+        book.gener,
+        book.price,
+        book
+      );
+    });
+
+    // Show or hide load more button based on the number of results fetched from server
     const loadMoreBtn = document.getElementById("loadMoreBtn");
-    if (loadMoreBtn) loadMoreBtn.style.display = "none";
-    return;
-  }
+    if (loadMoreBtn) {
+      // If the number of results from the server query is less than the limit, there are no more results
+      loadMoreBtn.style.display = snapshot.size < (searchTermLower ? 50 : 9) ? "none" : "block";
+      loadMoreBtn.onclick = () => searchBooks(searchBook, true);
+    }
 
-  lastVisibleSearch = snapshot.docs[snapshot.docs.length - 1];
-
-  snapshot.forEach((doc) => {
-    let book = doc.data();
-    book.id = doc.id;
-    createProductCard(
-      "ProductsList",
-      book.url_image,
-      book.name,
-      book.author,
-      book.gener,
-      book.price,
-      book
-    );
-  });
-
-  const loadMoreBtn = document.getElementById("loadMoreBtn");
-  if (loadMoreBtn) {
-    loadMoreBtn.style.display = snapshot.size < 9 ? "none" : "block";
-    loadMoreBtn.onclick = () => searchBooks(searchBook, true);
+  } catch (error) {
+    console.error("Error fetching books:", error);
+    let errorMsg = document.createElement("p");
+    errorMsg.className = "text-danger";
+    errorMsg.textContent = "Error loading books: " + error.message;
+    bookContainer.appendChild(errorMsg);
   }
 }
 

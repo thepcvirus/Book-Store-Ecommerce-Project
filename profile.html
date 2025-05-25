@@ -62,26 +62,24 @@
               if (CheckAdmin(userdate.email)) {
                 alert("You are an Admin");
                 window.location.href = "admin.html";
-              }
-              else {
+              } else {
                 document.getElementById("username").textContent = userdate.username;
                 document.getElementById("email").textContent = userdate.email;
                 // Display user orders
                 displayUserOrders(user.uid);
               }
-            else {
-                alert("error : user not found data")
-              }
-            })
+            } else {
+              alert("error : user not found data");
+            }
+          })
           .catch((error) => {
             alert("error" + error.message);
-          })
-      }
-      else {
+          });
+      } else {
         // alert("No user is logged right now.");
         window.location.href = "login.html";
       }
-    })
+    });
     document.getElementById('logoutBtn').addEventListener("click", () => {
       auth
         .signOut()

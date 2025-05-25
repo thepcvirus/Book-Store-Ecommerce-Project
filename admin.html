@@ -122,7 +122,10 @@
 
     <!-- Book List -->
     <div class="card shadow p-4">
-      <h4 class="text-center text-dark fw-bold mb-4">📖 All Books</h4>
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="text-center text-dark fw-bold mb-0">📖 All Books</h4>
+        <p class="text-muted mb-0">Total Books: <span id="bookCount"></span></p>
+      </div>
       <div id="R_bookList" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>
     </div>
 
@@ -179,7 +182,7 @@
       }
 
       import { firebaseConfig as firebaseConfig } from "./ConfigFile.js";
-      import { CheckAdmin} from "./GeneralFunctions.js";
+      import { CheckAdmin } from "./GeneralFunctions.js";
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
       const database = firebase.firestore();
@@ -194,19 +197,20 @@
             const doc = await database.collection("users").doc(user.uid).get();
             if (doc.exists) {
               const userdate = doc.data();
-              if (CheckAdmin(userdate.email)){
+              if (CheckAdmin(userdate.email)) {
                 document.getElementById("username").textContent = userdate.username;
-              document.getElementById("email").textContent = userdate.email;
+                document.getElementById("email").textContent = userdate.email;
               }
-              else{
+              else {
                 alert("You are not an Admin");
                 window.location.href = "profile.html";
               }
-              
-              
+
               // Call displayAllOrders after successful authentication
               console.log("User authenticated, calling displayAllOrders");
               await displayAllOrders();
+              // Call displayBookCount after successful authentication
+              await displayBookCount();
             } else {
               alert("error : user not found data");
             }
@@ -257,7 +261,7 @@
         // get book genre
         let RbookGener = document.getElementById("R_bookGener").value.trim();
         // get book price
-let RbookPrice = Number(document.getElementById("R_price").value.trim());        // check if book price is integer
+        let RbookPrice = Number(document.getElementById("R_price").value.trim());        // check if book price is integer
         if (!RisPriceInteger(RbookPrice)) {
           alert("please enter a positive integer price");
           return;
@@ -361,57 +365,57 @@ let RbookPrice = Number(document.getElementById("R_price").value.trim());       
       }
 
       function getImageNameFromUrl(firebaseUrl) {
-  try {
-    // Handle cases where URL might be a gs:// path
-    if (firebaseUrl.startsWith('gs://')) {
-      const parts = firebaseUrl.split('/');
-      return parts[parts.length - 1];
-    }
+        try {
+          // Handle cases where URL might be a gs:// path
+          if (firebaseUrl.startsWith('gs://')) {
+            const parts = firebaseUrl.split('/');
+            return parts[parts.length - 1];
+          }
 
-    // Handle standard Firebase Storage URLs
-    const url = new URL(firebaseUrl);
-    const pathname = decodeURIComponent(url.pathname);
-    
-    // Extract the part after /o/
-    const pathAfterO = pathname.split('/o/')[1];
-    if (!pathAfterO) return '';
-    
-    // Remove any query parameters and get the filename
-    const fileName = pathAfterO.split('?')[0].split('/').pop();
-    return fileName || '';
-  } catch (error) {
-    console.error('Error extracting image name:', error);
-    console.log(firebaseUrl);
-    return '';
-  }
-}
+          // Handle standard Firebase Storage URLs
+          const url = new URL(firebaseUrl);
+          const pathname = decodeURIComponent(url.pathname);
 
-function getImageUrlByName(imageName, folderPath = 'images', bucketName = 'jsecommerce-9350b.firebasestorage.app') {
-  try {
-    if (!imageName) return '';
-    
-    // Encode the path components properly
-    const encodedPath = folderPath 
-      ? `${encodeURIComponent(folderPath)}%2F${encodeURIComponent(imageName)}`
-      : encodeURIComponent(imageName);
-    
-    return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodedPath}?alt=media`;
-  } catch (error) {
-    console.error('Error generating image URL:', error);
-    return '';
-  }
-}
+          // Extract the part after /o/
+          const pathAfterO = pathname.split('/o/')[1];
+          if (!pathAfterO) return '';
 
-function convertToLowResName(imageName) {
-  // Handle empty input
-  if (!imageName || typeof imageName !== 'string') return '';
-  
-  // Remove existing extension
-  const baseName = imageName.split('.').slice(0, -1).join('.');
-  
-  // Add the _500x500.png suffix
-  return `${baseName}_500x500.png`;
-}
+          // Remove any query parameters and get the filename
+          const fileName = pathAfterO.split('?')[0].split('/').pop();
+          return fileName || '';
+        } catch (error) {
+          console.error('Error extracting image name:', error);
+          console.log(firebaseUrl);
+          return '';
+        }
+      }
+
+      function getImageUrlByName(imageName, folderPath = 'images', bucketName = 'jsecommerce-9350b.firebasestorage.app') {
+        try {
+          if (!imageName) return '';
+
+          // Encode the path components properly
+          const encodedPath = folderPath
+            ? `${encodeURIComponent(folderPath)}%2F${encodeURIComponent(imageName)}`
+            : encodeURIComponent(imageName);
+
+          return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodedPath}?alt=media`;
+        } catch (error) {
+          console.error('Error generating image URL:', error);
+          return '';
+        }
+      }
+
+      function convertToLowResName(imageName) {
+        // Handle empty input
+        if (!imageName || typeof imageName !== 'string') return '';
+
+        // Remove existing extension
+        const baseName = imageName.split('.').slice(0, -1).join('.');
+
+        // Add the _500x500.png suffix
+        return `${baseName}_500x500.png`;
+      }
 
       // Fetch books from Firestore
       function refreshBooksCollection() {
@@ -535,21 +539,25 @@ function convertToLowResName(imageName) {
       }
 
       refreshBooksCollection();
+
+      let pageHistory = [null]; // Array to store the start document of each page
+
       // show all orders from all users
-      async function displayAllOrders(page = 1, ordersPerPage = 5) {
+      async function displayAllOrders() {
         const ordersList = document.getElementById("ordersList");
         ordersList.innerHTML = "";
         try {
-          // Add where clause to filter completed orders
-          const ordersSnapshot = await database.collection("orders")
+          let query = database.collection("orders")
             .where("status", "==", "completed")
-            // =======================================
-            // when osama make index
-            .orderBy("createdAt", "desc")
-            // =======================================
-            .limit(ordersPerPage)
-            .startAfter((page - 1) * ordersPerPage)
-            .get();
+            .orderBy("createdAt", "desc");
+
+          const ordersSnapshot = await query.get();
+
+          // Remove existing pagination controls if any (from previous implementation)
+          const existingPaginationContainer = document.querySelector('.d-flex.justify-content-center.mt-3');
+          if (existingPaginationContainer) {
+            existingPaginationContainer.remove();
+          }
 
           if (ordersSnapshot.empty) {
             const row = document.createElement("tr");
@@ -562,17 +570,10 @@ function convertToLowResName(imageName) {
             return;
           }
 
-          // Get total count of orders for pagination
-          const totalOrdersSnapshot = await database.collection("orders")
-            .where("status", "==", "completed")
-            .count()
-            .get();
+          // Display all fetched orders
+          let ordersToDisplay = ordersSnapshot.docs;
 
-          const totalOrders = totalOrdersSnapshot.data().count;
-          const totalPages = Math.ceil(totalOrders / ordersPerPage);
-
-          // Display orders
-          for (const doc of ordersSnapshot.docs) {
+          for (const doc of ordersToDisplay) {
             const order = doc.data();
             // Get user info
             let username = "Unknown";
@@ -619,35 +620,8 @@ function convertToLowResName(imageName) {
             ordersList.appendChild(row);
           }
 
-          // Add pagination controls
-          const paginationContainer = document.createElement("div");
-          paginationContainer.className = "d-flex justify-content-center mt-3";
-
-          // Previous button
-          const prevButton = document.createElement("button");
-          prevButton.className = "btn btn-outline-primary mx-1";
-          prevButton.textContent = "Previous";
-          prevButton.disabled = page === 1;
-          prevButton.onclick = () => displayAllOrders(page - 1);
-          paginationContainer.appendChild(prevButton);
-
-          // Page numbers
-          const pageNumbers = document.createElement("div");
-          pageNumbers.className = "mx-3 d-flex align-items-center";
-          pageNumbers.textContent = `Page ${page} of ${totalPages}`;
-          paginationContainer.appendChild(pageNumbers);
-
-          // Next button
-          const nextButton = document.createElement("button");
-          nextButton.className = "btn btn-outline-primary mx-1";
-          nextButton.textContent = "Next";
-          nextButton.disabled = page >= totalPages;
-          nextButton.onclick = () => displayAllOrders(page + 1);
-          paginationContainer.appendChild(nextButton);
-
-          // Add pagination controls after the table
-          const tableContainer = ordersList.closest('.table-responsive');
-          tableContainer.after(paginationContainer);
+          // Remove pagination controls
+          // The code for creating paginationContainer, prevButton, nextButton, pageNumbers is removed
 
         } catch (error) {
           console.error("Error loading orders:", error);
@@ -658,6 +632,18 @@ function convertToLowResName(imageName) {
           cell.textContent = "Error loading orders: " + error.message;
           row.appendChild(cell);
           ordersList.appendChild(row);
+        }
+      }
+
+      // Function to display the total count of books
+      async function displayBookCount() {
+        try {
+          const booksSnapshot = await database.collection("cars").get();
+          const bookCount = booksSnapshot.size;
+          document.getElementById("bookCount").textContent = bookCount;
+        } catch (error) {
+          console.error("Error fetching book count:", error);
+          document.getElementById("bookCount").textContent = "Error";
         }
       }
     </script>
