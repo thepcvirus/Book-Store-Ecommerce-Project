@@ -71,7 +71,7 @@
             placeholder="Enter Password"
           />
         </div>
-        <div class="col-12">
+        <!-- <div class="col-12">
           <label for="imageUrl" class="form-label">Profile Image URL</label>
           <input
             type="url"
@@ -79,7 +79,7 @@
             id="imageUrl"
             placeholder="Enter image URL"
           />
-        </div>
+        </div> -->
 
         <div class="col-12">
           <button type="submit" class="btn btn-custom">Sign Up</button>
@@ -108,7 +108,7 @@
         const userName = document.getElementById("userName").value;
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
-        const imageUrl = document.getElementById("imageUrl").value || ""; // Get image URL
+        //const imageUrl = document.getElementById("imageUrl").value || ""; // Get image URL
 
         // Create user in Authentication
         auth
@@ -119,7 +119,7 @@
             return database.collection("users").doc(user.uid).set({
               username: userName,
               email: email,
-              imageUrl: imageUrl,
+              //imageUrl: imageUrl,
               createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             });
           })
