@@ -19,77 +19,204 @@
   </script>
 
 
-    </div><div class="container mt-5">
-  <h2 class="text-center mb-4 text-primary"> User Profile</h2>
+  </div>
+  <div class="container mt-5">
+    <h2 class="text-center mb-4 text-primary"> User Profile</h2>
 
-  <div class="card shadow-lg p-4 text-center">
-    <!-- Circular Profile Image -->
-    <div class="mb-3">
-      <img id="userPhoto" src="https://via.placeholder.com/150" class="rounded-circle border border-2" alt="User Photo" width="150" height="150">
-    </div>
+    <div class="card shadow-lg p-4 text-center">
+      <!-- Circular Profile Image -->
+      <div class="mb-3">
+        <img id="userPhoto" src="https://via.placeholder.com/150" class="rounded-circle border border-2"
+          alt="User Photo" width="150" height="150">
+      </div>
 
-    <!-- User Info -->
-    <h4 class="mb-3"><strong>Username:</strong> <span id="username" class="text-dark">Loading...</span></h4>
-    <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+      <!-- User Info -->
+      <h4 class="mb-3"><strong>Username:</strong> <span id="username" class="text-dark">Loading...</span></h4>
+      <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+      <p><strong>Budget:</strong> <span id="budget" class="text-success">Loading...</span> EP</p>
 
-    <!-- Orders -->
-    <div class="mt-4 text-start">
-      <h5 class="text-primary fw-bold">Orders</h5>
-      <ul id="orderList" class="list-group mt-2">
-        <!-- Orders will be appended here -->
-      </ul>
+
+      <!-- Orders -->
+      <div class="mt-4">
+        <h3>Your Orders</h3>
+        <div id="orderList" class="list-group">
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-    <script type="module">
-      import { firebaseConfig as firebaseConfig } from './ConfigFile.js';
+  <script type="module">
+    import { firebaseConfig as firebaseConfig } from './ConfigFile.js';
 
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-      const database = firebase.firestore();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.firestore();
 
-      auth.onAuthStateChanged((user) => {
-        if (user) {
-          database
-            .collection("users")
-            .doc(user.uid)
-            .get()
-            .then((doc) => {
-              if (doc.exists) {
-                const userdate = doc.data();
-                document.getElementById("username").textContent = userdate.username;
-                document.getElementById("email").textContent = userdate.email;
-                // document.getElementById("budget").textContent = userdate.budget;
-              }
-              else {
-                alert("error : user not found data")
-              }
-            })
-            .catch((error) => {
-              alert("error" + error.message);
-            })
-        }
-        else {
-          // alert("No user is logged right now.");
-          window.location.href = "login.html";
-        }
-      })
-      document.getElementById('logoutBtn').addEventListener("click", () => {
-        auth
-          .signOut()
-          .then(() => {
-            alert("Logging out");
-            window.location.href = "login.html";
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        database
+          .collection("users")
+          .doc(user.uid)
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+              const userdate = doc.data();
+              document.getElementById("username").textContent = userdate.username;
+              document.getElementById("email").textContent = userdate.email;
+              document.getElementById("budget").textContent = userdate.budget;
+              // Display user orders
+              displayUserOrders(user.uid);
+            }
+            else {
+              alert("error : user not found data")
+            }
           })
           .catch((error) => {
-            alert("error", error.message)
+            alert("error" + error.message);
           })
-      })
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js">
+      }
+      else {
+        // alert("No user is logged right now.");
+        window.location.href = "login.html";
+      }
+    })
+    document.getElementById('logoutBtn').addEventListener("click", () => {
+      auth
+        .signOut()
+        .then(() => {
+          alert("Logging out");
+          window.location.href = "login.html";
+        })
+        .catch((error) => {
+          alert("error", error.message)
+        })
+    })
+    // function to get time
+    function formatDate(timestamp) {
+      if (!timestamp) return 'N/A';
+      let date = timestamp.toDate();
+      return date.toLocaleString();
+    }
+    // display orders for users in profile
+    async function displayUserOrders(userId) {
+      let orderList = document.getElementById('orderList');
+      orderList.innerHTML = '';
 
-    </script>
+      try {
+        // First, verify the user exists
+        const userDoc = await database.collection("users").doc(userId).get();
+        if (!userDoc.exists) {
+          throw new Error("User not found");
+        }
+        // Get orders with error handling
+        const ordersSnapshot = await database
+          .collection("orders")
+          .where("userId", "==", userId)
+          .where("status", "==", "completed")
+          // ==============================================
+          // activate it when make index in firebase
+          // .orderBy("createdAt", "desc")
+          // ==============================================
+          .get();
+
+        if (ordersSnapshot.empty) {
+          const noOrdersDiv = document.createElement('div');
+          noOrdersDiv.className = 'text-center';
+          noOrdersDiv.textContent = 'No orders found';
+          orderList.appendChild(noOrdersDiv);
+          return;
+        }
+
+        // Process each order
+        ordersSnapshot.forEach(doc => {
+          try {
+            const order = doc.data();
+            console.log("Processing order:", order); // Debug log
+
+            // Create main container
+            const orderElement = document.createElement('div');
+            orderElement.className = 'list-group-item';
+
+            // Create header div
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'd-flex justify-content-between align-items-center';
+
+            // Create order number
+            const orderNumber = document.createElement('h5');
+            orderNumber.className = 'mb-1';
+            orderNumber.textContent = `Order #${doc.id.slice(-6)}`;
+
+            // Create status badge
+            const statusBadge = document.createElement('span');
+            statusBadge.className = `badge ${order.status === 'completed' ? 'bg-success' : 'bg-warning'}`;
+            statusBadge.textContent = order.status || 'pending';
+
+            // Create date paragraph
+            const datePara = document.createElement('p');
+            datePara.className = 'mb-1';
+            datePara.textContent = `Date: ${formatDate(order.createdAt)}`;
+
+            // Create total paragraph
+            const totalPara = document.createElement('p');
+            totalPara.className = 'mb-1';
+            totalPara.textContent = `Total: ${order.total} EP`;
+
+            // Create items section
+            const itemsDiv = document.createElement('div');
+            itemsDiv.className = 'mt-2';
+
+            const itemsTitle = document.createElement('h6');
+            itemsTitle.textContent = 'Items:';
+            itemsDiv.appendChild(itemsTitle);
+
+            const itemsList = document.createElement('ul');
+            itemsList.className = 'list-unstyled';
+
+            // Add each item to the list
+            if (order.items && Array.isArray(order.items)) {
+              order.items.forEach(item => {
+                const itemLi = document.createElement('li');
+                itemLi.textContent = `${item.name} x${item.quantity} - ${item.price} EP`;
+                itemsList.appendChild(itemLi);
+              });
+            } else {
+              const noItemsLi = document.createElement('li');
+              noItemsLi.textContent = 'No items in this order';
+              itemsList.appendChild(noItemsLi);
+            }
+
+            // Assemble all elements
+            headerDiv.appendChild(orderNumber);
+            headerDiv.appendChild(statusBadge);
+            orderElement.appendChild(headerDiv);
+            orderElement.appendChild(datePara);
+            orderElement.appendChild(totalPara);
+            itemsDiv.appendChild(itemsList);
+            orderElement.appendChild(itemsDiv);
+            orderList.appendChild(orderElement);
+
+          } catch (orderError) {
+            console.error("Error processing order:", orderError);
+            const errorElement = document.createElement('div');
+            errorElement.className = 'list-group-item text-danger';
+            errorElement.textContent = `Error processing order: ${orderError.message}`;
+            orderList.appendChild(errorElement);
+          }
+        });
+
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        orderList.innerHTML = '';
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'text-center text-danger';
+        errorDiv.textContent = `Error loading orders: ${error.message}`;
+        orderList.appendChild(errorDiv);
+      }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js">
+
+  </script>
 </body>
 
 </html>

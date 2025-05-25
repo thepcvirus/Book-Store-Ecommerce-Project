@@ -71,12 +71,12 @@
 
 
 
-   <div class="my-3">
-  <label for="priceRange" class="form-label">
-    Filter by Price: <span id="priceValue">1000</span> EP
-  </label>
-  <input type="range" class="form-range" id="priceRange" min="0" max="1000" value="1000" step="10">
-</div>
+    <div class="my-3">
+      <label for="priceRange" class="form-label">
+        Filter by Price: <span id="priceValue">1000</span> EP
+      </label>
+      <input type="range" class="form-range" id="priceRange" min="0" max="1000" value="1000" step="10">
+    </div>
 
 
 
@@ -101,20 +101,20 @@
       </ul>
     </div>
     <hr />
-      <div class="mb-3">
-        <label for="categoryFilter" class="form-label">Book Categories</label>
-        <select class="form-select" id="categoryFilter">
-          <option value="all">All Categories</option>
-          <option value="Fantasy">Fantasy</option>
-          <option value="Science Fiction">Science Fiction</option>
-          <option value="Action & Adventure">Action & Adventure</option>
-          <option value="Detective & Mystery">Detective & Mystery</option>
-          <option value="Romance">Romance</option>
-          <option value="Horror">Horror</option>
-          <option value="Historical Fiction">Historical Fiction</option>
-          <option value="Short Story">Short Story</option>
-        </select>
-      </div>
+    <div class="mb-3">
+      <label for="categoryFilter" class="form-label">Book Categories</label>
+      <select class="form-select" id="categoryFilter">
+        <option value="all">All Categories</option>
+        <option value="Fantasy">Fantasy</option>
+        <option value="Science Fiction">Science Fiction</option>
+        <option value="Action & Adventure">Action & Adventure</option>
+        <option value="Detective & Mystery">Detective & Mystery</option>
+        <option value="Romance">Romance</option>
+        <option value="Horror">Horror</option>
+        <option value="Historical Fiction">Historical Fiction</option>
+        <option value="Short Story">Short Story</option>
+      </select>
+    </div>
     <hr>
     <h3 class="text-center" id="titleProducts">All Products</h3>
     <div class="col-12 row" id="ProductsList">
@@ -131,8 +131,8 @@
 
     </div>
     <div class="text-center mt-3">
-        <button class="btn btn-primary" id="loadMoreBtn">Load More</button>
-      </div>
+      <button class="btn btn-primary" id="loadMoreBtn">Load More</button>
+    </div>
   </div>
 
   <script type="module">
@@ -196,30 +196,30 @@
     }
     document.getElementById("checkoutBtn").addEventListener("click", checkout);
 
-//osama edit first
-      // Add this event listener for category filter
-      document
-        .getElementById("categoryFilter")
-        .addEventListener("change", function () {
-          const selectedCategory = this.value;
-          displayBooksForUser("ProductsList", selectedCategory);
-          document.getElementById("titleProducts").textContent =
-            selectedCategory === "all" ? "All Products" : selectedCategory;
-        });
-
-      // Add this event listener for load more button
-      document.getElementById("loadMoreBtn").addEventListener("click", () => {
-        const categoryFilter = document.getElementById("categoryFilter");
-        const selectedCategory = categoryFilter ? categoryFilter.value : "all";
-        displayBooksForUser("ProductsList", selectedCategory, true); // append books
+    //osama edit first
+    // Add this event listener for category filter
+    document
+      .getElementById("categoryFilter")
+      .addEventListener("change", function () {
+        const selectedCategory = this.value;
+        displayBooksForUser("ProductsList", selectedCategory);
+        document.getElementById("titleProducts").textContent =
+          selectedCategory === "all" ? "All Products" : selectedCategory;
       });
 
-      // Initialize with all books
-      window.addEventListener("DOMContentLoaded", () => {
-        displayBooksForUser("ProductsList", "all");
-        loadCart();
-      });
-      //osama edit last
+    // Add this event listener for load more button
+    document.getElementById("loadMoreBtn").addEventListener("click", () => {
+      const categoryFilter = document.getElementById("categoryFilter");
+      const selectedCategory = categoryFilter ? categoryFilter.value : "all";
+      displayBooksForUser("ProductsList", selectedCategory, true); // append books
+    });
+
+    // Initialize with all books
+    window.addEventListener("DOMContentLoaded", () => {
+      displayBooksForUser("ProductsList", "all");
+      loadCart();
+    });
+    //osama edit last
 
     // window.addEventListener("DOMContentLoaded", () => {
     //   loadCart();
@@ -231,57 +231,46 @@
     // });
     // import paypal function
     import { paypalPayment } from './GeneralFunctions.js';
+    // start checkout functionnnnnnn
     async function checkout() {
       let cart = JSON.parse(localStorage.getItem("cart")) || [];
       let total = calculateTotal(cart);
 
-      // let userId = firebase.auth().currentUser.uid; //if there is auth in firebase
-      let budget = parseFloat(localStorage.getItem("budget") || 0);
       if (cart.length === 0) {
         alert("Your cart is empty");
         return;
       }
-      // when the auth is work
-      try {
-        // ====================================
-        //     let userRef = db.collection("users").doc(userId);
-        //     let userDoc = await userRef.get();
 
-        //     if (!userDoc.exists) {
-        //         alert("User not found.");
-        //         return;
-        //     }
-        // let userData = userDoc.data();
-        // let currentBudget = userData.budget;
-        // ========================================
-        if (total > budget) {
-          alert("You don't have enough money");
+      try {
+        let user = firebase.auth().currentUser;
+
+        if (!user) {
+          alert("Please login first");
+          window.location.href = "login.html";
           return;
         }
-        // save the order in orders collection
-        let order = {
-          // ===============
-          // userId, //if there is auth in firebase
-          // ===============
-          items: cart,
-          total,
-          date: new Date().toISOString()
-        };
-        await database.collection("orders").add(order);
 
-        // minus the total cost from user budget and update the budget in the localstorage
-        budget -= total;
-        localStorage.setItem("budget", budget);
-        // ==================================
-        // await userRef.update({
-        //     budget: currentBudget - total
-        // });
-        // ==================================
-        // Initialize PayPal payment
-        paypalPayment(total);
+        let userDoc = await database.collection("users").doc(user.uid).get();
+        if (!userDoc.exists) {
+          alert("User data not found");
+          return;
+        }
+
+        let userData = userDoc.data();
+        let currentBudget = userData.budget || 0;
+
+        // Check if user has enough budget
+        if (currentBudget < total) {
+          alert("You don't have enough budget to complete this purchase");
+          return;
+        }
+
+        // Initialize PayPal payment with order reference
+        paypalPayment(total, null, user.uid, currentBudget);
+
       } catch (error) {
-        console.error("Error make order:", error);
-        alert("something went wrong during checkout");
+        console.error("Error during checkout:", error);
+        alert("Something went wrong during checkout. Please try again.");
       }
     }
     import { searchBooks } from './GeneralFunctions.js';
@@ -295,7 +284,6 @@
         searchBooks(searchBook);
       }
     });
-
     // search by click "enter" on keyboard
     document.getElementById('searchInput').addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
@@ -303,20 +291,16 @@
       }
     });
 
-
-
-    
-
     import { displayBooksSorted } from './GeneralFunctions.js';
 
-// Sorting dropdown event listener
-document.querySelectorAll('.dropdown-item').forEach(item => {
-  item.addEventListener('click', (e) => {
-    e.preventDefault();
-    const sortType = item.getAttribute('data-sort');
-    displayBooksSorted(sortType);
-  });
-});
+    // Sorting dropdown event listener
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const sortType = item.getAttribute('data-sort');
+        displayBooksSorted(sortType);
+      });
+    });
 
 
 
@@ -332,18 +316,18 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
 
     import { filterBooksByPrice } from './GeneralFunctions.js';
 
-// Update price label while sliding
-const priceSlider = document.getElementById("priceRange");
-const priceValue = document.getElementById("priceValue");
+    // Update price label while sliding
+    const priceSlider = document.getElementById("priceRange");
+    const priceValue = document.getElementById("priceValue");
 
-priceSlider.addEventListener("input", () => {
-  priceValue.textContent = priceSlider.value;
-});
+    priceSlider.addEventListener("input", () => {
+      priceValue.textContent = priceSlider.value;
+    });
 
-// Trigger filtering on change
-priceSlider.addEventListener("change", () => {
-  filterBooksByPrice(Number(priceSlider.value));
-});
+    // Trigger filtering on change
+    priceSlider.addEventListener("change", () => {
+      filterBooksByPrice(Number(priceSlider.value));
+    });
 
   </script>
 

@@ -326,26 +326,28 @@ export function loadMoreBooks() {
 }
 // last edit from osama
 
-
 // add to cart function
 export function addToCart(book) {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    let existingBook = cart.find(item => item.id === book.id);
     // check if the book already added or not
+    let existingBook = cart.find(item => item.id === book.id);
     if (existingBook) {
         // if existed , the user can add the same books 5 times only 
-        if (existingBook.quantity < 5) {
-            existingBook.quantity += 1;
-            alert(`You added the ${existingBook.name}  ${existingBook.quantity} times`);
-        } else {
+        if (existingBook.quantity >= 5) {
             alert("You can't add the same book more than 5");
+        } else {
+            existingBook.quantity++;
+            alert(`You added the ${existingBook.name}  ${existingBook.quantity} times`);
         }
     } else {
         // if the book not added into the cart before
-        book.quantity = 1;
-        cart.push(book);
-        alert("Book added to cart");
-
+        cart.push({
+            id: book.id,
+            name: book.name,
+            price: book.price,
+            quantity: 1
+        });
+        alert(` ${book.name} added to cart successfully`);
     }
 
     // store the cart into localstorage
@@ -541,34 +543,56 @@ export function searchBooks(searchBook) {
 }
 
 // start payment with paypal
-export function paypalPayment(totalAmount) {
+export function paypalPayment(totalAmount, orderId, userId, currentBudget) {
+    const database = firebase.firestore();
     paypal.Buttons({
-        // Set up the transaction
         createOrder: function (data, actions) {
             return actions.order.create({
                 purchase_units: [{
                     amount: {
-                        value: totalAmount // The total amount from the cart
+                        value: totalAmount.toString()
                     }
                 }]
             });
         },
+        onApprove: async function (data, actions) {
+            try {
+                // Capture the payment
+                const details = await actions.order.capture();
 
-        // Finalize the transaction
-        onApprove: function (data, actions) {
-            return actions.order.capture().then(function (details) {
-                // Show success message
-                alert('Transaction completed by ' + details.payer.name.given_name);
-                // Clear the cart
+                // Create order object
+                let order = {
+                    userId: userId,
+                    // userName: user.displayName || userData.username,
+                    items: JSON.parse(localStorage.getItem("cart")) || [],
+                    total: totalAmount,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'completed',
+                    paymentDetails: details,
+                    paymentDate: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                // Save order in Firestore
+                await database.collection("orders").add(order);
+                // Update user's budget
+                const newBudget = currentBudget - totalAmount;
+                await database.collection("users").doc(userId).update({
+                    budget: newBudget
+                });
+                // Clear cart only after successful payment
                 localStorage.removeItem("cart");
-                // Update the display
                 loadCart();
-                // Redirect to success page or show success message
+                // Show success messages
+                alert("Your order has been placed successfully!");
+                // Redirect to profile page
                 window.location.href = "profile.html";
-            });
+            } catch (error) {
+                console.error("Error completing payment:", error);
+                alert("There was an error completing your payment. Please try again.");
+            }
         },
-
-        // Handle errors
+        onCancel: function () {
+            alert("Payment was cancelled. Your cart has been preserved.");
+        },
         onError: function (err) {
             console.error('PayPal Error:', err);
             alert('An error occurred during the payment process. Please try again.');
@@ -577,79 +601,79 @@ export function paypalPayment(totalAmount) {
 }
 
 
-export function UploadImage(ImgInputFieldID,storage){//needs the id of the files input field        and usually called on pressing the upload image button
+export function UploadImage(ImgInputFieldID, storage) {//needs the id of the files input field        and usually called on pressing the upload image button
     const imageUpload = document.getElementById(ImgInputFieldID);
     const file = imageUpload.files[0];
-  
-  if (!file) {
-    console.log("Please select an image first");
-    //statusDiv.textContent = "Please select an image first";
-    return;
-  }
 
-  // Create a storage reference
-//   const storageRef = storage.ref();
-//   const imageRef = storageRef.child(`images/${file.name}`);
-
-//   // Upload the file
-//   const uploadTask = imageRef.put(file);
-
-//   uploadTask.on('state_changed',
-//     (snapshot) => {
-//       // Progress monitoring
-//       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-//       console.log(`Uploading: ${Math.round(progress)}%`);
-      
-//       //statusDiv.textContent = `Uploading: ${Math.round(progress)}%`;
-//     },
-//     (error) => {
-//       // Handle unsuccessful uploads
-//       console.log(`Upload failed: ${error.message}`);
-//       //statusDiv.textContent = `Upload failed: ${error.message}`;
-//     },
-//     () => {
-//       // Handle successful uploads
-//       uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-//         //statusDiv.textContent = "Upload complete!";
-//         //previewDiv.innerHTML = `<img src="${downloadURL}" style="max-width: 300px;">`;
-//         console.log("File available at", downloadURL);
-//         return downloadURL;
-//       });
-//     }
-//   );
-
-const imageRef = ref(storage, `images/${file.name}`);
-
-// Create upload task with progress monitoring
-const uploadTask = uploadBytesResumable(imageRef, file);
-
-// Set up event listeners
-uploadTask.on('state_changed',
-  (snapshot) => {
-    // Progress monitoring
-    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-    console.log(`Uploading: ${Math.round(progress)}%`);
-    // statusDiv.textContent = `Uploading: ${Math.round(progress)}%`;
-  },
-  (error) => {
-    // Handle unsuccessful uploads
-    console.log(`Upload failed: ${error.message}`);
-    // statusDiv.textContent = `Upload failed: ${error.message}`;
-  },
-  async () => {
-    // Handle successful uploads
-    try {
-      const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-      console.log("File available at", downloadURL);
-      // statusDiv.textContent = "Upload complete!";
-      // previewDiv.innerHTML = `<img src="${downloadURL}" style="max-width: 300px;">`;
-      return downloadURL;
-    } catch (error) {
-      console.log("Error getting download URL:", error);
-      // statusDiv.textContent = `Error getting URL: ${error.message}`;
+    if (!file) {
+        console.log("Please select an image first");
+        //statusDiv.textContent = "Please select an image first";
+        return;
     }
-  }
-);
+
+    // Create a storage reference
+    //   const storageRef = storage.ref();
+    //   const imageRef = storageRef.child(`images/${file.name}`);
+
+    //   // Upload the file
+    //   const uploadTask = imageRef.put(file);
+
+    //   uploadTask.on('state_changed',
+    //     (snapshot) => {
+    //       // Progress monitoring
+    //       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+    //       console.log(`Uploading: ${Math.round(progress)}%`);
+
+    //       //statusDiv.textContent = `Uploading: ${Math.round(progress)}%`;
+    //     },
+    //     (error) => {
+    //       // Handle unsuccessful uploads
+    //       console.log(`Upload failed: ${error.message}`);
+    //       //statusDiv.textContent = `Upload failed: ${error.message}`;
+    //     },
+    //     () => {
+    //       // Handle successful uploads
+    //       uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+    //         //statusDiv.textContent = "Upload complete!";
+    //         //previewDiv.innerHTML = `<img src="${downloadURL}" style="max-width: 300px;">`;
+    //         console.log("File available at", downloadURL);
+    //         return downloadURL;
+    //       });
+    //     }
+    //   );
+
+    const imageRef = ref(storage, `images/${file.name}`);
+
+    // Create upload task with progress monitoring
+    const uploadTask = uploadBytesResumable(imageRef, file);
+
+    // Set up event listeners
+    uploadTask.on('state_changed',
+        (snapshot) => {
+            // Progress monitoring
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log(`Uploading: ${Math.round(progress)}%`);
+            // statusDiv.textContent = `Uploading: ${Math.round(progress)}%`;
+        },
+        (error) => {
+            // Handle unsuccessful uploads
+            console.log(`Upload failed: ${error.message}`);
+            // statusDiv.textContent = `Upload failed: ${error.message}`;
+        },
+        async () => {
+            // Handle successful uploads
+            try {
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                console.log("File available at", downloadURL);
+                // statusDiv.textContent = "Upload complete!";
+                // previewDiv.innerHTML = `<img src="${downloadURL}" style="max-width: 300px;">`;
+                return downloadURL;
+            } catch (error) {
+                console.log("Error getting download URL:", error);
+                // statusDiv.textContent = `Error getting URL: ${error.message}`;
+            }
+        }
+    );
 
 }
 

@@ -1,120 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Profile</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
-  </head>
 
-  <body>
-    <script type="module">
-      import { createNavbar } from "./GeneralFunctions.js";
-      document.body.prepend(createNavbar());
-    </script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
+</head>
 
-    <div class="container mt-5">
-      <h2 class="text-center mb-4 text-primary">Admin Dashboard</h2>
+<body>
+  <script type="module">
+    import { createNavbar } from "./GeneralFunctions.js";
+    document.body.prepend(createNavbar());
+  </script>
 
-      <!-- User Info -->
-      <div class="card shadow p-4 mb-4">
-        <h4 class="mb-3">👤 Admin Profile</h4>
-        <p><strong>Username:</strong> <span id="username">Loading...</span></p>
-        <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+  <div class="container mt-5">
+    <h2 class="text-center mb-4 text-primary">Admin Dashboard</h2>
+
+    <!-- User Info -->
+    <div class="card shadow p-4 mb-4">
+      <h4 class="mb-3">👤 Admin Profile</h4>
+      <p><strong>Username:</strong> <span id="username">Loading...</span></p>
+      <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+    </div>
+
+    <!-- Orders List -->
+    <div class="card shadow p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="text-center text-info fw-bold mb-0">🧾 Orders List</h4>
+        <!-- <button onclick="displayAllOrders()" class="btn btn-primary">
+          Refresh Orders
+        </button> -->
       </div>
-
-      <!-- Book Form -->
-      <div class="card shadow p-4 mb-5">
-        <h4 class="text-center text-success fw-bold mb-4">Add New Book</h4>
-        <form id="R_bookForm" class="row g-3">
-          <div class="col-md-6">
-            <label for="R_bookName" class="form-label">Book Name</label>
-            <input type="text" class="form-control" id="R_bookName" required />
-          </div>
-
-          <div class="col-md-6">
-            <label for="R_bookAuthor" class="form-label">Author</label>
-            <input
-              type="text"
-              class="form-control"
-              id="R_bookAuthor"
-              required
-            />
-          </div>
-
-          <div class="col-md-4">
-            <label for="R_bookGener" class="form-label">Genre</label>
-            <select class="form-select" id="R_bookGener">
-              <option value="Fantasy">Fantasy</option>
-              <option value="Science Fiction">Science Fiction</option>
-              <option value="Action & Adventure">Action & Adventure</option>
-              <option value="Detective & Mystery">Detective & Mystery</option>
-              <option value="Romance">Romance</option>
-              <option value="Horror">Horror</option>
-              <option value="Historical Fiction">Historical Fiction</option>
-              <option value="Short Story">Short Story</option>
-            </select>
-          </div>
-
-          <div class="col-md-4">
-            <label for="R_price" class="form-label">Price (EP)</label>
-            <input type="text" class="form-control" id="R_price" required />
-          </div>
-
-          <div class="col-md-4">
-            <label for="R_bookImage" class="form-label">Image URL</label>
-            <!-- <input type="text" class="form-control" id="R_bookImage" /> -->
-             <input type="file" id="imageUpload" accept="image/*" required>
-            <!-- <button id="uploadButton" onclick="UploadImage('imageUpload')">Upload Image</button>
-  <div id="preview"></div>
-  <div id="status"></div> -->
-
-            <!-- <div id="imageContainer"></div> -->
-          </div>
-
-          <div class="col-12">
-            <label for="R_description" class="form-label">Description</label>
-            <textarea
-              class="form-control"
-              id="R_description"
-              rows="2"
-            ></textarea>
-          </div>
-
-          <div class="col-md-4">
-            <label for="R_status" class="form-label">Availability</label>
-            <select class="form-select" id="R_status">
-              <option value="available">Available</option>
-              <option value="not-available">Not Available</option>
-            </select>
-          </div>
-
-          <div class="col-12 text-center">
-            <button type="submit" class="btn btn-success px-5 py-2 mt-2">
-              Add Book
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Book List -->
-      <div class="card shadow p-4">
-        <h4 class="text-center text-dark fw-bold mb-4">📖 All Books</h4>
-        <div
-          id="R_bookList"
-          class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"
-        ></div>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Order ID</th>
+              <th>User</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Items</th>
+            </tr>
+          </thead>
+          <tbody id="ordersList">
+            <!-- Orders will be inserted here -->
+          </tbody>
+        </table>
       </div>
     </div>
 
+    <!-- Book Form -->
+    <div class="card shadow p-4 mb-5">
+      <h4 class="text-center text-success fw-bold mb-4">Add New Book</h4>
+      <form id="R_bookForm" class="row g-3">
+        <div class="col-md-6">
+          <label for="R_bookName" class="form-label">Book Name</label>
+          <input type="text" class="form-control" id="R_bookName" required />
+        </div>
+
+        <div class="col-md-6">
+          <label for="R_bookAuthor" class="form-label">Author</label>
+          <input type="text" class="form-control" id="R_bookAuthor" required />
+        </div>
+
+        <div class="col-md-4">
+          <label for="R_bookGener" class="form-label">Genre</label>
+          <select class="form-select" id="R_bookGener">
+            <option value="Fantasy">Fantasy</option>
+            <option value="Science Fiction">Science Fiction</option>
+            <option value="Action & Adventure">Action & Adventure</option>
+            <option value="Detective & Mystery">Detective & Mystery</option>
+            <option value="Romance">Romance</option>
+            <option value="Horror">Horror</option>
+            <option value="Historical Fiction">Historical Fiction</option>
+            <option value="Short Story">Short Story</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label for="R_price" class="form-label">Price ($)</label>
+          <input type="text" class="form-control" id="R_price" required />
+        </div>
+
+        <div class="col-md-4">
+          <label for="R_bookImage" class="form-label">Image URL</label>
+          <!-- <input type="text" class="form-control" id="R_bookImage" /> -->
+          <input type="file" id="imageUpload" accept="image/*" required>
+          <!-- <button id="uploadButton" onclick="UploadImage('imageUpload')">Upload Image</button>
+  <div id="preview"></div>
+  <div id="status"></div> -->
+
+          <!-- <div id="imageContainer"></div> -->
+        </div>
+
+        <div class="col-12">
+          <label for="R_description" class="form-label">Description</label>
+          <textarea class="form-control" id="R_description" rows="2"></textarea>
+        </div>
+
+        <div class="col-md-4">
+          <label for="R_status" class="form-label">Availability</label>
+          <select class="form-select" id="R_status">
+            <option value="available">Available</option>
+            <option value="not-available">Not Available</option>
+          </select>
+        </div>
+
+        <div class="col-12 text-center">
+          <button type="submit" class="btn btn-success px-5 py-2 mt-2">
+            Add Book
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Book List -->
+    <div class="card shadow p-4">
+      <h4 class="text-center text-dark fw-bold mb-4">📖 All Books</h4>
+      <div id="R_bookList" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>
+    </div>
+
+
     <script type="module">
+      window.displayAllOrders = displayAllOrders; // Make the function globally accessible
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
       import { getStorage } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js";
 
@@ -166,31 +180,46 @@
       const auth = firebase.auth();
       const database = firebase.firestore();
 
-      auth.onAuthStateChanged((user) => {
+      // Make displayAllOrders globally accessible
+      window.displayAllOrders = displayAllOrders;
+
+      // Function to handle user authentication and data loading
+      async function handleUserAuth(user) {
         if (user) {
-          database
-            .collection("users")
-            .doc(user.uid)
-            .get()
-            .then((doc) => {
-              if (doc.exists) {
-                const userdate = doc.data();
-                document.getElementById("username").textContent =
-                  userdate.username;
-                document.getElementById("email").textContent = userdate.email;
-                document.getElementById("budget").textContent = userdate.budget;
-              } else {
-                alert("error : user not found data");
-              }
-            })
-            .catch((error) => {
-              // alert("error" + error.message);
-            });
+          try {
+            const doc = await database.collection("users").doc(user.uid).get();
+            if (doc.exists) {
+              const userdate = doc.data();
+              document.getElementById("username").textContent = userdate.username;
+              document.getElementById("email").textContent = userdate.email;
+
+              // Call displayAllOrders after successful authentication
+              console.log("User authenticated, calling displayAllOrders");
+              await displayAllOrders();
+            } else {
+              alert("error : user not found data");
+            }
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+          }
         } else {
           alert("No user is logged right now.");
           window.location.href = "login.html";
         }
+      }
+
+      // Listen for auth state changes
+      auth.onAuthStateChanged(handleUserAuth);
+
+      // Also try to load orders when the page loads
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log("Page loaded, checking authentication state");
+        if (auth.currentUser) {
+          console.log("User already logged in, calling displayAllOrders");
+          displayAllOrders();
+        }
       });
+
       document.getElementById("logoutBtn").addEventListener("click", () => {
         auth
           .signOut()
@@ -412,8 +441,85 @@
       }
 
       refreshBooksCollection();
+      // show all orders from all users
+      async function displayAllOrders() {
+        const ordersList = document.getElementById("ordersList");
+        ordersList.innerHTML = "";
+        try {
+          // Add where clause to filter completed orders
+          const ordersSnapshot = await database.collection("orders")
+            .where("status", "==", "completed")
+            .get();
+          if (ordersSnapshot.empty) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.colSpan = 6;
+            cell.className = "text-center text-muted";
+            cell.textContent = "No orders found.";
+            row.appendChild(cell);
+            ordersList.appendChild(row);
+            return;
+          }
+          for (const doc of ordersSnapshot.docs) {
+            const order = doc.data();
+            // Get user info
+            let username = "Unknown";
+            if (order.userId) {
+              const userDoc = await database.collection("users").doc(order.userId).get();
+              if (userDoc.exists) {
+                username = userDoc.data().username || "Unknown";
+              }
+            }
+            // Create row
+            const row = document.createElement("tr");
+            // Order ID
+            const idCell = document.createElement("td");
+            idCell.textContent = doc.id;
+            row.appendChild(idCell);
+            // Username
+            const userCell = document.createElement("td");
+            userCell.textContent = username;
+            row.appendChild(userCell);
+            // Date
+            const dateCell = document.createElement("td");
+            dateCell.textContent = order.createdAt && order.createdAt.toDate
+              ? order.createdAt.toDate().toLocaleString()
+              : "N/A";
+            row.appendChild(dateCell);
+            // Total
+            const totalCell = document.createElement("td");
+            totalCell.textContent = `${order.total} $` || 0;
+            row.appendChild(totalCell);
+            // Status
+            const statusCell = document.createElement("td");
+            statusCell.textContent = order.status || "pending";
+            row.appendChild(statusCell);
+            // Items
+            const itemsCell = document.createElement("td");
+            if (order.items && Array.isArray(order.items)) {
+              itemsCell.innerHTML = order.items.map(item =>
+                `<div>${item.name} x${item.quantity} - ${item.price} EP</div>`
+              ).join("");
+            } else {
+              itemsCell.textContent = "No items";
+            }
+            row.appendChild(itemsCell);
+            ordersList.appendChild(row);
+          }
+        } catch (error) {
+          console.error("Error loading orders:", error);
+          const row = document.createElement("tr");
+          const cell = document.createElement("td");
+          cell.colSpan = 6;
+          cell.className = "text-center text-danger";
+          cell.textContent = "Error loading orders: " + error.message;
+          row.appendChild(cell);
+          ordersList.appendChild(row);
+        }
+      }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+</body>
+
 </html>
