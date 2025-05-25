@@ -800,3 +800,18 @@ export async function filterBooksByPrice(maxPrice, append = false) {
     loadMoreBtn.onclick = () => filterBooksByPrice(maxPrice, true);
   }
 }
+
+
+export function CheckAdmin(emailToCheck){
+    // Array of registered emails (initialized inside function)
+  const registeredEmails = [
+    'thepcvirus@gmail.com',
+    'oo@gmail.com',
+    'admin@website.net'
+  ];
+
+  // Return true if email exists (case-insensitive check)
+  return registeredEmails.some(
+    email => email.toLowerCase() === emailToCheck.toLowerCase().trim()
+  );
+}

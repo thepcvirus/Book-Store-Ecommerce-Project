@@ -179,6 +179,7 @@
       }
 
       import { firebaseConfig as firebaseConfig } from "./ConfigFile.js";
+      import { CheckAdmin} from "./GeneralFunctions.js";
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
       const database = firebase.firestore();
@@ -193,9 +194,16 @@
             const doc = await database.collection("users").doc(user.uid).get();
             if (doc.exists) {
               const userdate = doc.data();
-              document.getElementById("username").textContent = userdate.username;
+              if (CheckAdmin(userdate.email)){
+                document.getElementById("username").textContent = userdate.username;
               document.getElementById("email").textContent = userdate.email;
-
+              }
+              else{
+                alert("You are not an Admin");
+                window.location.href = "profile.html";
+              }
+              
+              
               // Call displayAllOrders after successful authentication
               console.log("User authenticated, calling displayAllOrders");
               await displayAllOrders();
@@ -373,6 +381,7 @@ let RbookPrice = Number(document.getElementById("R_price").value.trim());       
     return fileName || '';
   } catch (error) {
     console.error('Error extracting image name:', error);
+    console.log(firebaseUrl);
     return '';
   }
 }

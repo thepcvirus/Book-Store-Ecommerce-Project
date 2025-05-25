@@ -25,10 +25,10 @@
 
     <div class="card shadow-lg p-4 text-center">
       <!-- Circular Profile Image -->
-      <div class="mb-3">
+      <!-- <div class="mb-3">
         <img id="userPhoto" src="https://via.placeholder.com/150" class="rounded-circle border border-2"
           alt="User Photo" width="150" height="150">
-      </div>
+      </div> -->
 
       <!-- User Info -->
       <h4 class="mb-3"><strong>Username:</strong> <span id="username" class="text-dark">Loading...</span></h4>
@@ -51,7 +51,7 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.firestore();
-
+    import { CheckAdmin} from "./GeneralFunctions.js";
     auth.onAuthStateChanged((user) => {
       if (user) {
         database
@@ -61,9 +61,17 @@
           .then((doc) => {
             if (doc.exists) {
               const userdate = doc.data();
-              document.getElementById("username").textContent = userdate.username;
+              if (CheckAdmin(userdate.email)){
+                alert("You are an Admin");
+                window.location.href = "admin.html";
+              }
+              else{
+                document.getElementById("username").textContent = userdate.username;
               document.getElementById("email").textContent = userdate.email;
-              document.getElementById("userPhoto").src = userdate.imageUrl || "https://via.placeholder.com/150";
+              }
+              // document.getElementById("username").textContent = userdate.username;
+              // document.getElementById("email").textContent = userdate.email;
+              //document.getElementById("userPhoto").src = userdate.imageUrl || "https://via.placeholder.com/150";
               // document.getElementById("budget").textContent = userdate.budget;
               // Display user orders
               displayUserOrders(user.uid);
