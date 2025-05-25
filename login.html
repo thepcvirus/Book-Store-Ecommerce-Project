@@ -149,16 +149,21 @@
               .then((doc) => {
                 if (!doc.exists) {
                   // Create user document with Google info
-                  database
+                  return database
                     .collection("users")
                     .doc(user.uid)
                     .set({
                       username: user.displayName || "Google User",
                       email: user.email,
-                      budget: 0, // default value
+                      createdAt:
+                        firebase.firestore.FieldValue.serverTimestamp(),
+                    })
+                    .then(() => {
+                      checkUserRole(user.email); // Redirect after user doc is created
                     });
+                } else {
+                  checkUserRole(user.email); // Redirect if user doc already exists
                 }
-                checkUserRole(user.email); // Redirect after ensuring user doc exists
               });
           })
           .catch((error) => {
@@ -179,7 +184,7 @@
             checkUserRole(user.email); // Check role after email/password sign-in
           })
           .catch((error) => {
-            alert("خطأ في كلمة السر أو الإيميل: " + error.message);
+            alert("error in email or password" + error.message);
           });
       });
     </script>
