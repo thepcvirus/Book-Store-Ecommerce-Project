@@ -149,9 +149,12 @@
             reject("Please select an image first");
             return;
           }
-
+          const uuid = crypto.randomUUID(); // or use a UUID library
+          const extension = file.name.split('.').pop();
+          const newFileName = `${uuid}.${extension}`;
           const storageRef = storage.ref();
-          const imageRef = storageRef.child(`images/${file.name}`);
+          //const imageRef = storageRef.child(`images/${file.name}`);
+          const imageRef = storageRef.child(`images/${newFileName}`);
           const uploadTask = imageRef.put(file);
 
           uploadTask.on(
@@ -326,6 +329,82 @@
       let RbooksList = document.getElementById("R_bookList");
       let RbookCollection = database.collection("cars");
 
+      function getLowResImageUrl(originalUrl) {
+        try {
+          // Parse the original URL to extract the path and filename
+          const url = new URL(originalUrl);
+          const pathParts = url.pathname.split('/');
+          const fileName = pathParts.pop();
+
+          // Insert the resolution suffix before the extension
+          const fileNameParts = fileName.split('.');
+          const extension = fileNameParts.pop();
+          const baseName = fileNameParts.join('.');
+          const lowResFileName = `${baseName}_500x500.${extension}`;
+
+          // Reconstruct the path with the low-res filename
+          pathParts.push(lowResFileName);
+          url.pathname = pathParts.join('/');
+
+          return url.toString();
+        } catch (error) {
+          console.error("Error generating low-res URL:", error);
+          return originalUrl; // Fallback to original if error occurs
+        }
+      }
+
+      function getImageNameFromUrl(firebaseUrl) {
+  try {
+    // Handle cases where URL might be a gs:// path
+    if (firebaseUrl.startsWith('gs://')) {
+      const parts = firebaseUrl.split('/');
+      return parts[parts.length - 1];
+    }
+
+    // Handle standard Firebase Storage URLs
+    const url = new URL(firebaseUrl);
+    const pathname = decodeURIComponent(url.pathname);
+    
+    // Extract the part after /o/
+    const pathAfterO = pathname.split('/o/')[1];
+    if (!pathAfterO) return '';
+    
+    // Remove any query parameters and get the filename
+    const fileName = pathAfterO.split('?')[0].split('/').pop();
+    return fileName || '';
+  } catch (error) {
+    console.error('Error extracting image name:', error);
+    return '';
+  }
+}
+
+function getImageUrlByName(imageName, folderPath = 'images', bucketName = 'jsecommerce-9350b.firebasestorage.app') {
+  try {
+    if (!imageName) return '';
+    
+    // Encode the path components properly
+    const encodedPath = folderPath 
+      ? `${encodeURIComponent(folderPath)}%2F${encodeURIComponent(imageName)}`
+      : encodeURIComponent(imageName);
+    
+    return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodedPath}?alt=media`;
+  } catch (error) {
+    console.error('Error generating image URL:', error);
+    return '';
+  }
+}
+
+function convertToLowResName(imageName) {
+  // Handle empty input
+  if (!imageName || typeof imageName !== 'string') return '';
+  
+  // Remove existing extension
+  const baseName = imageName.split('.').slice(0, -1).join('.');
+  
+  // Add the _500x500.png suffix
+  return `${baseName}_500x500.png`;
+}
+
       // Fetch books from Firestore
       function refreshBooksCollection() {
         RbookCollection.get()
@@ -349,7 +428,14 @@
 
               // Create book image
               let Rimage = document.createElement("img");
-              Rimage.src = book.url_image;
+              // console.log(book.url_image);
+              // console.log(getImageNameFromUrl(book.url_image));
+              // console.log(convertToLowResName(getImageNameFromUrl(book.url_image)));
+              let lRes = getImageUrlByName(convertToLowResName(getImageNameFromUrl(book.url_image)));
+              // console.log( lRes );
+              // console.log( "====================");
+              //Rimage.src = book.url_image;
+              Rimage.src = lRes;
               Rimage.className = "RbookImageStyle rounded w-100";
               Rimage.alt = book.name;
 
