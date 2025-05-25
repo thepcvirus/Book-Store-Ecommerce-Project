@@ -60,6 +60,7 @@
                 const userdate = doc.data();
                 document.getElementById("username").textContent = userdate.username;
                 document.getElementById("email").textContent = userdate.email;
+                document.getElementById("userPhoto").src=userdate.imageUrl ||"https://via.placeholder.com/150"
                 // document.getElementById("budget").textContent = userdate.budget;
               }
               else {
