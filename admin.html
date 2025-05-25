@@ -85,7 +85,7 @@
 
         <div class="col-md-4">
           <label for="R_price" class="form-label">Price ($)</label>
-          <input type="text" class="form-control" id="R_price" required />
+          <input type="number" class="form-control" id="R_price" required />
         </div>
 
         <div class="col-md-4">
@@ -246,8 +246,7 @@
         // get book genre
         let RbookGener = document.getElementById("R_bookGener").value.trim();
         // get book price
-        let RbookPrice = document.getElementById("R_price").value.trim();
-        // check if book price is integer
+let RbookPrice = Number(document.getElementById("R_price").value.trim());        // check if book price is integer
         if (!RisPriceInteger(RbookPrice)) {
           alert("please enter a positive integer price");
           return;
