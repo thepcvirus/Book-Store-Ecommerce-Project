@@ -10,7 +10,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
   <script
-    src="https://www.paypal.com/sdk/js?client-id=AUfaltD2k-zDTIvW9PWXSYbCAhipu0Hvwv5Ktfte4FInp_Rz4_kQO8xspI0cdZud1vV2TqYrDmtCk8NU"></script>
+    src="https://www.paypal.com/sdk/js?client-id=AUfaltD2k-zDTIvW9PWXSYbCAhipu0Hvwv5Ktfte4FInp_Rz4_kQO8xspI0cdZud1vV2TqYrDmtCk8NU&currency=USD"></script>
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -250,23 +250,8 @@
           return;
         }
 
-        let userDoc = await database.collection("users").doc(user.uid).get();
-        if (!userDoc.exists) {
-          alert("User data not found");
-          return;
-        }
-
-        let userData = userDoc.data();
-        let currentBudget = userData.budget || 0;
-
-        // Check if user has enough budget
-        if (currentBudget < total) {
-          alert("You don't have enough budget to complete this purchase");
-          return;
-        }
-
-        // Initialize PayPal payment with order reference
-        paypalPayment(total, null, user.uid, currentBudget);
+        // Initialize PayPal payment
+        paypalPayment(total, null, user.uid);
 
       } catch (error) {
         console.error("Error during checkout:", error);

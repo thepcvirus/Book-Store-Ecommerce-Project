@@ -442,14 +442,21 @@
 
       refreshBooksCollection();
       // show all orders from all users
-      async function displayAllOrders() {
+      async function displayAllOrders(page = 1, ordersPerPage = 5) {
         const ordersList = document.getElementById("ordersList");
         ordersList.innerHTML = "";
         try {
           // Add where clause to filter completed orders
           const ordersSnapshot = await database.collection("orders")
             .where("status", "==", "completed")
+            // =======================================
+            // when osama make index
+            .orderBy("createdAt", "desc")
+            // =======================================
+            .limit(ordersPerPage)
+            .startAfter((page - 1) * ordersPerPage)
             .get();
+
           if (ordersSnapshot.empty) {
             const row = document.createElement("tr");
             const cell = document.createElement("td");
@@ -460,6 +467,17 @@
             ordersList.appendChild(row);
             return;
           }
+
+          // Get total count of orders for pagination
+          const totalOrdersSnapshot = await database.collection("orders")
+            .where("status", "==", "completed")
+            .count()
+            .get();
+
+          const totalOrders = totalOrdersSnapshot.data().count;
+          const totalPages = Math.ceil(totalOrders / ordersPerPage);
+
+          // Display orders
           for (const doc of ordersSnapshot.docs) {
             const order = doc.data();
             // Get user info
@@ -506,6 +524,37 @@
             row.appendChild(itemsCell);
             ordersList.appendChild(row);
           }
+
+          // Add pagination controls
+          const paginationContainer = document.createElement("div");
+          paginationContainer.className = "d-flex justify-content-center mt-3";
+
+          // Previous button
+          const prevButton = document.createElement("button");
+          prevButton.className = "btn btn-outline-primary mx-1";
+          prevButton.textContent = "Previous";
+          prevButton.disabled = page === 1;
+          prevButton.onclick = () => displayAllOrders(page - 1);
+          paginationContainer.appendChild(prevButton);
+
+          // Page numbers
+          const pageNumbers = document.createElement("div");
+          pageNumbers.className = "mx-3 d-flex align-items-center";
+          pageNumbers.textContent = `Page ${page} of ${totalPages}`;
+          paginationContainer.appendChild(pageNumbers);
+
+          // Next button
+          const nextButton = document.createElement("button");
+          nextButton.className = "btn btn-outline-primary mx-1";
+          nextButton.textContent = "Next";
+          nextButton.disabled = page >= totalPages;
+          nextButton.onclick = () => displayAllOrders(page + 1);
+          paginationContainer.appendChild(nextButton);
+
+          // Add pagination controls after the table
+          const tableContainer = ordersList.closest('.table-responsive');
+          tableContainer.after(paginationContainer);
+
         } catch (error) {
           console.error("Error loading orders:", error);
           const row = document.createElement("tr");

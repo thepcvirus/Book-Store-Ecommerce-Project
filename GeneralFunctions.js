@@ -543,27 +543,40 @@ export function searchBooks(searchBook) {
 }
 
 // start payment with paypal
-export function paypalPayment(totalAmount, orderId, userId, currentBudget) {
+export function paypalPayment(totalAmount, orderId, userId) {
     const database = firebase.firestore();
     paypal.Buttons({
+        style: {
+            layout: 'vertical',
+            color: 'blue',
+            shape: 'rect',
+            label: 'pay'
+        },
         createOrder: function (data, actions) {
             return actions.order.create({
                 purchase_units: [{
                     amount: {
+                        currency_code: 'USD',
                         value: totalAmount.toString()
-                    }
+                    },
+                    description: 'Book Store Purchase'
                 }]
             });
         },
         onApprove: async function (data, actions) {
             try {
+                // Show loading state
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'text-center mt-3';
+                loadingDiv.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p>Processing payment...</p>';
+                document.getElementById('paypal-button-container').appendChild(loadingDiv);
+
                 // Capture the payment
                 const details = await actions.order.capture();
 
                 // Create order object
                 let order = {
                     userId: userId,
-                    // userName: user.displayName || userData.username,
                     items: JSON.parse(localStorage.getItem("cart")) || [],
                     total: totalAmount,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -571,18 +584,20 @@ export function paypalPayment(totalAmount, orderId, userId, currentBudget) {
                     paymentDetails: details,
                     paymentDate: firebase.firestore.FieldValue.serverTimestamp()
                 };
+
                 // Save order in Firestore
                 await database.collection("orders").add(order);
-                // Update user's budget
-                const newBudget = currentBudget - totalAmount;
-                await database.collection("users").doc(userId).update({
-                    budget: newBudget
-                });
+
                 // Clear cart only after successful payment
                 localStorage.removeItem("cart");
                 loadCart();
-                // Show success messages
-                alert("Your order has been placed successfully!");
+
+                // Remove loading state
+                loadingDiv.remove();
+
+                // Show success message
+                alert("Payment successful! Your order has been placed.");
+
                 // Redirect to profile page
                 window.location.href = "profile.html";
             } catch (error) {
