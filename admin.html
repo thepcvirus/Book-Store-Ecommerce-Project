@@ -226,7 +226,7 @@
                 document.getElementById("email").textContent = userdate.email;
 
                 // Display admin orders
-                console.log('Calling displayAdminOrders for admin user'); // Debug log
+                // console.log('Calling displayAdminOrders for admin user'); // Debug log
                 await displayAdminOrders();
               }
               else {
@@ -575,14 +575,16 @@
         const ordersList = document.getElementById("ordersList");
         ordersList.innerHTML = "";
         try {
+          console.log("Starting to fetch orders...");
           let query = database.collection("orders")
             .where("status", "==", "completed")
-            // .orderBy("createdAt", "desc")
-            .limit(10);  // Limit to last 10 orders
+            .limit(50);  // Get more orders to sort in memory
 
           const ordersSnapshot = await query.get();
+          console.log("Orders fetched:", ordersSnapshot.size);
 
           if (ordersSnapshot.empty) {
+            console.log("No orders found");
             const row = document.createElement("tr");
             const cell = document.createElement("td");
             cell.colSpan = 6;
@@ -593,11 +595,27 @@
             return;
           }
 
-          // Display all fetched orders
-          let ordersToDisplay = ordersSnapshot.docs;
+          // Convert to array and sort in memory
+          let ordersToDisplay = ordersSnapshot.docs
+            .map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            }))
+            .sort((a, b) => {
+              const dateA = a.createdAt?.toDate?.() || new Date(0);
+              const dateB = b.createdAt?.toDate?.() || new Date(0);
+              return dateB - dateA; // Sort in descending order
+            })
+            .slice(0, 10); // Take only the first 10 after sorting
 
-          for (const doc of ordersToDisplay) {
-            const order = doc.data();
+          console.log("Orders to display:", ordersToDisplay.length);
+
+          for (const order of ordersToDisplay) {
+            console.log("Order data:", {
+              id: order.id,
+              createdAt: order.createdAt,
+              status: order.status
+            });
             // Get user info
             let username = "Unknown";
             if (order.userId) {
@@ -610,7 +628,7 @@
             const row = document.createElement("tr");
             // Order ID
             const idCell = document.createElement("td");
-            idCell.textContent = doc.id;
+            idCell.textContent = order.id;
             row.appendChild(idCell);
             // Username
             const userCell = document.createElement("td");

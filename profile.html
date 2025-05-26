@@ -108,13 +108,13 @@
         if (!userDoc.exists) {
           throw new Error("User not found");
         }
+
         // Get orders with error handling
         const ordersSnapshot = await database
           .collection("orders")
           .where("userId", "==", userId)
           .where("status", "==", "completed")
-          // .orderBy("createdAt", "desc")
-          .limit(5)  // Add limit to get only last 5 orders
+          .limit(50)  // Get more orders to sort in memory
           .get();
 
         if (ordersSnapshot.empty) {
@@ -125,11 +125,23 @@
           return;
         }
 
+        // Convert to array and sort in memory
+        let ordersToDisplay = ordersSnapshot.docs
+          .map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }))
+          .sort((a, b) => {
+            const dateA = a.createdAt?.toDate?.() || new Date(0);
+            const dateB = b.createdAt?.toDate?.() || new Date(0);
+            return dateB - dateA; // Sort in descending order
+          })
+          .slice(0, 5); // Take only the first 5 after sorting
+
         // Process each order
-        ordersSnapshot.forEach(doc => {
+        ordersToDisplay.forEach(order => {
           try {
-            const order = doc.data();
-            console.log("Processing order:", order); // Debug log
+            // console.log("Processing order:", order); // Debug log
 
             // Create main container
             const orderElement = document.createElement('div');
@@ -142,7 +154,7 @@
             // Create order number
             const orderNumber = document.createElement('h5');
             orderNumber.className = 'mb-1';
-            orderNumber.textContent = `Order #${doc.id.slice(-6)}`;
+            orderNumber.textContent = `Order #${order.id.slice(-6)}`;
 
             // Create status badge
             const statusBadge = document.createElement('span');
