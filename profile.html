@@ -169,7 +169,7 @@
             // Create total paragraph
             const totalPara = document.createElement('p');
             totalPara.className = 'mb-1';
-            totalPara.textContent = `Total: ${order.total} EP`;
+            totalPara.textContent = `Total: ${order.total} $`;
 
             // Create items section
             const itemsDiv = document.createElement('div');
@@ -186,7 +186,7 @@
             if (order.items && Array.isArray(order.items)) {
               order.items.forEach(item => {
                 const itemLi = document.createElement('li');
-                itemLi.textContent = `${item.name} x${item.quantity} - ${item.price} EP`;
+                itemLi.textContent = `${item.name} x${item.quantity} - ${item.price} $`;
                 itemsList.appendChild(itemLi);
               });
             } else {

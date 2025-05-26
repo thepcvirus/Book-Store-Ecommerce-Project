@@ -235,13 +235,13 @@ export function loadCart() {
   let totalCostEl = document.getElementById("totalCost");
   if (!user) {
     if (cartContainer) cartContainer.innerHTML = "";
-    if (totalCostEl) totalCostEl.textContent = "Total: 0 EP";
+    if (totalCostEl) totalCostEl.textContent = "Total: 0 $";
     return;
   }
   let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
   if (cartContainer) cartContainer.innerHTML = "";
   let total = calculateTotal(cart);
-  if (totalCostEl) totalCostEl.textContent = ` ${total} `;
+  if (totalCostEl) totalCostEl.textContent = ` ${total} $`;
   cart.forEach((book) => {
     addTableRow("CartList", book.id, book.name, book.price, book);
   });
@@ -590,14 +590,14 @@ export async function displayAdminOrders() {
 
       // Total
       const totalCell = document.createElement('td');
-      totalCell.textContent = `${order.total || 0} EP`;
+      totalCell.textContent = `${order.total || 0} $`;
       row.appendChild(totalCell);
 
       // Items
       const itemsCell = document.createElement('td');
       if (order.items && Array.isArray(order.items)) {
         itemsCell.innerHTML = order.items.map(item =>
-          `<div>${item.name} x${item.quantity} - ${item.price} EP</div>`
+          `<div>${item.name} x${item.quantity} - ${item.price} $</div>`
         ).join("");
       } else {
         itemsCell.textContent = "No items";
@@ -648,14 +648,14 @@ export async function displayAdminOrders() {
 
         // Total
         const totalCell = document.createElement('td');
-        totalCell.textContent = `${order.total || 0} EP`;
+        totalCell.textContent = `${order.total || 0} $`;
         row.appendChild(totalCell);
 
         // Items
         const itemsCell = document.createElement('td');
         if (order.items && Array.isArray(order.items)) {
           itemsCell.innerHTML = order.items.map(item =>
-            `<div>${item.name} x${item.quantity} - ${item.price} EP</div>`
+            `<div>${item.name} x${item.quantity} - ${item.price} $</div>`
           ).join("");
         } else {
           itemsCell.textContent = "No items";

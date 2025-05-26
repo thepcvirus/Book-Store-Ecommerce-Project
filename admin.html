@@ -648,7 +648,7 @@
             const itemsCell = document.createElement("td");
             if (order.items && Array.isArray(order.items)) {
               itemsCell.innerHTML = order.items.map(item =>
-                `<div>${item.name} x${item.quantity} - ${item.price} EP</div>`
+                `<div>${item.name} x${item.quantity} - ${item.price} $</div>`
               ).join("");
             } else {
               itemsCell.textContent = "No items";
