@@ -44,7 +44,7 @@
               <th>User</th>
               <th>Date</th>
               <th>Total</th>
-              <th>Status</th>
+              <!-- <th>Status</th> -->
               <th>Items</th>
             </tr>
           </thead>
@@ -104,13 +104,13 @@
           <textarea class="form-control" id="R_description" rows="2"></textarea>
         </div>
 
-        <div class="col-md-4">
+        <!-- <div class="col-md-4">
           <label for="R_status" class="form-label">Availability</label>
           <select class="form-select" id="R_status">
             <option value="available">Available</option>
             <option value="not-available">Not Available</option>
           </select>
-        </div>
+        </div> -->
 
         <div class="col-12 text-center">
           <button type="submit" class="btn btn-success px-5 py-2 mt-2">
@@ -275,7 +275,7 @@
           .getElementById("R_description")
           .value.trim();
         // get book status
-        let RbookStatus = document.getElementById("R_status").value;
+        // let RbookStatus = document.getElementById("R_status").value;
         // for test
         // console.log({ RbookNameCapital, RbookPrice, RbookImage, RbookDescription, RbookStatus });
 
@@ -472,9 +472,9 @@
               RbookPrice.className = "RbookPriceStyle fw-bold text-danger";
 
               // Create book status
-              let RbookStatus = document.createElement("p");
-              RbookStatus.textContent = `Status: ${book.status}`;
-              RbookStatus.className = "text-success fw-bold";
+              // let RbookStatus = document.createElement("p");
+              // RbookStatus.textContent = `Status: ${book.status}`;
+              // RbookStatus.className = "text-success fw-bold";
 
               // Create buttons with icons
               let RupdateBook = document.createElement("button");
@@ -549,15 +549,11 @@
         try {
           let query = database.collection("orders")
             .where("status", "==", "completed")
-            .orderBy("createdAt", "desc");
+          // .orderBy("createdAt", "desc");
 
           const ordersSnapshot = await query.get();
 
-          // Remove existing pagination controls if any (from previous implementation)
-          const existingPaginationContainer = document.querySelector('.d-flex.justify-content-center.mt-3');
-          if (existingPaginationContainer) {
-            existingPaginationContainer.remove();
-          }
+
 
           if (ordersSnapshot.empty) {
             const row = document.createElement("tr");

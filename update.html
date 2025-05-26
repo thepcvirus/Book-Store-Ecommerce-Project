@@ -65,13 +65,13 @@
                 <textarea class="form-control" id="R_description" rows="3"></textarea>
             </div>
 
-            <div class="mb-3">
+            <!-- <div class="mb-3">
                 <label for="availability" class="form-label">Availability</label>
                 <select class="form-select" id="R_status">
                     <option value="available">Available</option>
                     <option value="not-available">Not Available</option>
                 </select>
-            </div>
+            </div> -->
             <div class="text-center">
                 <button type="submit" class="btn btn-success w-50 px-4 py-2">Submit</button>
             </div>
@@ -107,7 +107,7 @@
                 document.getElementById("R_price").value = Rdata.price || "";
                 document.getElementById("R_bookImage").value = Rdata.url_image || "";
                 document.getElementById("R_description").value = Rdata.description || "";
-                document.getElementById("R_status").value = Rdata.status || "available";
+                // document.getElementById("R_status").value = Rdata.status || "available";
 
                 document.getElementById("R_bookForm").addEventListener("submit", async (e) => {
                     e.preventDefault();
@@ -130,7 +130,7 @@
                     // update book description
                     let RbookUpdatedDesc = document.getElementById("R_description").value.trim();
                     // update book status
-                    let RbookUpdatedStatus = document.getElementById("R_status").value;
+                    // let RbookUpdatedStatus = document.getElementById("R_status").value;
                     try {
                         await RbookRef.update({
                             name: RbookCapitalizeName,
@@ -138,7 +138,7 @@
                             price: RbookUpdatedPrice,
                             url_image: RbookUpdatedImage,
                             description: RbookUpdatedDesc,
-                            status: RbookUpdatedStatus,
+                            // status: RbookUpdatedStatus,
                             gener: RbookUpdatedGener,
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });

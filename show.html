@@ -28,6 +28,7 @@
     <script type="module">
 
         import { firebaseConfig as firebaseConfig } from './ConfigFile.js';
+        import { loadCart } from './GeneralFunctions.js';
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -54,6 +55,7 @@
                     return;
                 }
                 let book = Rdoc.data();
+                book.id = Rdoc.id;
                 // clear the container
                 Rbookcontainer.innerHTML = '';
 
@@ -82,33 +84,39 @@
                 RbookName.textContent = book.name;
                 RbookName.className = 'mb-3';
 
-                // create book author (assuming you have author data)
-                if (book.author) {
-                    let RbookAuthor = document.createElement("p");
-                    RbookAuthor.textContent = `Author: ${book.author}`;
-                    RbookAuthor.className = 'text-muted mb-2';
-                    detailsCol.appendChild(RbookAuthor);
-                }
+                // create book author
+                let RbookAuthor = document.createElement("p");
+                RbookAuthor.textContent = `Author: ${book.author}`;
+                RbookAuthor.className = 'text-muted mb-2';
+                detailsCol.appendChild(RbookAuthor);
 
                 // create book gener
                 let RbookGener = document.createElement("p");
                 RbookGener.textContent = `Genre: ${book.gener}`;
                 RbookGener.className = 'text-muted mb-2';
 
-                // create car price
+                // create book price
                 let RbookPrice = document.createElement("p");
                 RbookPrice.textContent = `Price: ${book.price} EP`;
                 RbookPrice.className = 'fw-bold text-success fs-5'; // Added Bootstrap classes for price style
 
-                // create car description
+                // create book description
                 let RbookDesc = document.createElement("p");
                 RbookDesc.textContent = `Description: ${book.description}`;
                 RbookDesc.className = 'mb-3';
 
-                // create car status
-                let RbookStatus = document.createElement("p");
-                RbookStatus.textContent = `Availability: ${book.status}`;
-                RbookStatus.className = `fw-bold ${book.status === 'available' ? 'text-success' : 'text-danger'}`;
+                // create book status
+                // let RbookStatus = document.createElement("p");
+                // RbookStatus.textContent = `Availability: ${book.status}`;
+                // RbookStatus.className = `fw-bold ${book.status === 'available' ? 'text-success' : 'text-danger'}`;
+
+                // Create add to cart button
+                let addToCartbutton = document.createElement("button");
+                addToCartbutton.className = "btn btn-primary mt-3";
+                addToCartbutton.textContent = "Add To Cart";
+                addToCartbutton.addEventListener("click", () => {
+                    addToCart(book);
+                });
 
 
                 // add elements to the details column
@@ -116,7 +124,8 @@
                 detailsCol.appendChild(RbookGener);
                 detailsCol.appendChild(RbookPrice);
                 detailsCol.appendChild(RbookDesc);
-                detailsCol.appendChild(RbookStatus);
+                // detailsCol.appendChild(RbookStatus);
+                detailsCol.appendChild(addToCartbutton);
 
                 // Append columns to the row
                 rowDiv.appendChild(imgCol);
@@ -135,7 +144,37 @@
         document.getElementById("RbackBtn").addEventListener("click", () => {
             window.history.back();
         });
+        // add to cart function
+        export function addToCart(book) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            // check if the book already added or not
+            let existingBook = cart.find((item) => item.id === book.id);
+            if (existingBook) {
+                // if existed , the user can add the same books 5 times only
+                if (existingBook.quantity >= 5) {
+                    alert("You can't add the same book more than 5");
+                } else {
+                    existingBook.quantity++;
+                    alert(
+                        `You added the ${existingBook.name}  ${existingBook.quantity} times`
+                    );
+                }
+            } else {
+                // if the book not added into the cart before
+                cart.push({
+                    id: book.id,
+                    name: book.name,
+                    price: book.price,
+                    url_image: book.url_image,
+                    quantity: 1,
+                });
+                alert(` ${book.name} added to cart successfully`);
+            }
 
+            // store the cart into localstorage
+            localStorage.setItem("cart", JSON.stringify(cart));
+            loadCart();
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js">
     </script>
