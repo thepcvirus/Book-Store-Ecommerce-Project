@@ -1,107 +1,138 @@
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT"
+      crossorigin="anonymous"
+    />
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=AUfaltD2k-zDTIvW9PWXSYbCAhipu0Hvwv5Ktfte4FInp_Rz4_kQO8xspI0cdZud1vV2TqYrDmtCk8NU&currency=USD"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-  <script
-    src="https://www.paypal.com/sdk/js?client-id=AUfaltD2k-zDTIvW9PWXSYbCAhipu0Hvwv5Ktfte4FInp_Rz4_kQO8xspI0cdZud1vV2TqYrDmtCk8NU&currency=USD"></script>
-  <link rel="stylesheet" href="style.css">
-</head>
+  <body>
+    <script type="module">
+      import { createNavbar } from "./GeneralFunctions.js";
+      document.body.prepend(createNavbar());
+    </script>
 
-<body>
-  <script type="module">
-    import { createNavbar } from './GeneralFunctions.js';
-    document.body.prepend(createNavbar());
-  </script>
+    <div class="row">
+      <section>
+        <h3 class="text-center">Your Cart</h3>
+        <div id="bookContainer" class="book-grid"></div>
+      </section>
 
-  <div class="row">
+      <div class="col-12 cart-panel p-4 my-4 bg-white rounded shadow-sm">
+  <h4 class="mb-4 text-center fw-bold">🛒 Your Cart</h4>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle" id="CartList">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Sample Book</td>
+          <td><input type="number" class="form-control w-50 mx-auto" value="1" /></td>
+          <td>$10</td>
+          <td><button class="btn btn-outline-danger btn-sm">Delete</button></td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Sample Book 2</td>
+          <td><input type="number" class="form-control w-50 mx-auto" value="1" /></td>
+          <td>$12</td>
+          <td><button class="btn btn-outline-danger btn-sm">Delete</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <section>
-      <h3 class="text-center">Your Cart</h3>
-      <div id="bookContainer" class="book-grid"></div>
-    </section>
+  <div class="text-center mt-4">
+    <button class="btn btn-warning btn-lg rounded-pill px-5" id="checkoutBtn">
+      ✅ Check Out
+    </button>
+  </div>
+
+  <div class="text-center mt-3">
+    <h5>Total: <span id="totalCost" class="text-success fw-bold">0</span> USD</h5>
+    <div id="paypal-button-container" class="mt-3"></div>
+  </div>
+</div>
 
 
-    <div class="col-12 Cart m-1">
-      <table class="table w-100" id="CartList">
-        <thead class="table-light">
-          <td>Number</td>
-          <td>Name</td>
-          <td>Quantity</td>
-          <td>Price</td>
-          <td></td>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Number</td>
-            <td>Name</td>
-            <td><input type="number" class="input-group" value="1"></td>
-            <td>Price</td>
-            <td><button class="btn btn-danger">Delete</button></td>
-          </tr>
-          <tr>
-            <td>Number</td>
-            <td>Name</td>
-            <td><input type="number" class="input-group" value="1"></td>
-            <td>Price</td>
-            <td><button class="btn btn-danger">Delete</button></td>
-          </tr>
-        </tbody>
-      </table>
-      <button class="btn btn-warning Check_Out col-12" id="checkoutBtn">Check Out</Button>
-      <div class="text-center">
-        <h5>Total: <span id="totalCost">0</span> USD</h5>
-        <div id="paypal-button-container"></div>
+
+
+
+<div class="price-filter bg-white p-4 rounded shadow-sm my-4">
+  <label for="priceRange" class="form-label fw-bold">
+    💵 Filter by Price: <span id="priceValue" class="text-primary">1000</span> EGP
+  </label>
+  <input
+    type="range"
+    class="form-range"
+    id="priceRange"
+    min="0"
+    max="1000"
+    value="1000"
+    step="10"
+  />
+</div>
+
+
+      <hr />
+      <div class="filter-panel p-4 my-4 rounded shadow-sm bg-white">
+  <div class="row g-3 align-items-end">
+    <!-- Search -->
+    <div class="col-md-6">
+      <label for="searchInput" class="form-label">Search Books</label>
+      <div class="input-group">
+        <input
+          class="form-control"
+          type="text"
+          placeholder="Enter book title or author..."
+          id="searchInput"
+        />
+        <button class="btn btn-primary" id="searchBtn">Search</button>
       </div>
     </div>
 
-
-
-
-
-
-
-
-
-
-
-    <div class="my-3">
-      <label for="priceRange" class="form-label">
-        Filter by Price: <span id="priceValue">1000</span> EP
-      </label>
-      <input type="range" class="form-range" id="priceRange" min="0" max="1000" value="1000" step="10">
+    <!-- Sort -->
+    <div class="col-md-3">
+      <label class="form-label d-block">Sort By</label>
+      <div class="dropdown w-100">
+        <button
+          class="btn btn-outline-secondary dropdown-toggle w-100"
+          type="button"
+          id="sortingDropdown"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          Choose Sorting
+        </button>
+        <ul class="dropdown-menu w-100" aria-labelledby="sortingDropdown">
+          <li><a class="dropdown-item" href="#" data-sort="price-asc">Price ASC</a></li>
+          <li><a class="dropdown-item" href="#" data-sort="price-desc">Price DESC</a></li>
+          <li><a class="dropdown-item" href="#" data-sort="name-asc">Name ASC</a></li>
+          <li><a class="dropdown-item" href="#" data-sort="name-desc">Name DESC</a></li>
+        </ul>
+      </div>
     </div>
 
-
-
-
-
-    <hr>
-    <div class="input-group mb-3">
-      <input class="input-group-text" type="text" placeholder="Search" id="searchInput">
-      <button class="btn btn-primary" id="searchBtn">Search</button>
-    </div>
-    <hr>
-    <div class="dropdown">
-      <button class="btn btn-secondary dropdown-toggle" type="button" id="sortingDropdown" data-bs-toggle="dropdown"
-        aria-expanded="false">
-        Sort by
-      </button>
-      <ul class="dropdown-menu" aria-labelledby="sortingDropdown">
-        <li><a class="dropdown-item" href="#" data-sort="price-asc">Price ASC</a></li>
-        <li><a class="dropdown-item" href="#" data-sort="price-desc">Price DESC</a></li>
-        <li><a class="dropdown-item" href="#" data-sort="name-asc">Name ASC</a></li>
-        <li><a class="dropdown-item" href="#" data-sort="name-desc">Name DESC</a></li>
-      </ul>
-    </div>
-    <hr />
-    <div class="mb-3">
+    <!-- Categories -->
+    <div class="col-md-3">
       <label for="categoryFilter" class="form-label">Book Categories</label>
       <select class="form-select" id="categoryFilter">
         <option value="all">All Categories</option>
@@ -115,209 +146,197 @@
         <option value="Short Story">Short Story</option>
       </select>
     </div>
-    <hr>
-    <h3 class="text-center" id="titleProducts">All Products</h3>
-    <div class="col-12 row" id="ProductsList">
-      <div class="card Product_Card col-6 col-md-3">
-        <img src="0356.png" class="card-img-top" alt="...">
-        <div class="card-body Data_Section row">
-          <h3 class="card-title col-12">Book Name</h3>
-          <h4 class="Auth_Name col-12">Auther Name</h4>
-          <h5 class="Genre col-12">Genre</h5>
-          <h5 class="Price col-sm-12 col-md-6">500$</h5>
-          <button class="btn Add_To_Cart col-sm-12 col-md-6">Add To Cart</Button>
+  </div>
+</div>
+
+      <hr />
+      <h3 class="text-center" id="titleProducts">All Products</h3>
+      <div class="col-12 row" id="ProductsList">
+        <div class="card Product_Card col-6 col-md-3">
+          <img src="0356.png" class="card-img-top" alt="..." />
+          <div class="card-body Data_Section row">
+            <h3 class="card-title col-12">Book Name</h3>
+            <h4 class="Auth_Name col-12">Auther Name</h4>
+            <h5 class="Genre col-12">Genre</h5>
+            <h5 class="Price col-sm-12 col-md-6">500$</h5>
+            <button class="btn Add_To_Cart col-sm-12 col-md-6">
+              Add To Cart
+            </button>
+          </div>
         </div>
       </div>
-
+      <div class="text-center mt-3">
+        <button class="btn btn-primary" id="loadMoreBtn">Load More</button>
+      </div>
     </div>
-    <div class="text-center mt-3">
-      <button class="btn btn-primary" id="loadMoreBtn">Load More</button>
-    </div>
-  </div>
 
-  <script type="module">
-    import { firebaseConfig as firebaseConfig } from './ConfigFile.js';
+    <script type="module">
+      import { firebaseConfig as firebaseConfig } from "./ConfigFile.js";
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    let database = firebase.firestore();
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      let database = firebase.firestore();
 
-    document.getElementById('logoutBtn').addEventListener("click", () => {
-      auth
-        .signOut()
-        .then(() => {
-          alert("Logging out");
-          window.location.href = "login.html";
-        })
-        .catch((error) => {
-          alert("error", error.message)
-        })
-    })
-    import { createProductCard } from './GeneralFunctions.js';
-    // createProductCard(
-    //   'ProductsList',           // The ID of the div where the card should be added
-    //   '0356.png',        // Image URL
-    //   'JavaScript Basics',  // Book name
-    //   'John Doe',          // Author name
-    //   'Programming',       // Genre
-    //   29.99                // Price
-    // );
-
-    // createProductCard(
-    //   'ProductsList',           // The ID of the div where the card should be added
-    //   '0356.png',        // Image URL
-    //   'JavaScript Basics',  // Book name
-    //   'John Doe',          // Author name
-    //   'Programming',       // Genre
-    //   29.99                // Price
-    // );
-
-    // createProductCard(
-    //   'ProductsList',           // The ID of the div where the card should be added
-    //   '0356.png',        // Image URL
-    //   'JavaScript Basics',  // Book name
-    //   'John Doe',          // Author name
-    //   'Programming',       // Genre
-    //   29.99                // Price
-    // );
-
-    import { addTableRow } from './GeneralFunctions.js';
-    import { calculateTotal } from './GeneralFunctions.js';
-    import { loadCart } from './GeneralFunctions.js';
-    import { displayBooksForUser } from './GeneralFunctions.js';
-
-    // addTableRow('CartList', 1, 'Book Name', 25.99);
-    // addTableRow('CartList', 1, 'Book Name', 25.99);
-    // addTableRow('CartList', 1, 'Book Name', 25.99);
-
-    // budget for test
-    if (!localStorage.getItem("budget")) {
-      localStorage.setItem("budget", "1000");
-    }
-    document.getElementById("checkoutBtn").addEventListener("click", checkout);
-
-    //osama edit first
-    // Add this event listener for category filter
-    document
-      .getElementById("categoryFilter")
-      .addEventListener("change", function () {
-        const selectedCategory = this.value;
-        displayBooksForUser("ProductsList", selectedCategory);
-        document.getElementById("titleProducts").textContent =
-          selectedCategory === "all" ? "All Products" : selectedCategory;
+      // Add auth state change listener
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          // User is signed in, load their cart
+          loadCart();
+        }
       });
 
-    // Add this event listener for load more button
-    document.getElementById("loadMoreBtn").addEventListener("click", () => {
-      const categoryFilter = document.getElementById("categoryFilter");
-      const selectedCategory = categoryFilter ? categoryFilter.value : "all";
-      displayBooksForUser("ProductsList", selectedCategory, true); // append books
-    });
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        auth
+          .signOut()
+          .then(() => {
+            alert("Logging out");
+            window.location.href = "login.html";
+          })
+          .catch((error) => {
+            alert("error", error.message);
+          });
+      });
+      import { createProductCard } from "./GeneralFunctions.js";
 
-    // Initialize with all books
-    window.addEventListener("DOMContentLoaded", () => {
-      displayBooksForUser("ProductsList", "all");
-      loadCart();
-    });
-    //osama edit last
+      import { addTableRow } from "./GeneralFunctions.js";
+      import { calculateTotal } from "./GeneralFunctions.js";
+      import { loadCart } from "./GeneralFunctions.js";
 
-    // window.addEventListener("DOMContentLoaded", () => {
-    //   loadCart();
-    // });
+      // addTableRow('CartList', 1, 'Book Name', 25.99);
+      // addTableRow('CartList', 1, 'Book Name', 25.99);
+      // addTableRow('CartList', 1, 'Book Name', 25.99);
 
-    // run display books function 
-    // window.addEventListener("DOMContentLoaded", () => {
-    //   displayBooksForUser('ProductsList');
-    // });
-    // import paypal function
-    import { paypalPayment } from './GeneralFunctions.js';
-    // start checkout functionnnnnnn
-    async function checkout() {
-      let cart = JSON.parse(localStorage.getItem("cart")) || [];
-      let total = calculateTotal(cart);
-
-      if (cart.length === 0) {
-        alert("Your cart is empty");
-        return;
+      // budget for test
+      if (!localStorage.getItem("budget")) {
+        localStorage.setItem("budget", "1000");
       }
+      document
+        .getElementById("checkoutBtn")
+        .addEventListener("click", checkout);
 
-      try {
-        let user = firebase.auth().currentUser;
+      //osama edit first
+      // Add this event listener for category filter
 
+      // Add this event listener for load more button
+
+      //osama edit last
+
+      // import paypal function
+      import { paypalPayment } from "./GeneralFunctions.js";
+      // start checkout functionnnnnnn
+      async function checkout() {
+        const user = firebase.auth().currentUser;
         if (!user) {
           alert("Please login first");
           window.location.href = "login.html";
           return;
         }
 
-        // Initialize PayPal payment
-        paypalPayment(total, null, user.uid);
+        let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+        let total = calculateTotal(cart);
 
-      } catch (error) {
-        console.error("Error during checkout:", error);
-        alert("Something went wrong during checkout. Please try again.");
-      }
-    }
-    import { searchBooks } from './GeneralFunctions.js';
-    // Add event listener for search button
-    document.getElementById('searchBtn').addEventListener('click', () => {
-      let searchBook = document.getElementById('searchInput').value.trim();
-      if (searchBook === '') {
-        // if search is empty it will show all books
-        displayBooksForUser('ProductsList');
-      } else {
-        searchBooks(searchBook);
-      }
-    });
-    // search by click "enter" on keyboard
-    document.getElementById('searchInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        document.getElementById('searchBtn').click();
-      }
-    });
+        if (cart.length === 0) {
+          alert("Your cart is empty");
+          return;
+        }
 
-    import { displayBooksSorted } from './GeneralFunctions.js';
+        try {
+          // Initialize PayPal payment
+          paypalPayment(total, null, user.uid);
+        } catch (error) {
+          console.error("Error during checkout:", error);
+          alert("Something went wrong during checkout. Please try again.");
+        }
+      }
 
-    // Sorting dropdown event listener
-    document.querySelectorAll('.dropdown-item').forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        const sortType = item.getAttribute('data-sort');
-        displayBooksSorted(sortType);
+      import { displayBooksSorted } from "./GeneralFunctions.js";
+
+      // Sorting dropdown event listener
+      document.querySelectorAll(".dropdown-item").forEach((item) => {
+        item.addEventListener("click", (e) => {
+          e.preventDefault();
+          const sortType = item.getAttribute("data-sort");
+          displayBooksSorted(sortType);
+        });
       });
-    });
+
+      import { filterBooksCombined } from "./GeneralFunctions.js";
+
+      function getCurrentFilters() {
+        return {
+          category: document.getElementById("categoryFilter").value,
+          searchTerm: document.getElementById("searchInput").value.trim(),
+          maxPrice: Number(document.getElementById("priceRange").value),
+        };
+      }
+
+      // عند تغيير التصنيف
+      document
+        .getElementById("categoryFilter")
+        .addEventListener("change", function () {
+          const { category, searchTerm, maxPrice } = getCurrentFilters();
+          filterBooksCombined({ category, searchTerm, maxPrice });
+        });
+
+      // عند الضغط على زر البحث
+      document.getElementById("searchBtn").addEventListener("click", () => {
+        const { category, searchTerm, maxPrice } = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice });
+      });
+
+      // عند الضغط على Enter في البحث
+      document
+        .getElementById("searchInput")
+        .addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            document.getElementById("searchBtn").click();
+          }
+        });
+
+      // عند تغيير السعر
+      const priceSlider = document.getElementById("priceRange");
+      const priceValue = document.getElementById("priceValue");
+
+      if (priceSlider && priceValue) {
+        // تحديث القيمة أثناء التحريك
+        priceSlider.addEventListener("input", () => {
+          priceValue.textContent = priceSlider.value;
+        });
+        // عند تغيير السلايدر (تطبيق الفلتر)
+        priceSlider.addEventListener("change", () => {
+          const { category, searchTerm, maxPrice } = getCurrentFilters();
+          filterBooksCombined({ category, searchTerm, maxPrice });
+        });
+      }
+      // زر تحميل المزيد
+      document.getElementById("loadMoreBtn").addEventListener("click", () => {
+        const { category, searchTerm, maxPrice } = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice, append: true });
+      });
+
+      // أول تحميل للصفحة
+      window.addEventListener("DOMContentLoaded", () => {
+        const { category, searchTerm, maxPrice } = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice });
+        loadCart();
+      });
+    </script>
+
+  <footer class="footer mt-5 py-4 bg-dark text-light text-center">
+  <div class="container">
+    <p class="mb-1">&copy; 2025 Your Bookstore. All rights reserved.</p>
+    <div>
+      <a href="#" class="text-light mx-2">Privacy Policy</a> |
+      <a href="#" class="text-light mx-2">Terms of Service</a>
+    </div>
+  </div>
+</footer>
 
 
-
-
-
-
-
-
-
-
-
-
-
-    import { filterBooksByPrice } from './GeneralFunctions.js';
-
-    // Update price label while sliding
-    const priceSlider = document.getElementById("priceRange");
-    const priceValue = document.getElementById("priceValue");
-
-    priceSlider.addEventListener("input", () => {
-      priceValue.textContent = priceSlider.value;
-    });
-
-    // Trigger filtering on change
-    priceSlider.addEventListener("change", () => {
-      filterBooksByPrice(Number(priceSlider.value));
-    });
-
-  </script>
-
-</body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
-  integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
-
+  </body>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
+    crossorigin="anonymous"
+  ></script>
 </html>

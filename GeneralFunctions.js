@@ -6,21 +6,14 @@ const auth = firebase.auth();
 const database = firebase.firestore();
 
 export function createNavbar() {
-  // Create the main nav element
   const nav = document.createElement("nav");
   nav.className = "navbar navbar-expand-lg bg-body-tertiary";
-
-  // Create container div
   const container = document.createElement("div");
   container.className = "container-fluid";
-
-  // Create brand link
   const brandLink = document.createElement("a");
   brandLink.className = "navbar-brand";
   brandLink.href = "index.html";
   brandLink.textContent = "Ketaby";
-
-  // Create toggle button
   const toggleButton = document.createElement("button");
   toggleButton.className = "navbar-toggler";
   toggleButton.type = "button";
@@ -29,56 +22,39 @@ export function createNavbar() {
   toggleButton.setAttribute("aria-controls", "navbarNav");
   toggleButton.setAttribute("aria-expanded", "false");
   toggleButton.setAttribute("aria-label", "Toggle navigation");
-
   const toggleIcon = document.createElement("span");
   toggleIcon.className = "navbar-toggler-icon";
   toggleButton.appendChild(toggleIcon);
-
-  // Create collapsible div
   const collapseDiv = document.createElement("div");
   collapseDiv.className = "collapse navbar-collapse";
   collapseDiv.id = "navbarNav";
-
-  // Create nav list
   const navList = document.createElement("ul");
   navList.className = "navbar-nav";
-
-  // Create nav items
   const navItems = [
     { text: "Admin", href: "admin.html", active: true },
     { text: "Profile", href: "profile.html" },
     { text: "Logout", href: "#", id: "logoutBtn" },
   ];
-
   navItems.forEach((item) => {
     const li = document.createElement("li");
     li.className = "nav-item";
-
     const a = document.createElement("a");
     a.className = "nav-link";
     if (item.active) {
       a.classList.add("active");
       a.setAttribute("aria-current", "page");
     }
-    if (item.href) {
-      a.href = item.href;
-    }
-    if (item.id) {
-      a.id = item.id;
-    }
+    if (item.href) a.href = item.href;
+    if (item.id) a.id = item.id;
     a.textContent = item.text;
-
     li.appendChild(a);
     navList.appendChild(li);
   });
-
-  // Assemble all elements
   collapseDiv.appendChild(navList);
   container.appendChild(brandLink);
   container.appendChild(toggleButton);
   container.appendChild(collapseDiv);
   nav.appendChild(container);
-
   return nav;
 }
 
@@ -91,56 +67,37 @@ export function createProductCard(
   Price,
   book = null
 ) {
-  // Create the main card div
   const card = document.createElement("div");
   card.className = "card Product_Card col-6 col-md-3";
-
-  // Create and append the image
   const img = document.createElement("img");
-  img.src = ImageUrl || "0356.png"; // Default image if not provided
+  img.src = ImageUrl || "0356.png";
   img.className = "card-img-top";
   img.alt = "Book Cover";
-
-  // Create an anchor tag for the image
-  const imgLink = document.createElement('a');
+  const imgLink = document.createElement("a");
   imgLink.href = `show.html?id=${book.id}`;
   imgLink.appendChild(img);
   card.appendChild(imgLink);
-
-  // Create the card body
   const cardBody = document.createElement("div");
   cardBody.className = "card-body Data_Section row";
-
-  // Create and append the title
   const title = document.createElement("h3");
   title.className = "card-title col-12";
-  title.textContent = BookName || "Book Name"; // Default if not provided
-
-  // Create an anchor tag for the title
-  const titleLink = document.createElement('a');
+  title.textContent = BookName || "Book Name";
+  const titleLink = document.createElement("a");
   titleLink.href = `show.html?id=${book.id}`;
   titleLink.appendChild(title);
   cardBody.appendChild(titleLink);
-
-  // Create and append the author
   const author = document.createElement("h4");
   author.className = "Auth_Name col-12";
-  author.textContent = AutherName || "Author Name"; // Default if not provided
+  author.textContent = AutherName || "Author Name";
   cardBody.appendChild(author);
-
-  // Create and append the genre
   const genre = document.createElement("h5");
   genre.className = "Genre col-12";
-  genre.textContent = Genre || "Genre"; // Default if not provided
+  genre.textContent = Genre || "Genre";
   cardBody.appendChild(genre);
-
-  // Create and append the price
   const price = document.createElement("h5");
   price.className = "Price col-sm-12 col-md-6";
-  price.textContent = Price ? `${Price}$` : "500$"; // Default if not provided
+  price.textContent = Price ? `${Price}$` : "500$";
   cardBody.appendChild(price);
-
-  // Create and append the button
   const button = document.createElement("button");
   button.className = "btn Add_To_Cart col-sm-12 col-md-6";
   button.textContent = "Add To Cart";
@@ -148,15 +105,9 @@ export function createProductCard(
     addToCart(book);
   });
   cardBody.appendChild(button);
-
-  // Append card body to card
   card.appendChild(cardBody);
-
-  // Append card to the specified div
   const targetDiv = document.getElementById(DivID);
   if (targetDiv) {
-    console.log("Card Printed");
-
     targetDiv.appendChild(card);
   } else {
     console.error(`Element with id "${DivID}" not found`);
@@ -164,51 +115,34 @@ export function createProductCard(
 }
 
 export function addTableRow(tableId, number, name, price, book) {
-  // Create the table row element
   const row = document.createElement("tr");
-
-  // Create and append the number cell
   const numberCell = document.createElement("td");
   numberCell.textContent = number || "";
   row.appendChild(numberCell);
-
-  // Create and append the name cell
   const nameCell = document.createElement("td");
   nameCell.textContent = name || "";
   row.appendChild(nameCell);
-
-  // Create and append the quantity cell with input
   let btnGroup = document.createElement("div");
   btnGroup.className = "btn-group";
   btnGroup.role = "group";
-  // minus the amount of books button
   let minusBtn = document.createElement("button");
   minusBtn.className = "btn btn-sm btn-outline-secondary";
   minusBtn.textContent = "-";
   minusBtn.onclick = () => decreaseQuantity(book.id);
-
   let quantitySpan = document.createElement("span");
   quantitySpan.className = "mx-2";
   quantitySpan.textContent = book.quantity;
-
-  // plus the amount of books button
   let plusBtn = document.createElement("button");
   plusBtn.className = "btn btn-sm btn-outline-secondary";
   plusBtn.textContent = "+";
   plusBtn.onclick = () => increaseQuantity(book.id);
-
   btnGroup.appendChild(minusBtn);
   btnGroup.appendChild(quantitySpan);
   btnGroup.appendChild(plusBtn);
-  //quantityCell.appendChild(quantityInput);
   row.appendChild(btnGroup);
-
-  // Create and append the price cell
   const priceCell = document.createElement("td");
   priceCell.textContent = price ? `${price}$` : "0$";
   row.appendChild(priceCell);
-
-  // Create and append the delete button cell
   const deleteCell = document.createElement("td");
   const deleteButton = document.createElement("button");
   deleteButton.className = "btn btn-danger";
@@ -216,548 +150,221 @@ export function addTableRow(tableId, number, name, price, book) {
   deleteButton.onclick = () => removeFromCart(book.id);
   deleteCell.appendChild(deleteButton);
   row.appendChild(deleteCell);
-
-  // Add event listener for the delete button
   deleteButton.addEventListener("click", function () {
     row.remove();
   });
-
-  // Find the table and append the row
   const table = document.getElementById(tableId);
   if (table) {
-    // Append to the table body if it exists, otherwise to the table directly
     const tbody = table.querySelector("tbody") || table;
     tbody.appendChild(row);
   } else {
     console.error(`Table with id "${tableId}" not found`);
   }
 }
-// Usage example:
-// document.body.prepend(createNavbar());
-// or append to a specific element:
-// document.getElementById('header').appendChild(createNavbar());
 
-let lastVisibleDocs = new Map(); // يجب أن تكون في أعلى الملف خارج أي دالة
-
-export async function displayBooksForUser(
-  bookContainer,
-  selectedCategory = "all",
-  append = false
-) {
-  let db = firebase.firestore();
-  let bookcontainer = document.getElementById(bookContainer);
-
-  if (!append) {
-    bookcontainer.innerHTML = "";
-    lastVisibleDocs = new Map(); // Reset pagination on new filter
-  }
-
-  try {
-    const booksRef = db.collection("cars");
-    let booksQuery;
-
-    if (selectedCategory === "all") {
-      booksQuery = lastVisibleDocs.get("all")
-        ? booksRef
-          .orderBy("name")
-          .startAfter(lastVisibleDocs.get("all"))
-          .limit(9)
-        : booksRef.orderBy("name").limit(9);
-    } else {
-      booksQuery = lastVisibleDocs.get(selectedCategory)
-        ? booksRef
-          .where("gener", "==", selectedCategory)
-          .orderBy("name")
-          .startAfter(lastVisibleDocs.get(selectedCategory))
-          .limit(9)
-        : booksRef
-          .where("gener", "==", selectedCategory)
-          .orderBy("name")
-          .limit(9);
-    }
-
-    let booksSnapshot = await booksQuery.get();
-
-    if (booksSnapshot.empty) {
-      if (!append) {
-        let alert = document.createElement("p");
-        alert.className = "text-center";
-        alert.textContent = "No books found.";
-        bookcontainer.appendChild(alert);
-      }
-      // Hide load more button if no more data
-      const loadMoreBtn = document.getElementById("loadMoreBtn");
-      if (loadMoreBtn) loadMoreBtn.style.display = "none";
-      return;
-    }
-
-    // Save last visible doc for pagination
-    const lastVisible = booksSnapshot.docs[booksSnapshot.docs.length - 1];
-    if (selectedCategory === "all") {
-      lastVisibleDocs.set("all", lastVisible);
-    } else {
-      lastVisibleDocs.set(selectedCategory, lastVisible);
-    }
-
-    booksSnapshot.forEach((doc) => {
-      let book = doc.data();
-      book.id = doc.id;
-
-      createProductCard(
-        bookContainer,
-        book.url_image || "0356.png",
-        book.name || "Unknown Book",
-        book.author || "Unknown Author",
-        book.gener || "Unknown Genre",
-        book.price || 0,
-        book
-      );
-    });
-
-    // Show or hide load more button
-    const loadMoreBtn = document.getElementById("loadMoreBtn");
-    if (loadMoreBtn) {
-      loadMoreBtn.style.display = booksSnapshot.size < 9 ? "none" : "block";
-    }
-  } catch (error) {
-    console.error("Error fetching books:", error);
-    let errorMsg = document.createElement("p");
-    errorMsg.className = "text-danger";
-    errorMsg.textContent = "Error loading books: " + error.message;
-    bookcontainer.appendChild(errorMsg);
-  }
-}
 export function loadMoreBooks() {
   const categoryFilter = document.getElementById("categoryFilter");
   const selectedCategory = categoryFilter ? categoryFilter.value : "all";
-  displayBooksForUser("ProductsList", selectedCategory, true);
+  filterBooksCombined({
+    bookContainerId: "ProductsList",
+    category: selectedCategory,
+    append: true,
+  });
 }
-// last edit from osama
 
 // add to cart function
-export async function addToCart(book) {
-  try {
-    const user = auth.currentUser;
-    if (!user) {
-      alert("Please login to add items to cart");
-      return;
-    }
-    // Check if user is admin
-    const isAdmin = CheckAdmin(user.email);
-    if (isAdmin) {
-      alert("Admin users cannot use the cart");
-      return;
-    }
-
-    const cart = await getUserCart(user.uid);
-    const existingBook = cart.find(item => item.id === book.id);
-
-    if (existingBook) {
-      if (existingBook.quantity >= 5) {
-        alert("You can't add the same book more than 5");
-      } else {
-        existingBook.quantity++;
-        alert(`You added the ${existingBook.name} ${existingBook.quantity} times`);
-      }
-    } else {
-      cart.push({
-        id: book.id,
-        name: book.name,
-        price: book.price,
-        url_image: book.url_image,
-        quantity: 1
-      });
-      alert(`${book.name} added to cart successfully`);
-    }
-
-    const success = await updateUserCart(user.uid, cart);
-    if (success) {
-      await loadCart();
-    } else {
-      alert("Error updating cart. Please try again.");
-    }
-  } catch (error) {
-    console.error("Error adding to cart:", error);
-    alert("Error adding to cart");
+export function addToCart(book) {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Please login first to add items to cart");
+    window.location.href = "login.html";
+    return;
   }
-}
-
-// Cart operations
-export async function loadCart() {
-  try {
-    const user = auth.currentUser;
-    if (!user) {
-      // document.getElementById("CartList").innerHTML = "<p>Please login to view your cart</p>";
-      return;
+  let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+  let existingBook = cart.find((item) => item.id === book.id);
+  if (existingBook) {
+    if (existingBook.quantity >= 5) {
+      alert("You can't add the same book more than 5");
+    } else {
+      existingBook.quantity++;
+      alert(
+        `You added the ${existingBook.name}  ${existingBook.quantity} times`
+      );
     }
-
-    // Check if user is admin
-    const isAdmin = CheckAdmin(user.email);
-    if (isAdmin) {
-      document.getElementById("CartList").innerHTML = "<p>Admin users cannot use the cart</p>";
-      return;
-    }
-
-    const cartContainer = document.getElementById("CartList");
-    const totalCostEl = document.getElementById("totalCost");
-    if (!cartContainer || !totalCostEl) {
-      console.error("Cart elements not found");
-      return;
-    }
-
-    cartContainer.innerHTML = "";
-    const cart = await getUserCart(user.uid);
-    const total = calculateTotal(cart);
-    totalCostEl.textContent = `Total: ${total} EP`;
-
-    cart.forEach((book) => {
-      addTableRow("CartList", book.id, book.name, book.price, book);
+  } else {
+    cart.push({
+      id: book.id,
+      name: book.name,
+      price: book.price,
+      quantity: 1,
     });
-  } catch (error) {
-    console.error("Error loading cart:", error);
-    document.getElementById("CartList").innerHTML = "<p>Error loading cart. Please refresh the page.</p>";
+    alert(` ${book.name} added to cart successfully`);
   }
+  localStorage.setItem(`cart_${user.uid}`, JSON.stringify(cart));
+  loadCart();
 }
 
-// calculate total
+export function loadCart() {
+  const user = firebase.auth().currentUser;
+  let cartContainer = document.getElementById("CartList");
+  let totalCostEl = document.getElementById("totalCost");
+  if (!user) {
+    if (cartContainer) cartContainer.innerHTML = "";
+    if (totalCostEl) totalCostEl.textContent = "Total: 0 EP";
+    return;
+  }
+  let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+  if (cartContainer) cartContainer.innerHTML = "";
+  let total = calculateTotal(cart);
+  if (totalCostEl) totalCostEl.textContent = `Total: ${total} EP`;
+  cart.forEach((book) => {
+    addTableRow("CartList", book.id, book.name, book.price, book);
+  });
+}
+
 export function calculateTotal(cart) {
   return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 }
-// increase amount of books function
-export async function increaseQuantity(bookId) {
-  try {
-    const user = auth.currentUser;
-    if (!user) return;
 
-    const cart = await getUserCart(user.uid);
-    const item = cart.find((b) => b.id === bookId);
-
-    if (item && item.quantity < 5) {
-      item.quantity += 1;
-      await updateUserCart(user.uid, cart);
-      await loadCart();
-    } else {
-      alert("You reached the max limit (5)");
-    }
-  } catch (error) {
-    console.error("Error increasing quantity:", error);
-    alert("Error updating quantity");
+export function increaseQuantity(bookId) {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+  let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+  let item = cart.find((b) => b.id === bookId);
+  if (item && item.quantity < 5) {
+    item.quantity += 1;
+    localStorage.setItem(`cart_${user.uid}`, JSON.stringify(cart));
+    loadCart();
+  } else {
+    alert("You reched the max limit (5)");
   }
 }
 
-// decrease amount of books function
-export async function decreaseQuantity(bookId) {
-  try {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const cart = await getUserCart(user.uid);
-    const item = cart.find((b) => b.id === bookId);
-
-    if (item && item.quantity > 1) {
-      item.quantity -= 1;
-      await updateUserCart(user.uid, cart);
-      await loadCart();
-    } else {
-      alert(`If you want to remove ${item.name} book, you can click 'Remove' button`);
-    }
-  } catch (error) {
-    console.error("Error decreasing quantity:", error);
-    alert("Error updating quantity");
+export function decreaseQuantity(bookId) {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+  let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+  let item = cart.find((b) => b.id === bookId);
+  if (item && item.quantity > 1) {
+    item.quantity -= 1;
+    localStorage.setItem(`cart_${user.uid}`, JSON.stringify(cart));
+    loadCart();
+  } else {
+    alert(
+      `If you want to remove ${item.name} book , you can click 'Remove' button`
+    );
   }
 }
 
-// remove book function
-export async function removeFromCart(bookId) {
-  try {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const cart = await getUserCart(user.uid);
-    const newCart = cart.filter((book) => book.id !== bookId);
-
-    if (confirm(`Are you sure you want to remove book from your cart?`)) {
-      await updateUserCart(user.uid, newCart);
-      await loadCart();
-    }
-  } catch (error) {
-    console.error("Error removing from cart:", error);
-    alert("Error removing item from cart");
+export function removeFromCart(bookId) {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+  let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+  cart = cart.filter((book) => book.id !== bookId);
+  if (confirm(`Are you sure you want to remove book from your cart? `)) {
+    localStorage.setItem(`cart_${user.uid}`, JSON.stringify(cart));
+    loadCart();
   }
 }
 
-// Search function for books
-let lastVisibleSearch = null;
-export async function searchBooks(searchBook, append = false) {
-  let db = firebase.firestore();
-  let bookContainer = document.getElementById("ProductsList");
-  const searchTermLower = searchBook.toLowerCase().trim();
-
-  if (!append) {
-    bookContainer.innerHTML = "";
-    lastVisibleSearch = null;
-  }
-
-  try {
-    // Fetch all books that potentially match the search term
-    // We fetch more than the limit initially to allow for client-side filtering
-    // Adjust this number based on typical search result size
-    let query = db.collection("cars")
-      .orderBy("name");
-
-    // Fetch all documents that start with the search term (case-insensitive check will be done later)
-    // Using startAt and endAt still provides some initial filtering on the server
-    if (searchTermLower) {
-      // To handle case-insensitivity with startAt/endAt, we'd ideally need a lowercase field.
-      // For a quick client-side filter, we'll fetch a broader range or all and filter.
-      // Fetching all might be inefficient, so let's still use a range based on the original field
-      // and refine client-side. The user will still need to match the case of the first letter
-      // for this server-side part, but the subsequent filtering will be case-insensitive.
-      // A better solution involves adding a lowercase field in Firestore.
-      // For now, let's fetch a reasonable number and filter client-side.
-      query = query.limit(50); // Fetch up to 50 results to filter
-      if (append && lastVisibleSearch) {
-        query = query.startAfter(lastVisibleSearch);
-      }
-    } else {
-      // If no search term, display all books with standard pagination
-      query = query.limit(9);
-      if (append && lastVisibleSearch) {
-        query = query.startAfter(lastVisibleSearch);
-      }
-    }
-
-    let snapshot = await query.get();
-
-    if (snapshot.empty) {
-      if (!append) {
-        let alert = document.createElement("p");
-        alert.className = "text-center";
-        alert.textContent = "No matched books";
-        bookContainer.appendChild(alert);
-      }
-      const loadMoreBtn = document.getElementById("loadMoreBtn");
-      if (loadMoreBtn) loadMoreBtn.style.display = "none";
-      return;
-    }
-
-    // Store last visible doc for pagination (based on the server query result)
-    lastVisibleSearch = snapshot.docs[snapshot.docs.length - 1];
-
-    // Client-side filtering based on lowercase name
-    const filteredBooks = snapshot.docs.map(doc => {
-      let book = doc.data();
-      book.id = doc.id;
-      return book;
-    }).filter(book => {
-      // Perform case-insensitive check
-      return book.name && book.name.toLowerCase().includes(searchTermLower);
-    });
-
-
-    if (filteredBooks.length === 0 && !append) {
-      let alert = document.createElement("p");
-      alert.className = "text-center";
-      alert.textContent = "No matched books";
-      bookContainer.appendChild(alert);
-      const loadMoreBtn = document.getElementById("loadMoreBtn");
-      if (loadMoreBtn) loadMoreBtn.style.display = "none";
-      return;
-    }
-
-    filteredBooks.forEach((book) => {
-      createProductCard(
-        "ProductsList",
-        book.url_image,
-        book.name,
-        book.author,
-        book.gener,
-        book.price,
-        book
-      );
-    });
-
-    // Show or hide load more button based on the number of results fetched from server
-    const loadMoreBtn = document.getElementById("loadMoreBtn");
-    if (loadMoreBtn) {
-      // If the number of results from the server query is less than the limit, there are no more results
-      loadMoreBtn.style.display = snapshot.size < (searchTermLower ? 50 : 9) ? "none" : "block";
-      loadMoreBtn.onclick = () => searchBooks(searchBook, true);
-    }
-
-  } catch (error) {
-    console.error("Error fetching books:", error);
-    let errorMsg = document.createElement("p");
-    errorMsg.className = "text-danger";
-    errorMsg.textContent = "Error loading books: " + error.message;
-    bookContainer.appendChild(errorMsg);
-  }
-}
-
-// start payment with paypal
-export function paypalPayment(totalAmount, orderId, userId) {
+export function paypalPayment(totalAmount, /*orderId,*/ userId) {
   const database = firebase.firestore();
-  paypal.Buttons({
-    style: {
-      layout: 'vertical',
-      color: 'blue',
-      shape: 'rect',
-      label: 'pay'
-    },
-    createOrder: function (data, actions) {
-      return actions.order.create({
-        purchase_units: [{
-          amount: {
-            currency_code: 'USD',
-            value: totalAmount.toString()
-          },
-          description: 'Book Store Purchase'
-        }]
-      });
-    },
-    onApprove: async function (data, actions) {
-      try {
-        const order = await actions.order.capture();
-        console.log('Payment successful:', order);
-
-        // Create order record in Firestore
-        await database.collection('orders').add({
-          userId: userId,
-          items: JSON.parse(localStorage.getItem('cart')) || [],
-          total: totalAmount,
-          status: 'completed',
-          paymentId: order.id,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          paymentDetails: {
-            payer: order.payer,
-            status: order.status,
-            create_time: order.create_time,
-            update_time: order.update_time
-          }
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Please login first");
+    window.location.href = "login.html";
+    return;
+  }
+  paypal
+    .Buttons({
+      style: {
+        layout: "vertical",
+        color: "blue",
+        shape: "rect",
+        label: "pay",
+      },
+      createOrder: function (_data, actions) {
+        return actions.order.create({
+          purchase_units: [
+            {
+              amount: {
+                currency_code: "USD",
+                value: totalAmount.toString(),
+              },
+              description: "Book Store Purchase",
+            },
+          ],
         });
-
-        // Clear cart after successful payment
-        localStorage.removeItem('cart');
-        alert('Payment successful! Thank you for your purchase.');
-        window.location.href = 'index.html';
-      } catch (error) {
-        console.error('Payment failed:', error);
-        alert('Payment failed. Please try again.');
-      }
-    },
-    onCancel: function (data) {
-      console.log('Payment cancelled:', data);
-      alert('Payment cancelled.');
-    },
-    onError: function (err) {
-      console.error('Payment error:', err);
-      alert('An error occurred during payment. Please try again.');
-    }
-  }).render('#paypal-button-container');
+      },
+      onApprove: async function (_data, actions) {
+        try {
+          const order = await actions.order.capture();
+          await database.collection("orders").add({
+            userId: userId,
+            items: JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [],
+            total: totalAmount,
+            status: "completed",
+            paymentId: order.id,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            paymentDetails: {
+              payer: order.payer,
+              status: order.status,
+              create_time: order.create_time,
+              update_time: order.update_time,
+            },
+          });
+          localStorage.removeItem(`cart_${user.uid}`);
+          alert("Payment successful! Thank you for your purchase.");
+          window.location.href = "index.html";
+        } catch (error) {
+          console.error("Payment failed:", error);
+          alert("Payment failed. Please try again.");
+        }
+      },
+      onCancel: function (data) {
+        alert("Payment cancelled.");
+      },
+      onError: function (err) {
+        alert("An error occurred during payment. Please try again.");
+      },
+    })
+    .render("#paypal-button-container");
 }
 
 export function UploadImage(ImgInputFieldID, storage) {
-  //needs the id of the files input field        and usually called on pressing the upload image button
   const imageUpload = document.getElementById(ImgInputFieldID);
   const file = imageUpload.files[0];
-
   if (!file) {
     console.log("Please select an image first");
-    //statusDiv.textContent = "Please select an image first";
     return;
   }
-
-  // Create a storage reference
-  //   const storageRef = storage.ref();
-  //   const imageRef = storageRef.child(`images/${file.name}`);
-
-  //   // Upload the file
-  //   const uploadTask = imageRef.put(file);
-
-  //   uploadTask.on('state_changed',
-  //     (snapshot) => {
-  //       // Progress monitoring
-  //       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-  //       console.log(`Uploading: ${Math.round(progress)}%`);
-
-  //       //statusDiv.textContent = `Uploading: ${Math.round(progress)}%`;
-  //     },
-  //     (error) => {
-  //       // Handle unsuccessful uploads
-  //       console.log(`Upload failed: ${error.message}`);
-  //       //statusDiv.textContent = `Upload failed: ${error.message}`;
-  //     },
-  //     () => {
-  //       // Handle successful uploads
-  //       uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-  //         //statusDiv.textContent = "Upload complete!";
-  //         //previewDiv.innerHTML = `<img src="${downloadURL}" style="max-width: 300px;">`;
-  //         console.log("File available at", downloadURL);
-  //         return downloadURL;
-  //       });
-  //     }
-  //   );
-
   const imageRef = ref(storage, `images/${file.name}`);
-
-  // Create upload task with progress monitoring
   const uploadTask = uploadBytesResumable(imageRef, file);
-
-  // Set up event listeners
   uploadTask.on(
     "state_changed",
     (snapshot) => {
-      // Progress monitoring
       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
       console.log(`Uploading: ${Math.round(progress)}%`);
-      // statusDiv.textContent = `Uploading: ${Math.round(progress)}%`;
     },
     (error) => {
-      // Handle unsuccessful uploads
       console.log(`Upload failed: ${error.message}`);
-      // statusDiv.textContent = `Upload failed: ${error.message}`;
     },
     async () => {
-      // Handle successful uploads
       try {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
         console.log("File available at", downloadURL);
-        // statusDiv.textContent = "Upload complete!";
-        // previewDiv.innerHTML = `<img src="${downloadURL}" style="max-width: 300px;">`;
         return downloadURL;
       } catch (error) {
         console.log("Error getting download URL:", error);
-        // statusDiv.textContent = `Error getting URL: ${error.message}`;
       }
     }
   );
-}
-
-function getImageUrlFromImagesFolder(filename) {
-  //needs the file name from the database to get it's url
-  // Get Firebase Storage reference
-  //const storage = firebase.storage();
-
-  // Create reference to the image in the 'images' folder
-  const imageRef = storage.ref().child(`images/${filename}`);
-
-  // Return the download URL promise
-  return imageRef
-    .getDownloadURL()
-    .then((url) => {
-      return url;
-    })
-    .catch((error) => {
-      console.error("Error getting image URL:", error);
-      throw error;
-    });
 }
 
 export async function displayBooksSorted(sortType = null) {
   let db = firebase.firestore();
   let bookContainer = document.getElementById("ProductsList");
   bookContainer.innerHTML = "";
-
   try {
     let books = [];
     let snapshot = await db.collection("cars").get();
@@ -766,8 +373,6 @@ export async function displayBooksSorted(sortType = null) {
       book.id = doc.id;
       books.push(book);
     });
-
-    // Apply sorting based on sortType
     if (sortType === "price-asc") {
       books.sort((a, b) => a.price - b.price);
     } else if (sortType === "price-desc") {
@@ -777,8 +382,6 @@ export async function displayBooksSorted(sortType = null) {
     } else if (sortType === "name-desc") {
       books.sort((a, b) => b.name.localeCompare(a.name));
     }
-
-    // Render books
     books.forEach((book) => {
       createProductCard(
         "ProductsList",
@@ -791,53 +394,68 @@ export async function displayBooksSorted(sortType = null) {
       );
     });
   } catch (error) {
-    console.error("Error sorting books:", error);
     let errorMsg = document.createElement("p");
     errorMsg.className = "text-danger";
     errorMsg.textContent = "Error loading sorted books.";
     bookContainer.appendChild(errorMsg);
   }
 }
-let lastVisiblePrice = null;
-export async function filterBooksByPrice(maxPrice, append = false) {
+
+// Unified filter function for category, search, and price.
+let lastVisibleCombined = null;
+export async function filterBooksCombined({
+  bookContainerId = "ProductsList",
+  category = "all",
+  searchTerm = "",
+  maxPrice = 100000,
+  append = false,
+} = {}) {
   let db = firebase.firestore();
-  let bookContainer = document.getElementById("ProductsList");
+  let bookContainer = document.getElementById(bookContainerId);
   if (!append) {
     bookContainer.innerHTML = "";
-    lastVisiblePrice = null;
+    lastVisibleCombined = null;
   }
-
-  let query = db
-    .collection("cars")
-    .where("price", "<=", maxPrice)
-    .orderBy("price")
-    .limit(9);
-
-  if (append && lastVisiblePrice) {
-    query = query.startAfter(lastVisiblePrice);
+  let query = db.collection("cars");
+  if (category && category !== "all") {
+    query = query.where("gener", "==", category);
   }
-
+  // Firebase Firestore: if using inequality on price, must orderBy price first
+  if (maxPrice !== undefined && maxPrice !== null && maxPrice < 1000) {
+    query = query.where("price", "<=", maxPrice);
+    query = query.orderBy("price").orderBy("name");
+  } else {
+    query = query.orderBy("name");
+  }
+  query = query.limit(20);
+  if (append && lastVisibleCombined) {
+    query = query.startAfter(lastVisibleCombined);
+  }
   let snapshot = await query.get();
-
-  if (snapshot.empty) {
-    if (!append) {
-      let alert = document.createElement("p");
-      alert.className = "text-center";
-      alert.textContent = "No books found under this price.";
-      bookContainer.appendChild(alert);
-    }
+  lastVisibleCombined = snapshot.docs[snapshot.docs.length - 1];
+  let filteredBooks = snapshot.docs.map((doc) => {
+    let book = doc.data();
+    book.id = doc.id;
+    return book;
+  });
+  if (searchTerm && searchTerm.trim() !== "") {
+    const searchTermLower = searchTerm.toLowerCase().trim();
+    filteredBooks = filteredBooks.filter(
+      (book) => book.name && book.name.toLowerCase().includes(searchTermLower)
+    );
+  }
+  if (filteredBooks.length === 0 && !append) {
+    let alert = document.createElement("p");
+    alert.className = "text-center";
+    alert.textContent = "No books found.";
+    bookContainer.appendChild(alert);
     const loadMoreBtn = document.getElementById("loadMoreBtn");
     if (loadMoreBtn) loadMoreBtn.style.display = "none";
     return;
   }
-
-  lastVisiblePrice = snapshot.docs[snapshot.docs.length - 1];
-
-  snapshot.forEach((doc) => {
-    let book = doc.data();
-    book.id = doc.id;
+  filteredBooks.forEach((book) => {
     createProductCard(
-      "ProductsList",
+      bookContainerId,
       book.url_image,
       book.name,
       book.author,
@@ -846,26 +464,27 @@ export async function filterBooksByPrice(maxPrice, append = false) {
       book
     );
   });
-
   const loadMoreBtn = document.getElementById("loadMoreBtn");
   if (loadMoreBtn) {
-    loadMoreBtn.style.display = snapshot.size < 9 ? "none" : "block";
-    loadMoreBtn.onclick = () => filterBooksByPrice(maxPrice, true);
+    loadMoreBtn.style.display = snapshot.size < 20 ? "none" : "block";
+    loadMoreBtn.onclick = () =>
+      filterBooksCombined({
+        bookContainerId,
+        category,
+        searchTerm,
+        maxPrice,
+        append: true,
+      });
   }
 }
-
-
 export function CheckAdmin(emailToCheck) {
-  // Array of registered emails (initialized inside function)
   const registeredEmails = [
-    'thepcvirus@gmail.com',
-    'oo@gmail.com',
-    'admin@website.net'
+    "thepcvirus@gmail.com",
+    "oo@gmail.com",
+    "admin@website.net",
   ];
-
-  // Return true if email exists (case-insensitive check)
   return registeredEmails.some(
-    email => email.toLowerCase() === emailToCheck.toLowerCase().trim()
+    (email) => email.toLowerCase() === emailToCheck.toLowerCase().trim()
   );
 }
 
