@@ -28,7 +28,7 @@
     <script type="module">
 
         import { firebaseConfig as firebaseConfig } from './ConfigFile.js';
-        import { loadCart, CheckAdmin } from './GeneralFunctions.js';
+        import { addToCart, loadCart, CheckAdmin } from './GeneralFunctions.js';
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -149,37 +149,6 @@
         document.getElementById("RbackBtn").addEventListener("click", () => {
             window.history.back();
         });
-        // add to cart function
-        export function addToCart(book) {
-            let cart = JSON.parse(localStorage.getItem("cart")) || [];
-            // check if the book already added or not
-            let existingBook = cart.find((item) => item.id === book.id);
-            if (existingBook) {
-                // if existed , the user can add the same books 5 times only
-                if (existingBook.quantity >= 5) {
-                    alert("You can't add the same book more than 5");
-                } else {
-                    existingBook.quantity++;
-                    alert(
-                        `You added the ${existingBook.name}  ${existingBook.quantity} times`
-                    );
-                }
-            } else {
-                // if the book not added into the cart before
-                cart.push({
-                    id: book.id,
-                    name: book.name,
-                    price: book.price,
-                    url_image: book.url_image,
-                    quantity: 1,
-                });
-                alert(` ${book.name} added to cart successfully`);
-            }
-
-            // store the cart into localstorage
-            localStorage.setItem("cart", JSON.stringify(cart));
-            loadCart();
-        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js">
     </script>

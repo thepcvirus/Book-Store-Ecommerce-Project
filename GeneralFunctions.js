@@ -216,7 +216,7 @@ export function loadCart() {
   let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
   if (cartContainer) cartContainer.innerHTML = "";
   let total = calculateTotal(cart);
-  if (totalCostEl) totalCostEl.textContent = `Total: ${total} EP`;
+  if (totalCostEl) totalCostEl.textContent = ` ${total} `;
   cart.forEach((book) => {
     addTableRow("CartList", book.id, book.name, book.price, book);
   });
