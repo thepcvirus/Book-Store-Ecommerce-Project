@@ -5,15 +5,21 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const database = firebase.firestore();
 
+
 export function createNavbar() {
   const nav = document.createElement("nav");
-  nav.className = "navbar navbar-expand-lg bg-body-tertiary";
+  nav.className = "navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-3";
+
   const container = document.createElement("div");
-  container.className = "container-fluid";
+  container.className = "container-fluid px-4";
+
+  // Brand
   const brandLink = document.createElement("a");
-  brandLink.className = "navbar-brand";
+  brandLink.className = "navbar-brand fw-bold text-warning";
   brandLink.href = "index.html";
-  brandLink.textContent = "Ketaby";
+  brandLink.textContent = "📚 Ketaby";
+
+  // Toggle button
   const toggleButton = document.createElement("button");
   toggleButton.className = "navbar-toggler";
   toggleButton.type = "button";
@@ -22,39 +28,58 @@ export function createNavbar() {
   toggleButton.setAttribute("aria-controls", "navbarNav");
   toggleButton.setAttribute("aria-expanded", "false");
   toggleButton.setAttribute("aria-label", "Toggle navigation");
+
   const toggleIcon = document.createElement("span");
   toggleIcon.className = "navbar-toggler-icon";
   toggleButton.appendChild(toggleIcon);
+
+  // Collapse section
   const collapseDiv = document.createElement("div");
   collapseDiv.className = "collapse navbar-collapse";
   collapseDiv.id = "navbarNav";
+
   const navList = document.createElement("ul");
-  navList.className = "navbar-nav";
+  navList.className = "navbar-nav ms-auto d-flex align-items-center gap-3";
+
   const navItems = [
-    { text: "Home", href: "index.html", active: true },
-    { text: "Profile", href: "profile.html" },
-    { text: "Logout", href: "logout.html", id: "logoutBtn" },
+    { text: "Home", href: "index.html", icon: "bi-house-door-fill", active: true },
+    { text: "Profile", href: "profile.html", icon: "bi-person-circle" },
+    { text: "Cart", href: "cart.html", icon: "bi-cart3", id: "cartNav" },
+    { text: "Logout", href: "logout.html", icon: "bi-box-arrow-right", id: "logoutBtn" }
   ];
+
   navItems.forEach((item) => {
     const li = document.createElement("li");
     li.className = "nav-item";
+
     const a = document.createElement("a");
-    a.className = "nav-link";
+    a.className = "nav-link d-flex align-items-center gap-2 fw-semibold";
+    a.style.transition = "color 0.3s ease";
+
     if (item.active) {
       a.classList.add("active");
       a.setAttribute("aria-current", "page");
     }
+
     if (item.href) a.href = item.href;
     if (item.id) a.id = item.id;
-    a.textContent = item.text;
+
+    const icon = document.createElement("i");
+    icon.className = `bi ${item.icon} fs-5`;
+
+    const text = document.createTextNode(item.text);
+    a.appendChild(icon);
+    a.appendChild(text);
     li.appendChild(a);
     navList.appendChild(li);
   });
+
   collapseDiv.appendChild(navList);
   container.appendChild(brandLink);
   container.appendChild(toggleButton);
   container.appendChild(collapseDiv);
   nav.appendChild(container);
+
   return nav;
 }
 
