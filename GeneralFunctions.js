@@ -1,3 +1,10 @@
+import { firebaseConfig } from './ConfigFile.js';
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const database = firebase.firestore();
+
 export function createNavbar() {
   // Create the main nav element
   const nav = document.createElement("nav");
@@ -328,125 +335,88 @@ export function loadMoreBooks() {
 // last edit from osama
 
 // add to cart function
-export function addToCart(book) {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  // check if the book already added or not
-  let existingBook = cart.find((item) => item.id === book.id);
-  if (existingBook) {
-    // if existed , the user can add the same books 5 times only
-    if (existingBook.quantity >= 5) {
-      alert("You can't add the same book more than 5");
-    } else {
-      existingBook.quantity++;
-      alert(
-        `You added the ${existingBook.name}  ${existingBook.quantity} times`
-      );
+export async function addToCart(book) {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Please login to add items to cart");
+      return;
     }
-  } else {
-    // if the book not added into the cart before
-    cart.push({
-      id: book.id,
-      name: book.name,
-      price: book.price,
-      quantity: 1,
-    });
-    alert(` ${book.name} added to cart successfully`);
-  }
+    // Check if user is admin
+    const isAdmin = CheckAdmin(user.email);
+    if (isAdmin) {
+      alert("Admin users cannot use the cart");
+      return;
+    }
 
-  // store the cart into localstorage
-  localStorage.setItem("cart", JSON.stringify(cart));
-  loadCart();
+    const cart = await getUserCart(user.uid);
+    const existingBook = cart.find(item => item.id === book.id);
+
+    if (existingBook) {
+      if (existingBook.quantity >= 5) {
+        alert("You can't add the same book more than 5");
+      } else {
+        existingBook.quantity++;
+        alert(`You added the ${existingBook.name} ${existingBook.quantity} times`);
+      }
+    } else {
+      cart.push({
+        id: book.id,
+        name: book.name,
+        price: book.price,
+        url_image: book.url_image,
+        quantity: 1
+      });
+      alert(`${book.name} added to cart successfully`);
+    }
+
+    const success = await updateUserCart(user.uid, cart);
+    if (success) {
+      await loadCart();
+    } else {
+      alert("Error updating cart. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error adding to cart:", error);
+    alert("Error adding to cart");
+  }
 }
 
 // Cart operations
-export function loadCart() {
-  let cartContainer = document.getElementById("CartList");
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  let totalCostEl = document.getElementById("totalCost");
-  cartContainer.innerHTML = "";
+export async function loadCart() {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      // document.getElementById("CartList").innerHTML = "<p>Please login to view your cart</p>";
+      return;
+    }
 
-  // let total = 0;
-  let total = calculateTotal(cart);
-  totalCostEl.textContent = `Total: ${total} EP`;
+    // Check if user is admin
+    const isAdmin = CheckAdmin(user.email);
+    if (isAdmin) {
+      document.getElementById("CartList").innerHTML = "<p>Admin users cannot use the cart</p>";
+      return;
+    }
 
-  cart.forEach((book) => {
-    // total += book.price * book.quantity;
+    const cartContainer = document.getElementById("CartList");
+    const totalCostEl = document.getElementById("totalCost");
+    if (!cartContainer || !totalCostEl) {
+      console.error("Cart elements not found");
+      return;
+    }
 
-    let col = document.createElement("div");
-    col.className = "col-md-6 col-lg-4";
+    cartContainer.innerHTML = "";
+    const cart = await getUserCart(user.uid);
+    const total = calculateTotal(cart);
+    totalCostEl.textContent = `Total: ${total} EP`;
 
-    let card = document.createElement("div");
-    card.className = "card h-100";
-
-    let bookImg = document.createElement("img");
-    bookImg.src = book.url_image;
-    bookImg.alt = book.name;
-    bookImg.className = "card-img-top";
-
-    let cardBody = document.createElement("div");
-    cardBody.className = "card-body d-flex flex-column justify-content-between";
-
-    let bookName = document.createElement("h5");
-    bookName.className = "card-title";
-    bookName.textContent = book.name;
-
-    // let author = document.createElement("p");
-    // author.className = "card-text";
-    // author.textContent = `Author: ${book.author}`;
-
-    let price = document.createElement("p");
-    price.className = "card-text";
-    price.textContent = `Price: ${book.price} EP`;
-
-    let controlDiv = document.createElement("div");
-    controlDiv.className = "d-flex align-items-center justify-content-between";
-
-    // Quantity controls
-    let btnGroup = document.createElement("div");
-    btnGroup.className = "btn-group";
-    btnGroup.role = "group";
-    // minus the amount of books button
-    let minusBtn = document.createElement("button");
-    minusBtn.className = "btn btn-sm btn-outline-secondary";
-    minusBtn.textContent = "-";
-    minusBtn.onclick = () => decreaseQuantity(book.id);
-
-    let quantitySpan = document.createElement("span");
-    quantitySpan.className = "mx-2";
-    quantitySpan.textContent = book.quantity;
-
-    // plus the amount of books button
-    let plusBtn = document.createElement("button");
-    plusBtn.className = "btn btn-sm btn-outline-secondary";
-    plusBtn.textContent = "+";
-    plusBtn.onclick = () => increaseQuantity(book.id);
-
-    btnGroup.appendChild(minusBtn);
-    btnGroup.appendChild(quantitySpan);
-    btnGroup.appendChild(plusBtn);
-    // remove the book button
-    let removeBtn = document.createElement("button");
-    removeBtn.className = "btn btn-sm btn-danger";
-    removeBtn.textContent = "Remove";
-    removeBtn.onclick = () => removeFromCart(book.id);
-
-    controlDiv.appendChild(btnGroup);
-    controlDiv.appendChild(removeBtn);
-
-    cardBody.appendChild(bookName);
-    // cardBody.appendChild(author);
-    cardBody.appendChild(price);
-    cardBody.appendChild(controlDiv);
-
-    card.appendChild(bookImg);
-    card.appendChild(cardBody);
-    col.appendChild(card);
-    //cartContainer.appendChild(col);
-
-    addTableRow("CartList", book.id, book.name, book.price, book);
-  });
-
-  document.getElementById("totalCost").textContent = total;
+    cart.forEach((book) => {
+      addTableRow("CartList", book.id, book.name, book.price, book);
+    });
+  } catch (error) {
+    console.error("Error loading cart:", error);
+    document.getElementById("CartList").innerHTML = "<p>Error loading cart. Please refresh the page.</p>";
+  }
 }
 
 // calculate total
@@ -454,38 +424,65 @@ export function calculateTotal(cart) {
   return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 }
 // increase amount of books function
-export function increaseQuantity(bookId) {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  let item = cart.find((b) => b.id === bookId);
-  if (item && item.quantity < 5) {
-    item.quantity += 1;
-    localStorage.setItem("cart", JSON.stringify(cart));
-    loadCart();
-  } else {
-    alert("You reched the max limit (5)");
+export async function increaseQuantity(bookId) {
+  try {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const cart = await getUserCart(user.uid);
+    const item = cart.find((b) => b.id === bookId);
+
+    if (item && item.quantity < 5) {
+      item.quantity += 1;
+      await updateUserCart(user.uid, cart);
+      await loadCart();
+    } else {
+      alert("You reached the max limit (5)");
+    }
+  } catch (error) {
+    console.error("Error increasing quantity:", error);
+    alert("Error updating quantity");
   }
 }
+
 // decrease amount of books function
-export function decreaseQuantity(bookId) {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  let item = cart.find((b) => b.id === bookId);
-  if (item && item.quantity > 1) {
-    item.quantity -= 1;
-    localStorage.setItem("cart", JSON.stringify(cart));
-    loadCart();
-  } else {
-    alert(
-      `If you want to remove ${item.name} book , you can click 'Remove' button`
-    );
+export async function decreaseQuantity(bookId) {
+  try {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const cart = await getUserCart(user.uid);
+    const item = cart.find((b) => b.id === bookId);
+
+    if (item && item.quantity > 1) {
+      item.quantity -= 1;
+      await updateUserCart(user.uid, cart);
+      await loadCart();
+    } else {
+      alert(`If you want to remove ${item.name} book, you can click 'Remove' button`);
+    }
+  } catch (error) {
+    console.error("Error decreasing quantity:", error);
+    alert("Error updating quantity");
   }
 }
+
 // remove book function
-export function removeFromCart(bookId) {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  cart = cart.filter((book) => book.id !== bookId);
-  if (confirm(`Are you sure you want to remove book from your cart? `)) {
-    localStorage.setItem("cart", JSON.stringify(cart));
-    loadCart();
+export async function removeFromCart(bookId) {
+  try {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const cart = await getUserCart(user.uid);
+    const newCart = cart.filter((book) => book.id !== bookId);
+
+    if (confirm(`Are you sure you want to remove book from your cart?`)) {
+      await updateUserCart(user.uid, newCart);
+      await loadCart();
+    }
+  } catch (error) {
+    console.error("Error removing from cart:", error);
+    alert("Error removing item from cart");
   }
 }
 
@@ -870,4 +867,27 @@ export function CheckAdmin(emailToCheck) {
   return registeredEmails.some(
     email => email.toLowerCase() === emailToCheck.toLowerCase().trim()
   );
+}
+
+// Get user's cart from Firestore
+async function getUserCart(userId) {
+  try {
+    const cartDoc = await database.collection('carts').doc(userId).get();
+    if (cartDoc.exists) {
+      return cartDoc.data().items || [];
+    }
+    return [];
+  } catch (error) {
+    console.error("Error getting cart:", error);
+    return [];
+  }
+}
+// update user cart
+async function updateUserCart(userId, cart) {
+  try {
+    await database.collection('carts').doc(userId).set({ items: cart });
+  } catch (error) {
+    console.error("Error updating cart:", error);
+    throw error;
+  }
 }

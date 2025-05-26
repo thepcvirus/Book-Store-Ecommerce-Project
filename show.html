@@ -28,7 +28,7 @@
     <script type="module">
 
         import { firebaseConfig as firebaseConfig } from './ConfigFile.js';
-        import { loadCart } from './GeneralFunctions.js';
+        import { loadCart, CheckAdmin } from './GeneralFunctions.js';
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -56,6 +56,9 @@
                 }
                 let book = Rdoc.data();
                 book.id = Rdoc.id;
+                // Check if user is logged in and not an admin
+                const user = auth.currentUser;
+                const isAdmin = user ? CheckAdmin(user.email) : false;
                 // clear the container
                 Rbookcontainer.innerHTML = '';
 
@@ -114,11 +117,13 @@
                 let addToCartbutton = document.createElement("button");
                 addToCartbutton.className = "btn btn-primary mt-3";
                 addToCartbutton.textContent = "Add To Cart";
-                addToCartbutton.addEventListener("click", () => {
-                    addToCart(book);
-                });
-
-
+                // only show the button if user not admin
+                if (!isAdmin) {
+                    addToCartbutton.addEventListener("click", () => {
+                        addToCart(book);
+                    });
+                    detailsCol.appendChild(addToCartbutton);
+                }
                 // add elements to the details column
                 detailsCol.appendChild(RbookName);
                 detailsCol.appendChild(RbookGener);
