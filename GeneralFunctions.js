@@ -24,9 +24,9 @@ export function createNavbar() {
   const navList = document.createElement("ul");
   navList.className = "navbar-nav";
   const navItems = [
-    { text: "Admin", href: "admin.html", active: true },
+    { text: "Home", href: "index.html", active: true },
     { text: "Profile", href: "profile.html" },
-    { text: "Logout", href: "#", id: "logoutBtn" },
+    { text: "Logout", href: "logout.html", id: "logoutBtn" },
   ];
   navItems.forEach((item) => {
     const li = document.createElement("li");
