@@ -415,6 +415,10 @@ export async function filterBooksCombined({
   if (category && category !== "all") {
     query = query.where("gener", "==", category);
   }
+  let dynamicLimit = 9;
+  if (category === "all" && searchTerm && searchTerm.trim() !== "") {
+    dynamicLimit = 50;
+  }
   // Firebase Firestore: if using inequality on price, must orderBy price first
   if (maxPrice !== undefined && maxPrice !== null && maxPrice < 1000) {
     query = query.where("price", "<=", maxPrice);
@@ -422,7 +426,7 @@ export async function filterBooksCombined({
   } else {
     query = query.orderBy("name");
   }
-  query = query.limit(9);
+  query = query.limit(dynamicLimit);
   if (append && lastVisibleCombined) {
     query = query.startAfter(lastVisibleCombined);
   }
@@ -465,7 +469,7 @@ export async function filterBooksCombined({
   const loadMoreBtn = document.getElementById("loadMoreBtn");
   if (loadMoreBtn) {
     loadMoreBtn.style.display =
-      snapshot.size < 9 || filteredBooks.length === 0 ? "none" : "block";
+      snapshot.size === 9 || filteredBooks.length > 0 ? "block" : "none";
     loadMoreBtn.onclick = () =>
       filterBooksCombined({
         bookContainerId,
