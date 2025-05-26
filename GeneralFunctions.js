@@ -470,3 +470,13 @@ export async function filterBooksCombined({
       });
   }
 }
+export function CheckAdmin(emailToCheck) {
+  const registeredEmails = [
+    "thepcvirus@gmail.com",
+    "oo@gmail.com",
+    "admin@website.net",
+  ];
+  return registeredEmails.some(
+    (email) => email.toLowerCase() === emailToCheck.toLowerCase().trim()
+  );
+}
