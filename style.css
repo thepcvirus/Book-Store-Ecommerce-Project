@@ -237,7 +237,7 @@ button {
   transition: all 0.3s ease;
 }
 
-/* Product Cards */
+/* Product Cards
 .Product_Card {
   border-radius: 12px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
@@ -289,6 +289,54 @@ button {
 }
 
 .Product_Card .Add_To_Cart:hover {
+  background: #1e8449;
+} */
+
+
+
+
+
+.Product_Card {
+  border-radius: 16px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease-in-out;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.Product_Card:hover {
+  transform: translateY(-5px);
+}
+
+.Product_Card img {
+  height: 230px;
+  object-fit: cover;
+}
+
+.Product_Card .card-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #2c3e50;
+}
+
+.Product_Card .Auth_Name,
+.Product_Card .Genre {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.Product_Card .Price {
+  font-size: 1.1rem;
+}
+
+.Add_To_Cart {
+  background: #27ae60;
+  border: none;
+  color: white;
+  transition: background 0.3s ease;
+}
+
+.Add_To_Cart:hover {
   background: #1e8449;
 }
 
@@ -503,4 +551,103 @@ button[type="submit"]:hover {
 #orderList .list-group-item h5 {
   font-weight: 600;
   color: #2c3e50;
+}
+
+
+
+
+
+
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.hero-section {
+  margin-top: -1rem; /* removes any possible gap from Bootstrap navbar */
+}
+
+
+.hero-section {
+  height: 120vh;
+  background-image: url('https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=1950&q=80');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1;
+}
+
+.hero-section .container {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-section h1,
+.hero-section p {
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+
+
+
+.filter-panel-modern {
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+}
+
+.filter-panel-modern .form-label {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.filter-panel-modern .form-select,
+.filter-panel-modern .form-control {
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+}
+
+.filter-panel-modern .btn-warning {
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  transition: background 0.3s ease;
+}
+
+.filter-panel-modern .btn-warning:hover {
+  background-color: #f39c12;
+}
+
+
+
+
+
+
+
+.price-filter-modern {
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+}
+
+.price-filter-modern .form-label {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.price-filter-modern #priceValue {
+  color: #27ae60;
 }
