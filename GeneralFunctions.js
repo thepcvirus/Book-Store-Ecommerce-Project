@@ -554,8 +554,10 @@ export async function displayAdminOrders() {
   if (!adminOrdersList) return;
 
   try {
+    // Get all orders for admin without status filter
     const ordersSnapshot = await database.collection('orders')
       .where('userId', '==', user.uid)
+      .limit(50)
       .get();
 
     // Sort the results in memory
@@ -588,7 +590,7 @@ export async function displayAdminOrders() {
 
       // Total
       const totalCell = document.createElement('td');
-      totalCell.textContent = `$${order.total || 0}`;
+      totalCell.textContent = `${order.total || 0} EP`;
       row.appendChild(totalCell);
 
       // Items
@@ -618,6 +620,50 @@ export async function displayAdminOrders() {
       cell.textContent = 'No orders found';
       row.appendChild(cell);
       adminOrdersList.appendChild(row);
+    }
+
+    // Also add admin orders to the main orders list
+    const ordersList = document.getElementById('ordersList');
+    if (ordersList) {
+      orders.forEach((order) => {
+        const row = document.createElement('tr');
+
+        // Order ID
+        const idCell = document.createElement('td');
+        idCell.textContent = order.id;
+        row.appendChild(idCell);
+
+        // Username (Admin)
+        const userCell = document.createElement('td');
+        userCell.textContent = 'Admin';
+        row.appendChild(userCell);
+
+        // Date
+        const dateCell = document.createElement('td');
+        const date = order.createdAt && order.createdAt.toDate
+          ? order.createdAt.toDate().toLocaleString()
+          : 'N/A';
+        dateCell.textContent = date;
+        row.appendChild(dateCell);
+
+        // Total
+        const totalCell = document.createElement('td');
+        totalCell.textContent = `${order.total || 0} EP`;
+        row.appendChild(totalCell);
+
+        // Items
+        const itemsCell = document.createElement('td');
+        if (order.items && Array.isArray(order.items)) {
+          itemsCell.innerHTML = order.items.map(item =>
+            `<div>${item.name} x${item.quantity} - ${item.price} EP</div>`
+          ).join("");
+        } else {
+          itemsCell.textContent = "No items";
+        }
+        row.appendChild(itemsCell);
+
+        ordersList.appendChild(row);
+      });
     }
   } catch (error) {
     console.error('Error fetching admin orders:', error);
