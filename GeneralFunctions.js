@@ -403,6 +403,7 @@ export async function displayBooksSorted(sortType = null) {
 
 // Unified filter function for category, search, and price.
 let lastVisibleCombined = null;
+let shownBookIds = new Set();
 export async function filterBooksCombined({
   bookContainerId = "ProductsList",
   category = "all",
@@ -415,6 +416,7 @@ export async function filterBooksCombined({
   if (!append) {
     bookContainer.innerHTML = "";
     lastVisibleCombined = null;
+    shownBookIds = new Set();
   }
   let query = db.collection("cars");
   if (category && category !== "all") {
@@ -427,7 +429,7 @@ export async function filterBooksCombined({
   } else {
     query = query.orderBy("name");
   }
-  query = query.limit(20);
+  query = query.limit(9);
   if (append && lastVisibleCombined) {
     query = query.startAfter(lastVisibleCombined);
   }
@@ -444,6 +446,9 @@ export async function filterBooksCombined({
       (book) => book.name && book.name.toLowerCase().includes(searchTermLower)
     );
   }
+  filteredBooks = filteredBooks.filter((book) => !shownBookIds.has(book.id));
+  filteredBooks.forEach((book) => shownBookIds.add(book.id));
+
   if (filteredBooks.length === 0 && !append) {
     let alert = document.createElement("p");
     alert.className = "text-center";
@@ -466,7 +471,8 @@ export async function filterBooksCombined({
   });
   const loadMoreBtn = document.getElementById("loadMoreBtn");
   if (loadMoreBtn) {
-    loadMoreBtn.style.display = snapshot.size < 20 ? "none" : "block";
+    loadMoreBtn.style.display =
+      snapshot.size < 9 || filteredBooks.length === 0 ? "none" : "block";
     loadMoreBtn.onclick = () =>
       filterBooksCombined({
         bookContainerId,
