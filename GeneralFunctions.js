@@ -325,7 +325,7 @@ export function paypalPayment(totalAmount, /*orderId,*/ userId) {
         try {
           const order = await actions.order.capture();
           await database.collection("orders").add({
-            userId: userId,
+            userId: user.uid,
             items: JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [],
             total: totalAmount,
             status: "completed",
@@ -543,5 +543,90 @@ async function updateUserCart(userId, cart) {
   } catch (error) {
     console.error("Error updating cart:", error);
     throw error;
+  }
+}
+
+export async function displayAdminOrders() {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  const adminOrdersList = document.getElementById('adminOrdersList');
+  if (!adminOrdersList) return;
+
+  try {
+    const ordersSnapshot = await database.collection('orders')
+      .where('userId', '==', user.uid)
+      .get();
+
+    // Sort the results in memory
+    const orders = ordersSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })).sort((a, b) => {
+      const dateA = a.createdAt?.toDate?.() || new Date(0);
+      const dateB = b.createdAt?.toDate?.() || new Date(0);
+      return dateB - dateA; // Sort in descending order
+    });
+
+    adminOrdersList.innerHTML = '';
+
+    orders.forEach((order) => {
+      const row = document.createElement('tr');
+
+      // Order ID
+      const idCell = document.createElement('td');
+      idCell.textContent = order.id;
+      row.appendChild(idCell);
+
+      // Date
+      const dateCell = document.createElement('td');
+      const date = order.createdAt && order.createdAt.toDate
+        ? order.createdAt.toDate().toLocaleString()
+        : 'N/A';
+      dateCell.textContent = date;
+      row.appendChild(dateCell);
+
+      // Total
+      const totalCell = document.createElement('td');
+      totalCell.textContent = `$${order.total || 0}`;
+      row.appendChild(totalCell);
+
+      // Items
+      const itemsCell = document.createElement('td');
+      if (order.items && Array.isArray(order.items)) {
+        itemsCell.innerHTML = order.items.map(item =>
+          `<div>${item.name} x${item.quantity} - ${item.price} EP</div>`
+        ).join("");
+      } else {
+        itemsCell.textContent = "No items";
+      }
+      row.appendChild(itemsCell);
+
+      // Status
+      const statusCell = document.createElement('td');
+      statusCell.textContent = order.status || 'Completed';
+      row.appendChild(statusCell);
+
+      adminOrdersList.appendChild(row);
+    });
+
+    if (orders.length === 0) {
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.colSpan = 5;
+      cell.className = 'text-center';
+      cell.textContent = 'No orders found';
+      row.appendChild(cell);
+      adminOrdersList.appendChild(row);
+    }
+  } catch (error) {
+    console.error('Error fetching admin orders:', error);
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.colSpan = 5;
+    cell.className = 'text-center text-danger';
+    cell.textContent = 'Error loading orders: ' + error.message;
+    row.appendChild(cell);
+    adminOrdersList.appendChild(row);
   }
 }

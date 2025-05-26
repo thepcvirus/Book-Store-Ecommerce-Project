@@ -117,13 +117,10 @@
                 let addToCartbutton = document.createElement("button");
                 addToCartbutton.className = "btn btn-primary mt-3";
                 addToCartbutton.textContent = "Add To Cart";
-                // only show the button if user not admin
-                if (!isAdmin) {
-                    addToCartbutton.addEventListener("click", () => {
-                        addToCart(book);
-                    });
-                    detailsCol.appendChild(addToCartbutton);
-                }
+                addToCartbutton.addEventListener("click", () => {
+                    addToCart(book);
+                });
+                detailsCol.appendChild(addToCartbutton);
                 // add elements to the details column
                 detailsCol.appendChild(RbookName);
                 detailsCol.appendChild(RbookGener);

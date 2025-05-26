@@ -18,7 +18,7 @@
     document.body.prepend(createNavbar());
   </script>
 
- <div class="container mt-5">
+  <div class="container mt-5">
     <h2 class="text-center mb-5 fw-bold text-dark">User Profile</h2>
 
     <!-- Modern Card Style -->
@@ -113,10 +113,8 @@
           .collection("orders")
           .where("userId", "==", userId)
           .where("status", "==", "completed")
-          // ==============================================
-          // activate it when make index in firebase
           // .orderBy("createdAt", "desc")
-          // ==============================================
+          .limit(5)  // Add limit to get only last 5 orders
           .get();
 
         if (ordersSnapshot.empty) {

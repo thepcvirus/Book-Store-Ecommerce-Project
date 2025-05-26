@@ -23,10 +23,10 @@
 
     <!-- User Info -->
     <div class="card mb-4">
-  <h4 class="fw-semibold mb-3"><i class="bi bi-person-circle me-2"></i>Admin Profile</h4>
-  <p><strong>Username:</strong> <span id="username">Loading...</span></p>
-  <p><strong>Email:</strong> <span id="email">Loading...</span></p>
-</div>
+      <h4 class="fw-semibold mb-3"><i class="bi bi-person-circle me-2"></i>Admin Profile</h4>
+      <p><strong>Username:</strong> <span id="username">Loading...</span></p>
+      <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+    </div>
 
 
     <!-- Orders List -->
@@ -51,6 +51,29 @@
           </thead>
           <tbody id="ordersList">
             <!-- Orders will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Admin Orders Section -->
+    <div class="card shadow p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="text-center text-primary fw-bold mb-0">👤 My Orders</h4>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Items</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="adminOrdersList">
+            <!-- Admin orders will be inserted here -->
           </tbody>
         </table>
       </div>
@@ -183,7 +206,7 @@
       }
 
       import { firebaseConfig as firebaseConfig } from "./ConfigFile.js";
-      import { CheckAdmin } from "./GeneralFunctions.js";
+      import { CheckAdmin, displayAdminOrders } from "./GeneralFunctions.js";
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
       const database = firebase.firestore();
@@ -201,6 +224,10 @@
               if (CheckAdmin(userdate.email)) {
                 document.getElementById("username").textContent = userdate.username;
                 document.getElementById("email").textContent = userdate.email;
+
+                // Display admin orders
+                console.log('Calling displayAdminOrders for admin user'); // Debug log
+                await displayAdminOrders();
               }
               else {
                 alert("You are not an Admin");
@@ -550,11 +577,10 @@
         try {
           let query = database.collection("orders")
             .where("status", "==", "completed")
-          // .orderBy("createdAt", "desc");
+            // .orderBy("createdAt", "desc")
+            .limit(10);  // Limit to last 10 orders
 
           const ordersSnapshot = await query.get();
-
-
 
           if (ordersSnapshot.empty) {
             const row = document.createElement("tr");
@@ -600,10 +626,6 @@
             const totalCell = document.createElement("td");
             totalCell.textContent = `${order.total} $` || 0;
             row.appendChild(totalCell);
-            // Status
-            const statusCell = document.createElement("td");
-            statusCell.textContent = order.status || "pending";
-            row.appendChild(statusCell);
             // Items
             const itemsCell = document.createElement("td");
             if (order.items && Array.isArray(order.items)) {
@@ -616,10 +638,6 @@
             row.appendChild(itemsCell);
             ordersList.appendChild(row);
           }
-
-          // Remove pagination controls
-          // The code for creating paginationContainer, prevButton, nextButton, pageNumbers is removed
-
         } catch (error) {
           console.error("Error loading orders:", error);
           const row = document.createElement("tr");
