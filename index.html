@@ -28,113 +28,127 @@
         <div id="bookContainer" class="book-grid"></div>
       </section>
 
-      <div class="col-12 Cart m-1">
-        <table class="table w-100" id="CartList">
-          <thead class="table-light">
-            <td>Number</td>
-            <td>Name</td>
-            <td>Quantity</td>
-            <td>Price</td>
-            <td></td>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Number</td>
-              <td>Name</td>
-              <td><input type="number" class="input-group" value="1" /></td>
-              <td>Price</td>
-              <td><button class="btn btn-danger">Delete</button></td>
-            </tr>
-            <tr>
-              <td>Number</td>
-              <td>Name</td>
-              <td><input type="number" class="input-group" value="1" /></td>
-              <td>Price</td>
-              <td><button class="btn btn-danger">Delete</button></td>
-            </tr>
-          </tbody>
-        </table>
-        <button class="btn btn-warning Check_Out col-12" id="checkoutBtn">
-          Check Out
-        </button>
-        <div class="text-center">
-          <h5>Total: <span id="totalCost">0</span> USD</h5>
-          <div id="paypal-button-container"></div>
-        </div>
-      </div>
+      <div class="col-12 cart-panel p-4 my-4 bg-white rounded shadow-sm">
+  <h4 class="mb-4 text-center fw-bold">🛒 Your Cart</h4>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle" id="CartList">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Sample Book</td>
+          <td><input type="number" class="form-control w-50 mx-auto" value="1" /></td>
+          <td>$10</td>
+          <td><button class="btn btn-outline-danger btn-sm">Delete</button></td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Sample Book 2</td>
+          <td><input type="number" class="form-control w-50 mx-auto" value="1" /></td>
+          <td>$12</td>
+          <td><button class="btn btn-outline-danger btn-sm">Delete</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-      <div class="my-3">
-        <label for="priceRange" class="form-label">
-          Filter by Price: <span id="priceValue">1000</span> EP
-        </label>
-        <input
-          type="range"
-          class="form-range"
-          id="priceRange"
-          min="0"
-          max="1000"
-          value="1000"
-          step="10"
-        />
-      </div>
+  <div class="text-center mt-4">
+    <button class="btn btn-warning btn-lg rounded-pill px-5" id="checkoutBtn">
+      ✅ Check Out
+    </button>
+  </div>
+
+  <div class="text-center mt-3">
+    <h5>Total: <span id="totalCost" class="text-success fw-bold">0</span> USD</h5>
+    <div id="paypal-button-container" class="mt-3"></div>
+  </div>
+</div>
+
+
+
+
+
+<div class="price-filter bg-white p-4 rounded shadow-sm my-4">
+  <label for="priceRange" class="form-label fw-bold">
+    💵 Filter by Price: <span id="priceValue" class="text-primary">1000</span> EGP
+  </label>
+  <input
+    type="range"
+    class="form-range"
+    id="priceRange"
+    min="0"
+    max="1000"
+    value="1000"
+    step="10"
+  />
+</div>
+
 
       <hr />
-      <div class="input-group mb-3">
+      <div class="filter-panel p-4 my-4 rounded shadow-sm bg-white">
+  <div class="row g-3 align-items-end">
+    <!-- Search -->
+    <div class="col-md-6">
+      <label for="searchInput" class="form-label">Search Books</label>
+      <div class="input-group">
         <input
-          class="input-group-text"
+          class="form-control"
           type="text"
-          placeholder="Search"
+          placeholder="Enter book title or author..."
           id="searchInput"
         />
         <button class="btn btn-primary" id="searchBtn">Search</button>
       </div>
-      <hr />
-      <div class="dropdown">
+    </div>
+
+    <!-- Sort -->
+    <div class="col-md-3">
+      <label class="form-label d-block">Sort By</label>
+      <div class="dropdown w-100">
         <button
-          class="btn btn-secondary dropdown-toggle"
+          class="btn btn-outline-secondary dropdown-toggle w-100"
           type="button"
           id="sortingDropdown"
           data-bs-toggle="dropdown"
           aria-expanded="false"
         >
-          Sort by
+          Choose Sorting
         </button>
-        <ul class="dropdown-menu" aria-labelledby="sortingDropdown">
-          <li>
-            <a class="dropdown-item" href="#" data-sort="price-asc"
-              >Price ASC</a
-            >
-          </li>
-          <li>
-            <a class="dropdown-item" href="#" data-sort="price-desc"
-              >Price DESC</a
-            >
-          </li>
-          <li>
-            <a class="dropdown-item" href="#" data-sort="name-asc">Name ASC</a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="#" data-sort="name-desc"
-              >Name DESC</a
-            >
-          </li>
+        <ul class="dropdown-menu w-100" aria-labelledby="sortingDropdown">
+          <li><a class="dropdown-item" href="#" data-sort="price-asc">Price ASC</a></li>
+          <li><a class="dropdown-item" href="#" data-sort="price-desc">Price DESC</a></li>
+          <li><a class="dropdown-item" href="#" data-sort="name-asc">Name ASC</a></li>
+          <li><a class="dropdown-item" href="#" data-sort="name-desc">Name DESC</a></li>
         </ul>
       </div>
-      <hr />
-      <div class="mb-3">
-        <label for="categoryFilter" class="form-label">Book Categories</label>
-        <select class="form-select" id="categoryFilter">
-          <option value="all">All Categories</option>
-          <option value="Fantasy">Fantasy</option>
-          <option value="Science Fiction">Science Fiction</option>
-          <option value="Action & Adventure">Action & Adventure</option>
-          <option value="Detective & Mystery">Detective & Mystery</option>
-          <option value="Romance">Romance</option>
-          <option value="Horror">Horror</option>
-          <option value="Historical Fiction">Historical Fiction</option>
-          <option value="Short Story">Short Story</option>
-        </select>
-      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="col-md-3">
+      <label for="categoryFilter" class="form-label">Book Categories</label>
+      <select class="form-select" id="categoryFilter">
+        <option value="all">All Categories</option>
+        <option value="Fantasy">Fantasy</option>
+        <option value="Science Fiction">Science Fiction</option>
+        <option value="Action & Adventure">Action & Adventure</option>
+        <option value="Detective & Mystery">Detective & Mystery</option>
+        <option value="Romance">Romance</option>
+        <option value="Horror">Horror</option>
+        <option value="Historical Fiction">Historical Fiction</option>
+        <option value="Short Story">Short Story</option>
+      </select>
+    </div>
+  </div>
+</div>
+
       <hr />
       <h3 class="text-center" id="titleProducts">All Products</h3>
       <div class="col-12 row" id="ProductsList">
@@ -307,6 +321,18 @@
         loadCart();
       });
     </script>
+
+  <footer class="footer mt-5 py-4 bg-dark text-light text-center">
+  <div class="container">
+    <p class="mb-1">&copy; 2025 Your Bookstore. All rights reserved.</p>
+    <div>
+      <a href="#" class="text-light mx-2">Privacy Policy</a> |
+      <a href="#" class="text-light mx-2">Terms of Service</a>
+    </div>
+  </div>
+</footer>
+
+
   </body>
   <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"

@@ -178,3 +178,283 @@
 .Product_Card a:visited {
   text-decoration: none;
 }
+
+
+
+
+body {
+  background-color: #f9f9f9;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+h3,
+h4,
+h5 {
+  color: #2c3e50;
+}
+
+/* Cart & Sections */
+.Cart {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  margin: 20px 0;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+#checkoutBtn {
+  font-weight: 600;
+  border-radius: 30px;
+  padding: 12px;
+  font-size: 1.1rem;
+  background: linear-gradient(90deg, #f39c12, #e67e22);
+  border: none;
+  color: #fff;
+  transition: background 0.3s ease;
+}
+
+#checkoutBtn:hover {
+  background: linear-gradient(90deg, #e67e22, #d35400);
+}
+
+input[type="range"] {
+  width: 100%;
+}
+
+input[type="text"] {
+  width: 70%;
+}
+
+button {
+  transition: all 0.3s ease;
+}
+
+/* Product Cards */
+.Product_Card {
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+  margin: 10px;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out;
+}
+
+.Product_Card:hover {
+  transform: translateY(-5px);
+}
+
+.Product_Card img {
+  object-fit: cover;
+  height: 250px;
+  border-bottom: 1px solid #eee;
+}
+
+.Product_Card .card-body {
+  padding: 15px;
+}
+
+.Product_Card .card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #34495e;
+}
+
+.Product_Card .Auth_Name,
+.Product_Card .Genre {
+  color: #7f8c8d;
+  font-size: 0.95rem;
+}
+
+.Product_Card .Price {
+  color: #e74c3c;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.Product_Card .Add_To_Cart {
+  background: #27ae60;
+  border: none;
+  border-radius: 30px;
+  font-weight: 500;
+  color: white;
+  padding: 10px;
+  transition: background 0.3s ease;
+}
+
+.Product_Card .Add_To_Cart:hover {
+  background: #1e8449;
+}
+
+/* Filters & Inputs */
+.input-group,
+.dropdown,
+.form-select,
+#priceRange {
+  margin: 10px 0;
+}
+
+.dropdown-menu a:hover {
+  background-color: #f1f1f1;
+}
+
+/* Buttons */
+button.btn-primary,
+button.btn-secondary {
+  border-radius: 20px;
+  font-weight: 500;
+  padding: 8px 16px;
+}
+
+/* Responsive Grid */
+#ProductsList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  padding-bottom: 2rem;
+}
+
+/* Footer */
+.text-center {
+  margin-top: 2rem;
+}
+
+
+
+
+
+
+
+/* === Navbar === */
+nav.navbar {
+  background-color: #2c3e50;
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand,
+.nav-link,
+.navbar-text {
+  color: #c0392b !important;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover,
+.navbar-brand:hover {
+  color: #f39c12 !important;
+}
+
+.navbar .btn {
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* === Footer === */
+.footer {
+  background-color: #2c3e50;
+  color: #ecf0f1;
+}
+
+.footer a {
+  color: #ecf0f1;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: #f39c12;
+  text-decoration: underline;
+}
+
+
+
+/* === Filter Panel Styling === */
+.filter-panel {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.filter-panel .form-label {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.filter-panel .form-control,
+.filter-panel .form-select {
+  border-radius: 8px;
+}
+
+.filter-panel .btn-primary {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.filter-panel .dropdown-toggle {
+  border-radius: 8px;
+}
+
+.dropdown-menu {
+  font-size: 0.95rem;
+}
+
+
+
+
+
+
+
+
+
+/* === Cart Panel === */
+.cart-panel {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+.cart-panel table th,
+.cart-panel table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.cart-panel input[type="number"] {
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* === Checkout Button === */
+#checkoutBtn {
+  font-weight: 600;
+  background: linear-gradient(to right, #f39c12, #e67e22);
+  border: none;
+  color: white;
+  transition: background 0.3s ease;
+}
+
+#checkoutBtn:hover {
+  background: linear-gradient(to right, #e67e22, #d35400);
+}
+
+/* === Price Filter === */
+.price-filter {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+}
+
+.price-filter .form-label {
+  font-size: 1.05rem;
+  color: #2c3e50;
+}
+
