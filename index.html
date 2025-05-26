@@ -142,6 +142,14 @@
     const auth = firebase.auth();
     let database = firebase.firestore();
 
+    // Add auth state change listener
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in, load their cart
+        loadCart();
+      }
+    });
+
     document.getElementById('logoutBtn').addEventListener("click", () => {
       auth
         .signOut()
@@ -233,7 +241,14 @@
     import { paypalPayment } from './GeneralFunctions.js';
     // start checkout functionnnnnnn
     async function checkout() {
-      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        alert("Please login first");
+        window.location.href = "login.html";
+        return;
+      }
+
+      let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
       let total = calculateTotal(cart);
 
       if (cart.length === 0) {
@@ -242,14 +257,6 @@
       }
 
       try {
-        let user = firebase.auth().currentUser;
-
-        if (!user) {
-          alert("Please login first");
-          window.location.href = "login.html";
-          return;
-        }
-
         // Initialize PayPal payment
         paypalPayment(total, null, user.uid);
 

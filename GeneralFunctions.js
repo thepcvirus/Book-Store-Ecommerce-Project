@@ -329,7 +329,14 @@ export function loadMoreBooks() {
 
 // add to cart function
 export function addToCart(book) {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Please login first to add items to cart");
+    window.location.href = "login.html";
+    return;
+  }
+
+  let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
   // check if the book already added or not
   let existingBook = cart.find((item) => item.id === book.id);
   if (existingBook) {
@@ -353,100 +360,34 @@ export function addToCart(book) {
     alert(` ${book.name} added to cart successfully`);
   }
 
-  // store the cart into localstorage
-  localStorage.setItem("cart", JSON.stringify(cart));
+  // store the cart into localstorage with user ID
+  localStorage.setItem(`cart_${user.uid}`, JSON.stringify(cart));
   loadCart();
 }
 
 // Cart operations
 export function loadCart() {
-  let cartContainer = document.getElementById("CartList");
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  let totalCostEl = document.getElementById("totalCost");
-  cartContainer.innerHTML = "";
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    // If user is not logged in, just show empty cart
+    let cartContainer = document.getElementById("CartList");
+    let totalCostEl = document.getElementById("totalCost");
+    if (cartContainer) cartContainer.innerHTML = "";
+    if (totalCostEl) totalCostEl.textContent = "Total: 0 EP";
+    return;
+  }
 
-  // let total = 0;
+  let cartContainer = document.getElementById("CartList");
+  let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+  let totalCostEl = document.getElementById("totalCost");
+  if (cartContainer) cartContainer.innerHTML = "";
+
   let total = calculateTotal(cart);
-  totalCostEl.textContent = `Total: ${total} EP`;
+  if (totalCostEl) totalCostEl.textContent = `Total: ${total} EP`;
 
   cart.forEach((book) => {
-    // total += book.price * book.quantity;
-
-    let col = document.createElement("div");
-    col.className = "col-md-6 col-lg-4";
-
-    let card = document.createElement("div");
-    card.className = "card h-100";
-
-    let bookImg = document.createElement("img");
-    bookImg.src = book.url_image;
-    bookImg.alt = book.name;
-    bookImg.className = "card-img-top";
-
-    let cardBody = document.createElement("div");
-    cardBody.className = "card-body d-flex flex-column justify-content-between";
-
-    let bookName = document.createElement("h5");
-    bookName.className = "card-title";
-    bookName.textContent = book.name;
-
-    // let author = document.createElement("p");
-    // author.className = "card-text";
-    // author.textContent = `Author: ${book.author}`;
-
-    let price = document.createElement("p");
-    price.className = "card-text";
-    price.textContent = `Price: ${book.price} EP`;
-
-    let controlDiv = document.createElement("div");
-    controlDiv.className = "d-flex align-items-center justify-content-between";
-
-    // Quantity controls
-    let btnGroup = document.createElement("div");
-    btnGroup.className = "btn-group";
-    btnGroup.role = "group";
-    // minus the amount of books button
-    let minusBtn = document.createElement("button");
-    minusBtn.className = "btn btn-sm btn-outline-secondary";
-    minusBtn.textContent = "-";
-    minusBtn.onclick = () => decreaseQuantity(book.id);
-
-    let quantitySpan = document.createElement("span");
-    quantitySpan.className = "mx-2";
-    quantitySpan.textContent = book.quantity;
-
-    // plus the amount of books button
-    let plusBtn = document.createElement("button");
-    plusBtn.className = "btn btn-sm btn-outline-secondary";
-    plusBtn.textContent = "+";
-    plusBtn.onclick = () => increaseQuantity(book.id);
-
-    btnGroup.appendChild(minusBtn);
-    btnGroup.appendChild(quantitySpan);
-    btnGroup.appendChild(plusBtn);
-    // remove the book button
-    let removeBtn = document.createElement("button");
-    removeBtn.className = "btn btn-sm btn-danger";
-    removeBtn.textContent = "Remove";
-    removeBtn.onclick = () => removeFromCart(book.id);
-
-    controlDiv.appendChild(btnGroup);
-    controlDiv.appendChild(removeBtn);
-
-    cardBody.appendChild(bookName);
-    // cardBody.appendChild(author);
-    cardBody.appendChild(price);
-    cardBody.appendChild(controlDiv);
-
-    card.appendChild(bookImg);
-    card.appendChild(cardBody);
-    col.appendChild(card);
-    //cartContainer.appendChild(col);
-
     addTableRow("CartList", book.id, book.name, book.price, book);
   });
-
-  document.getElementById("totalCost").textContent = total;
 }
 
 // calculate total
@@ -455,11 +396,14 @@ export function calculateTotal(cart) {
 }
 // increase amount of books function
 export function increaseQuantity(bookId) {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
   let item = cart.find((b) => b.id === bookId);
   if (item && item.quantity < 5) {
     item.quantity += 1;
-    localStorage.setItem("cart", JSON.stringify(cart));
+    localStorage.setItem(`cart_${user.uid}`, JSON.stringify(cart));
     loadCart();
   } else {
     alert("You reched the max limit (5)");
@@ -467,11 +411,14 @@ export function increaseQuantity(bookId) {
 }
 // decrease amount of books function
 export function decreaseQuantity(bookId) {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
   let item = cart.find((b) => b.id === bookId);
   if (item && item.quantity > 1) {
     item.quantity -= 1;
-    localStorage.setItem("cart", JSON.stringify(cart));
+    localStorage.setItem(`cart_${user.uid}`, JSON.stringify(cart));
     loadCart();
   } else {
     alert(
@@ -481,10 +428,13 @@ export function decreaseQuantity(bookId) {
 }
 // remove book function
 export function removeFromCart(bookId) {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
   cart = cart.filter((book) => book.id !== bookId);
   if (confirm(`Are you sure you want to remove book from your cart? `)) {
-    localStorage.setItem("cart", JSON.stringify(cart));
+    localStorage.setItem(`cart_${user.uid}`, JSON.stringify(cart));
     loadCart();
   }
 }
@@ -600,6 +550,13 @@ export async function searchBooks(searchBook, append = false) {
 // start payment with paypal
 export function paypalPayment(totalAmount, orderId, userId) {
   const database = firebase.firestore();
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Please login first");
+    window.location.href = "login.html";
+    return;
+  }
+
   paypal.Buttons({
     style: {
       layout: 'vertical',
@@ -626,7 +583,7 @@ export function paypalPayment(totalAmount, orderId, userId) {
         // Create order record in Firestore
         await database.collection('orders').add({
           userId: userId,
-          items: JSON.parse(localStorage.getItem('cart')) || [],
+          items: JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [],
           total: totalAmount,
           status: 'completed',
           paymentId: order.id,
@@ -640,7 +597,7 @@ export function paypalPayment(totalAmount, orderId, userId) {
         });
 
         // Clear cart after successful payment
-        localStorage.removeItem('cart');
+        localStorage.removeItem(`cart_${user.uid}`);
         alert('Payment successful! Thank you for your purchase.');
         window.location.href = 'index.html';
       } catch (error) {
