@@ -689,3 +689,21 @@ nav.navbar {
   opacity: 1;
 }
 
+.reset-button {
+  background-color: #f0f0f0;
+  color: #343a40;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 12px;
+  border: 2px solid #ced4da;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.reset-button:hover {
+  background-color: #e2e6ea;
+  border-color: #adb5bd;
+  color: #212529;
+  transform: translateY(-1px);
+}
