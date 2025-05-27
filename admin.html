@@ -69,7 +69,7 @@
               <th>Username</th>
               <th>Email</th>
               <th>Role</th>
-              <th>Action</th>
+              <!-- <th>CreatedAt</th> -->
             </tr>
           </thead>
           <tbody id="usersList">
@@ -739,30 +739,15 @@
             roleCell.textContent = user.role || "user";
             row.appendChild(roleCell);
             usersList.appendChild(row)
-            const actionCell = document.createElement("td");
-            const deleteBtn = document.createElement("button");
+            // const createdAtCell = document.createElement("td");
+            // const createdAt = user.createdAt && user.createdAt.toDate
+            //                   ? user.createdAt.toDate().toLocaleString() // Format timestamp
+            //                   : "N/A";
             //check user if admin or no
-            if ((user.role || "user") !== "admin") {
-              deleteBtn.textContent = "Delete";
-              deleteBtn.className = "btn btn-danger btn-sm";
-              deleteBtn.onclick = async () => {
-                if (confirm(`Are you sure want to delete this user "${user.username}" ?`)) {
-                  try {
-                    await database.collection("users").doc(doc.id).delete();
-                    row.remove();
-                    alert("user deleted successfully");
-                  } catch (error) {
-                    alert("failed to delete this user: " + error.message);
-                  }
-                }
-              };
-              actionCell.appendChild(deleteBtn);
-            } else {
+            if(user.role ==="admin") {
               row.classList.add("table-success")
-              actionCell.innerHTML = '<span class="text-muted">Not allowed</span>';
+              // actionCell.innerHTML = '<span class="text-muted">Not allowed</span>';
             }
-            // actionCell.appendChild(deleteBtn)
-            row.appendChild(actionCell)
           })
         } catch (error) {
           console.log("errol loading users :", error)
