@@ -677,3 +677,15 @@ input[type="range"].custom-range::-moz-range-thumb {
   border: none;
   cursor: pointer;
 }
+
+
+
+
+nav.navbar {
+  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  opacity: 1;
+}
+
