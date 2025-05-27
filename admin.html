@@ -56,25 +56,25 @@
       </div>
     </div>
     <!-- all users table -->
-     <div class="card shadow p-4 mb-4">
-  <h4 class="text-center text-warning fw-bold mb-3">👥 All Users</h4>
-  <div class="table-responsive">
-    <table class="table table-bordered align-middle">
-      <thead class="table-light">
-        <tr>
-          <th>User ID</th>
-          <th>Username</th>
-          <th>Email</th>
-          <th>Role</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="usersList">
-        <!-- Users will be inserted here -->
-      </tbody>
-    </table>
-  </div>
-</div>
+    <div class="card shadow p-4 mb-4">
+      <h4 class="text-center text-warning fw-bold mb-3">👥 All Users</h4>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>User ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="usersList">
+            <!-- Users will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
 
     <!-- Admin Orders Section -->
     <div class="card shadow p-4 mb-4">
@@ -200,7 +200,6 @@
           const extension = file.name.split('.').pop();
           const newFileName = `${uuid}.${extension}`;
           const storageRef = storage.ref();
-          //const imageRef = storageRef.child(`images/${file.name}`);
           const imageRef = storageRef.child(`images/${newFileName}`);
           const uploadTask = imageRef.put(file);
 
@@ -215,11 +214,14 @@
               console.error("Upload failed:", error);
               reject(error);
             },
-            () => {
-              uploadTask.snapshot.ref
-                .getDownloadURL()
-                .then(resolve)
-                .catch(reject);
+            async () => {
+              try {
+                const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                resolve(downloadURL);
+              } catch (error) {
+                console.error("Error getting download URL:", error);
+                reject(error);
+              }
             }
           );
         });
@@ -346,7 +348,6 @@
             price: RbookPrice,
             description: RbookDescription,
             gener: RbookGener,
-            status: RbookStatus,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           });
           alert("book added successfully");
@@ -700,66 +701,66 @@
         }
       }
       // function to display all users to admin 
-      async function displayAllUsers(){
-        const row =document.createElement("tr")
+      async function displayAllUsers() {
+        const row = document.createElement("tr")
         const usersList = document.getElementById("usersList");
-        usersList.innerHTML="";
+        usersList.innerHTML = "";
 
-        try{
-          const usersSnapshot= await database.collection("users").get();
-          if (usersSnapshot.empty){
+        try {
+          const usersSnapshot = await database.collection("users").get();
+          if (usersSnapshot.empty) {
             const row = document.createElement("tr");
             const cell = document.createElement("td");
-            cell.colSpan=4;
-            cell.className="text-center text-muted"
-            cell.textContent="No users found.";
+            cell.colSpan = 4;
+            cell.className = "text-center text-muted"
+            cell.textContent = "No users found.";
             row.appendChild(cell)
             usersList.appendChild(row)
             return;
           }
-          usersSnapshot.forEach(doc =>{
-            const user =doc.data();
-            const row =document.createElement("tr");
-            const idCell =document.createElement("td");
-            idCell.textContent=doc.id;
+          usersSnapshot.forEach(doc => {
+            const user = doc.data();
+            const row = document.createElement("tr");
+            const idCell = document.createElement("td");
+            idCell.textContent = doc.id;
             row.appendChild(idCell);
-            const usernameCell =document.createElement("td");
-            usernameCell.textContent=user.username;
+            const usernameCell = document.createElement("td");
+            usernameCell.textContent = user.username;
             row.appendChild(usernameCell);
-            const emailCell =document.createElement("td");
-            emailCell.textContent=user.email;
+            const emailCell = document.createElement("td");
+            emailCell.textContent = user.email;
             row.appendChild(emailCell);
-            const roleCell =document.createElement("td");
-            roleCell.textContent=user.role || "user";
+            const roleCell = document.createElement("td");
+            roleCell.textContent = user.role || "user";
             row.appendChild(roleCell);
             usersList.appendChild(row)
-            const actionCell =document.createElement("td");
+            const actionCell = document.createElement("td");
             const deleteBtn = document.createElement("button");
             //check user if admin or no
             if ((user.role || "user") !== "admin") {
-                  deleteBtn.textContent = "Delete";
-                  deleteBtn.className = "btn btn-danger btn-sm";
-                  deleteBtn.onclick = async () => {
-                    if (confirm(`Are you sure want to delete this user "${user.username}" ?`)) {
-                      try {
-                        await database.collection("users").doc(doc.id).delete();
-                        row.remove();
-                        alert("user deleted successfully");
-                      } catch (error) {
-                        alert("failed to delete this user: " + error.message);
-                      }
-                    }
-                  };
-                  actionCell.appendChild(deleteBtn);
-                } else {
-                  row.classList.add("table-success")
-                  actionCell.innerHTML = '<span class="text-muted">Not allowed</span>';
+              deleteBtn.textContent = "Delete";
+              deleteBtn.className = "btn btn-danger btn-sm";
+              deleteBtn.onclick = async () => {
+                if (confirm(`Are you sure want to delete this user "${user.username}" ?`)) {
+                  try {
+                    await database.collection("users").doc(doc.id).delete();
+                    row.remove();
+                    alert("user deleted successfully");
+                  } catch (error) {
+                    alert("failed to delete this user: " + error.message);
+                  }
                 }
+              };
+              actionCell.appendChild(deleteBtn);
+            } else {
+              row.classList.add("table-success")
+              actionCell.innerHTML = '<span class="text-muted">Not allowed</span>';
+            }
             // actionCell.appendChild(deleteBtn)
             row.appendChild(actionCell)
           })
-        }catch (error){
-          console.log("errol loading users :" , error)
+        } catch (error) {
+          console.log("errol loading users :", error)
           const row = document.createElement("tr");
           const cell = document.createElement("td");
           cell.colSpan = 4;
