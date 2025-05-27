@@ -146,6 +146,9 @@
       // Google sign-in
       window.signInWithGoogle = function () {
         const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({
+          prompt: "select_account",
+        });
         auth
           .signInWithPopup(provider)
           .then((result) => {
@@ -173,6 +176,13 @@
                     });
                 } else {
                   checkUserRole(user);
+                }
+                if (popup) {
+                  try {
+                    popup.close();
+                  } catch (e) {
+                    console.warn("could close popup :", e.message);
+                  }
                 }
               });
           })
