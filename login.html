@@ -125,13 +125,22 @@
       //     .catch((error) => {
       //       alert("Wrong Password", error.message);
       //     });
-      const adminEmails = ["oo@gmail.com", "admin2@example.com"];
-      function checkUserRole(email) {
-        if (adminEmails.includes(email)) {
-          window.location.href = "admin.html";
-        } else {
-          window.location.href = "profile.html";
-        }
+      // const adminEmails = ["oo@gmail.com", "admin2@example.com"];
+      function checkUserRole(user) {
+        database
+          .collection("users")
+          .doc(user.uid)
+          .get()
+          .then((doc) => {
+            if (doc.exists && doc.data().role === "admin") {
+              window.location.href = "admin.html";
+            } else {
+              window.location.href = "index.html";
+            }
+          })
+          .catch(() => {
+            window.location.href = "index.html";
+          });
       }
 
       // Google sign-in
@@ -141,7 +150,6 @@
           .signInWithPopup(provider)
           .then((result) => {
             const user = result.user;
-            // Check if user exists in Firestore
             database
               .collection("users")
               .doc(user.uid)
@@ -158,12 +166,13 @@
                       imageUrl: user.photoURL || "",
                       createdAt:
                         firebase.firestore.FieldValue.serverTimestamp(),
+                      role: "user", // Default role
                     })
                     .then(() => {
-                      checkUserRole(user.email); // Redirect after user doc is created
+                      checkUserRole(user);
                     });
                 } else {
-                  checkUserRole(user.email); // Redirect if user doc already exists
+                  checkUserRole(user);
                 }
               });
           })
@@ -181,8 +190,7 @@
           .signInWithEmailAndPassword(email, password)
           .then((userCredential) => {
             const user = userCredential.user;
-            //alert("تسجيل الدخول ناجح");
-            checkUserRole(user.email); // Check role after email/password sign-in
+            checkUserRole(user);
           })
           .catch((error) => {
             alert("error in email or password" + error.message);
