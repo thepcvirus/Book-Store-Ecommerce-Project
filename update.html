@@ -58,7 +58,7 @@
             <div class="mb-3">
                 <label for="bookImage" class="form-label">Book Image</label>
                 <!-- <input type="text" class="form-control" id="R_bookImage"> -->
-                <input type="file" id="imageUpload" accept="image/*" required>
+                <input type="file" id="imageUpload" accept="image/*" >
             </div>
 
             <div class="mb-3">
@@ -157,7 +157,7 @@
                 //document.getElementById("R_bookImage").value = Rdata.url_image || "";
                 document.getElementById("R_description").value = Rdata.description || "";
                 // document.getElementById("R_status").value = Rdata.status || "available";
-
+                let imageSavedURL = Rdata.url_image || "";
                 document.getElementById("R_bookForm").addEventListener("submit", async (e) => {
                     e.preventDefault();
                     // update book name with capitalize it
@@ -173,8 +173,15 @@
                         return;
                     }
                     // update book url_image
-
-                    let RbookUpdatedImage = await UploadImage("imageUpload", storage);
+                    const fileCount = document.getElementById('imageUpload').files.length;
+                    let RbookUpdatedImage = "";
+                    if(fileCount > 0){
+                        RbookUpdatedImage = await UploadImage("imageUpload", storage);
+                    }
+                    else{
+                        RbookUpdatedImage = imageSavedURL;
+                    }
+                    
                     //let RbookUpdatedImage = document.getElementById("R_bookImage").value.trim();
                     // update book gener
                     let RbookUpdatedGener = document.getElementById("R_bookGener").value.trim();

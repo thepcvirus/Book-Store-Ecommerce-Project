@@ -243,16 +243,19 @@
         .getElementById("categoryFilter")
         .addEventListener("change", function () {
           // Reset pagination variables
-          const filters= getCurrentFilters();
-          if (filters.category ==="all"){
-            if(searchInput) searchInput.value ="";
-            if(priceRange){
-              priceRange.value=1000;
-              if (priceValue) priceValue.textContent = 1000; 
+          //const filters= getCurrentFilters();
+          const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+          // if (filters.category ==="all"){
+          //   // if(searchInput) searchInput.value ="";
+          //   // if(priceRange){
+          //   //   priceRange.value=priceRange.max;
+          //   //   if (priceValue) priceValue.textContent = priceRange.max; 
 
-            }
-          }
-          filterBooksCombined({...filters ,append:false})
+          //   // }
+          // }
+          // filterBooksCombined({...filters ,append:false})
+
+          filterBooksCombined({ category, searchTerm, maxPrice, sortType ,append:false});
           // window.lastVisibleCombined = null;
           // window.shownBookIds = new Set();
           // const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
@@ -262,7 +265,7 @@
       // press search button 
       document.getElementById("searchBtn").addEventListener("click", () => {
         const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
-        filterBooksCombined({ category, searchTerm, maxPrice, sortType });
+        filterBooksCombined({ category, searchTerm, maxPrice, sortType ,append:false});
       });
       //button for reset 
       const resetFiltersBtn = document.getElementById("resetFiltersBtn"); // Make sure this is defined outside DOMContentLoaded or at the top of it.
@@ -274,8 +277,8 @@
         if (categoryFilter) categoryFilter.value = "all";
         if (sortingDropdown) sortingDropdown.value = "price-asc"; // Set to your default sort option (e.g., "Price (Low to High)")
         if (priceRange) {
-          priceRange.value = 10000; // Reset to the correct default max price (ensure this matches your HTML input's max attribute)
-          if (priceValue) priceValue.textContent = 10000; // Update the displayed price value
+          priceRange.value = priceRange.max; // Reset to the correct default max price (ensure this matches your HTML input's max attribute)
+          if (priceValue) priceValue.textContent = priceRange.max; // Update the displayed price value
         }
 
         // 2. Get the *newly reset* filter values
@@ -310,8 +313,10 @@
         });
         //     
         priceSlider.addEventListener("change", () => {
-          const { category, searchTerm, maxPrice } = getCurrentFilters();
-          filterBooksCombined({ category, searchTerm, maxPrice });
+          // const { category, searchTerm, maxPrice } = getCurrentFilters();
+          // filterBooksCombined({ category, searchTerm, maxPrice });
+          const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice, sortType ,append:false});
         });
       }
       

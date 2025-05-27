@@ -97,15 +97,15 @@ export function createNavbar() {
   window.addEventListener("scroll", () => {
     const currentScroll = window.scrollY;
 
-    if (currentScroll > lastScrollTop && currentScroll > 80) {
-      // Scrolling down
-      navbar.classList.add("navbar-partial");
-      navbar.classList.remove("navbar-visible");
-    } else {
-      // Scrolling up
-      navbar.classList.remove("navbar-partial");
-      navbar.classList.add("navbar-visible");
-    }
+    // if (currentScroll > lastScrollTop && currentScroll > 80) {
+    //   // Scrolling down
+    //   navbar.classList.add("navbar-partial");
+    //   navbar.classList.remove("navbar-visible");
+    // } else {
+    //   // Scrolling up
+    //   navbar.classList.remove("navbar-partial");
+    //   navbar.classList.add("navbar-visible");
+    // }
 
     lastScrollTop = currentScroll;
   });
