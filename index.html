@@ -78,11 +78,11 @@
         </table>
       </div> -->
 
-    <div class="text-center mt-4">
+    <!-- <div class="text-center mt-4">
       <button class="btn btn-warning btn-lg rounded-pill px-5" id="checkoutBtn">
         ✅ Check Out
       </button>
-    </div>
+    </div> -->
 
     <!-- <div class="text-center mt-3">
         <h5>Total: <span id="totalCost" class="text-success fw-bold">0</span> USD</h5>
@@ -101,7 +101,7 @@
         </label>
         <span id="priceValue" class="text-success fw-bold fs-5">1000</span> $
       </div>
-      <input type="range" class="form-range" id="priceRange" min="0" max="1000" value="1000" step="10" />
+      <input type="range" class="form-range" id="priceRange" min="0" max="1000000" value="1000000" step="10" />
     </div>
 
 
@@ -124,8 +124,8 @@
             <select class="form-select" id="sortingDropdown">
               <option value="price-asc">Price (Low to High)</option>
               <option value="price-desc">Price (High to Low)</option>
-              <option value="name-asc">Name (A to Z)</option>
-              <option value="name-desc">Name (Z to A)</option>
+              <!-- <option value="name-asc">Name (A to Z)</option>
+              <option value="name-desc">Name (Z to A)</option> -->
             </select>
           </div>
 
@@ -221,9 +221,9 @@
       if (!localStorage.getItem("budget")) {
         localStorage.setItem("budget", "1000");
       }
-      document
-        .getElementById("checkoutBtn")
-        .addEventListener("click", checkout);
+      // document
+      //   .getElementById("checkoutBtn")
+      //   .addEventListener("click", checkout);
 
       //osama edit first
       // Add this event listener for category filter
@@ -260,40 +260,40 @@
         }
       }
 
-      import { displayBooksSorted } from "./GeneralFunctions.js";
-
-      // Sorting dropdown event listener
-      document.querySelectorAll(".dropdown-item").forEach((item) => {
-        item.addEventListener("click", (e) => {
-          e.preventDefault();
-          const sortType = item.getAttribute("data-sort");
-          displayBooksSorted(sortType);
-        });
-      });
+      // 
 
       import { filterBooksCombined } from "./GeneralFunctions.js";
 
       function getCurrentFilters() {
-        return {
-          category: document.getElementById("categoryFilter").value,
-          searchTerm: document.getElementById("searchInput").value.trim(),
-          maxPrice: Number(document.getElementById("priceRange").value),
-        };
-      }
+      return {
+        category: document.getElementById("categoryFilter").value,
+        searchTerm: document.getElementById("searchInput").value.trim(),
+        maxPrice: Number(document.getElementById("priceRange").value),
+            sortType: document.getElementById("sortingDropdown").value, 
 
-      // عند تغيير التصنيف
-      document
-        .getElementById("categoryFilter")
-        .addEventListener("change", function () {
-          const { category, searchTerm, maxPrice } = getCurrentFilters();
-          filterBooksCombined({ category, searchTerm, maxPrice });
-        });
+      };
+    }
+      // sorting 
+      document.getElementById("sortingDropdown").addEventListener("change", () => {
+  const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+  filterBooksCombined({ category, searchTerm, maxPrice, sortType, append: false });
+  });
+  // change category  
+     document
+  .getElementById("categoryFilter")
+  .addEventListener("change", function () {
+    // Reset pagination variables
+    window.lastVisibleCombined = null;
+    window.shownBookIds = new Set();
+    const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+    filterBooksCombined({ category, searchTerm, maxPrice, sortType, append: false });
+  });
 
-      // عند الضغط على زر البحث
+      // press search button 
       document.getElementById("searchBtn").addEventListener("click", () => {
-        const { category, searchTerm, maxPrice } = getCurrentFilters();
-        filterBooksCombined({ category, searchTerm, maxPrice });
-      });
+      const { category, searchTerm, maxPrice ,sortType} = getCurrentFilters();
+      filterBooksCombined({ category, searchTerm, maxPrice, sortType });
+    });
 
       // عند الضغط على Enter في البحث
       document
@@ -303,39 +303,39 @@
             document.getElementById("searchBtn").click();
           }
         });
+        document.getElementById("loadMoreBtn").addEventListener("click", () => {
+        const { category, searchTerm, maxPrice ,sortType} = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice,sortType, append: true });
+      });
 
-      // عند تغيير السعر
+      // change price   
       const priceSlider = document.getElementById("priceRange");
       const priceValue = document.getElementById("priceValue");
 
       if (priceSlider && priceValue) {
-        // تحديث القيمة أثناء التحريك
+        //    change price title with moving 
         priceSlider.addEventListener("input", () => {
           priceValue.textContent = priceSlider.value;
         });
-        // عند تغيير السلايدر (تطبيق الفلتر)
+        //     
         priceSlider.addEventListener("change", () => {
           const { category, searchTerm, maxPrice } = getCurrentFilters();
           filterBooksCombined({ category, searchTerm, maxPrice });
         });
       }
-      // زر تحميل المزيد
-      document.getElementById("loadMoreBtn").addEventListener("click", () => {
-        const { category, searchTerm, maxPrice } = getCurrentFilters();
-        filterBooksCombined({ category, searchTerm, maxPrice, append: true });
-      });
+      
 
       // أول تحميل للصفحة
       window.addEventListener("DOMContentLoaded", () => {
-        const { category, searchTerm, maxPrice } = getCurrentFilters();
-        filterBooksCombined({ category, searchTerm, maxPrice });
+        const { category, searchTerm, maxPrice ,sortType} = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice,sortType });
         loadCart();
       });
     </script>
 
     <footer class="footer mt-5 py-4 bg-dark text-light text-center">
       <div class="container">
-        <p class="mb-1">&copy; 2025 Your Bookstore. All rights reserved.</p>
+        <p class="mb-1">&copy; 2025 Your Ketapy. All rights reserved.</p>
         <div>
           <a href="#" class="text-light mx-2">Privacy Policy</a> |
           <a href="#" class="text-light mx-2">Terms of Service</a>

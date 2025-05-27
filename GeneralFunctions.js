@@ -1,10 +1,9 @@
-import { firebaseConfig } from './ConfigFile.js';
+import { firebaseConfig } from "./ConfigFile.js";
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const database = firebase.firestore();
-
 
 export function createNavbar() {
   const nav = document.createElement("nav");
@@ -42,10 +41,20 @@ export function createNavbar() {
   navList.className = "navbar-nav ms-auto d-flex align-items-center gap-3";
 
   const navItems = [
-    { text: "Home", href: "index.html", icon: "bi-house-door-fill", active: true },
+    {
+      text: "Home",
+      href: "index.html",
+      icon: "bi-house-door-fill",
+      active: true,
+    },
     { text: "Profile", href: "profile.html", icon: "bi-person-circle" },
     { text: "Cart", href: "cart.html", icon: "bi-cart3", id: "cartNav" },
-    { text: "Logout", href: "logout.html", icon: "bi-box-arrow-right", id: "logoutBtn" }
+    {
+      text: "Logout",
+      href: "logout.html",
+      icon: "bi-box-arrow-right",
+      id: "logoutBtn",
+    },
   ];
 
   navItems.forEach((item) => {
@@ -429,11 +438,13 @@ export async function displayBooksSorted(sortType = null) {
 // Unified filter function for category, search, and price.
 let lastVisibleCombined = null;
 let shownBookIds = new Set();
+
 export async function filterBooksCombined({
   bookContainerId = "ProductsList",
   category = "all",
   searchTerm = "",
   maxPrice = 100000,
+  sortType = "name-asc",
   append = false,
 } = {}) {
   let db = firebase.firestore();
@@ -451,33 +462,67 @@ export async function filterBooksCombined({
   if (category === "all" && searchTerm && searchTerm.trim() !== "") {
     dynamicLimit = 50;
   }
-  // Firebase Firestore: if using inequality on price, must orderBy price first
-  if (maxPrice !== undefined && maxPrice !== null && maxPrice < 1000) {
-    query = query.where("price", "<=", maxPrice);
-    query = query.orderBy("price").orderBy("name");
+
+  // sorting and filtering
+  if (
+    (maxPrice !== undefined && maxPrice !== null && maxPrice < 1000) ||
+    (category && category !== "all")
+  ) {
+    query = query.orderBy("price"); // ASC فقط
+    if (maxPrice !== undefined && maxPrice !== null && maxPrice < 1000) {
+      query = query.where("price", "<=", maxPrice);
+    }
+    if (sortType === "name-desc" || sortType === "name-asc") {
+      query = query.orderBy("name", sortType === "name-desc" ? "desc" : "asc");
+    }
   } else {
-    query = query.orderBy("name");
+    if (sortType === "price-desc") {
+      query = query.orderBy("price", "desc");
+    } else if (sortType === "price-asc") {
+      query = query.orderBy("price", "asc");
+    } else if (sortType === "name-desc") {
+      query = query.orderBy("name", "desc");
+    } else {
+      query = query.orderBy("name", "asc");
+    }
   }
+
   query = query.limit(dynamicLimit);
   if (append && lastVisibleCombined) {
     query = query.startAfter(lastVisibleCombined);
   }
   let snapshot = await query.get();
   lastVisibleCombined = snapshot.docs[snapshot.docs.length - 1];
+
   let filteredBooks = snapshot.docs.map((doc) => {
     let book = doc.data();
     book.id = doc.id;
     return book;
   });
+
+  // فلترة البحث النصي
   if (searchTerm && searchTerm.trim() !== "") {
     const searchTermLower = searchTerm.toLowerCase().trim();
     filteredBooks = filteredBooks.filter(
-      (book) => book.name && book.name.toLowerCase().includes(searchTermLower)
+      (book) =>
+        (book.name && book.name.toLowerCase().includes(searchTermLower)) ||
+        (book.author && book.author.toLowerCase().includes(searchTermLower))
     );
   }
+
+  // منع التكرار
   filteredBooks = filteredBooks.filter((book) => !shownBookIds.has(book.id));
   filteredBooks.forEach((book) => shownBookIds.add(book.id));
 
+  if (
+    ((maxPrice !== undefined && maxPrice !== null && maxPrice < 1000) ||
+      (category && category !== "all")) &&
+    sortType === "price-desc"
+  ) {
+    filteredBooks = filteredBooks.reverse();
+  }
+
+  // عرض رسالة لو مفيش نتائج
   if (filteredBooks.length === 0 && !append) {
     let alert = document.createElement("p");
     alert.className = "text-center";
@@ -487,6 +532,8 @@ export async function filterBooksCombined({
     if (loadMoreBtn) loadMoreBtn.style.display = "none";
     return;
   }
+
+  // عرض الكتب
   filteredBooks.forEach((book) => {
     createProductCard(
       bookContainerId,
@@ -498,16 +545,21 @@ export async function filterBooksCombined({
       book
     );
   });
+
+  // زر تحميل المزيد
   const loadMoreBtn = document.getElementById("loadMoreBtn");
   if (loadMoreBtn) {
     loadMoreBtn.style.display =
-      snapshot.size === 9 || filteredBooks.length > 0 ? "block" : "none";
+      snapshot.size === dynamicLimit && filteredBooks.length > 0
+        ? "block"
+        : "none";
     loadMoreBtn.onclick = () =>
       filterBooksCombined({
         bookContainerId,
         category,
         searchTerm,
         maxPrice,
+        sortType,
         append: true,
       });
   }
@@ -526,7 +578,7 @@ export function CheckAdmin(emailToCheck) {
 // Get user's cart from Firestore
 async function getUserCart(userId) {
   try {
-    const cartDoc = await database.collection('carts').doc(userId).get();
+    const cartDoc = await database.collection("carts").doc(userId).get();
     if (cartDoc.exists) {
       return cartDoc.data().items || [];
     }
@@ -539,7 +591,7 @@ async function getUserCart(userId) {
 // update user cart
 async function updateUserCart(userId, cart) {
   try {
-    await database.collection('carts').doc(userId).set({ items: cart });
+    await database.collection("carts").doc(userId).set({ items: cart });
   } catch (error) {
     console.error("Error updating cart:", error);
     throw error;
@@ -550,113 +602,124 @@ export async function displayAdminOrders() {
   const user = firebase.auth().currentUser;
   if (!user) return;
 
-  const adminOrdersList = document.getElementById('adminOrdersList');
+  const adminOrdersList = document.getElementById("adminOrdersList");
   if (!adminOrdersList) return;
 
   try {
     // Get all orders for admin without status filter
-    const ordersSnapshot = await database.collection('orders')
-      .where('userId', '==', user.uid)
+    const ordersSnapshot = await database
+      .collection("orders")
+      .where("userId", "==", user.uid)
       .limit(50)
       .get();
 
     // Sort the results in memory
-    const orders = ordersSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })).sort((a, b) => {
-      const dateA = a.createdAt?.toDate?.() || new Date(0);
-      const dateB = b.createdAt?.toDate?.() || new Date(0);
-      return dateB - dateA; // Sort in descending order
-    });
+    const orders = ordersSnapshot.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+      .sort((a, b) => {
+        const dateA = a.createdAt?.toDate?.() || new Date(0);
+        const dateB = b.createdAt?.toDate?.() || new Date(0);
+        return dateB - dateA; // Sort in descending order
+      });
 
-    adminOrdersList.innerHTML = '';
+    adminOrdersList.innerHTML = "";
 
     orders.forEach((order) => {
-      const row = document.createElement('tr');
+      const row = document.createElement("tr");
 
       // Order ID
-      const idCell = document.createElement('td');
+      const idCell = document.createElement("td");
       idCell.textContent = order.id;
       row.appendChild(idCell);
 
       // Date
-      const dateCell = document.createElement('td');
-      const date = order.createdAt && order.createdAt.toDate
-        ? order.createdAt.toDate().toLocaleString()
-        : 'N/A';
+      const dateCell = document.createElement("td");
+      const date =
+        order.createdAt && order.createdAt.toDate
+          ? order.createdAt.toDate().toLocaleString()
+          : "N/A";
       dateCell.textContent = date;
       row.appendChild(dateCell);
 
       // Total
-      const totalCell = document.createElement('td');
+      const totalCell = document.createElement("td");
       totalCell.textContent = `${order.total || 0} $`;
       row.appendChild(totalCell);
 
       // Items
-      const itemsCell = document.createElement('td');
+      const itemsCell = document.createElement("td");
       if (order.items && Array.isArray(order.items)) {
-        itemsCell.innerHTML = order.items.map(item =>
-          `<div>${item.name} x${item.quantity} - ${item.price} $</div>`
-        ).join("");
+        itemsCell.innerHTML = order.items
+          .map(
+            (item) =>
+              `<div>${item.name} x${item.quantity} - ${item.price} $</div>`
+          )
+          .join("");
       } else {
         itemsCell.textContent = "No items";
       }
       row.appendChild(itemsCell);
 
       // Status
-      const statusCell = document.createElement('td');
-      statusCell.textContent = order.status || 'Completed';
+      const statusCell = document.createElement("td");
+      statusCell.textContent = order.status || "Completed";
       row.appendChild(statusCell);
 
       adminOrdersList.appendChild(row);
     });
 
     if (orders.length === 0) {
-      const row = document.createElement('tr');
-      const cell = document.createElement('td');
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
       cell.colSpan = 5;
-      cell.className = 'text-center';
-      cell.textContent = 'No orders found';
+      cell.className = "text-center";
+      cell.textContent = "No orders found";
       row.appendChild(cell);
       adminOrdersList.appendChild(row);
     }
 
     // Also add admin orders to the main orders list
-    const ordersList = document.getElementById('ordersList');
+    const ordersList = document.getElementById("ordersList");
     if (ordersList) {
       orders.forEach((order) => {
-        const row = document.createElement('tr');
+        const row = document.createElement("tr");
 
         // Order ID
-        const idCell = document.createElement('td');
+        const idCell = document.createElement("td");
         idCell.textContent = order.id;
         row.appendChild(idCell);
 
         // Username (Admin)
-        const userCell = document.createElement('td');
-        userCell.textContent = 'Admin';
+        const userCell = document.createElement("td");
+        userCell.textContent = "Admin";
         row.appendChild(userCell);
 
         // Date
-        const dateCell = document.createElement('td');
-        const date = order.createdAt && order.createdAt.toDate
-          ? order.createdAt.toDate().toLocaleString()
-          : 'N/A';
+        const dateCell = document.createElement("td");
+        const date =
+          order.createdAt && order.createdAt.toDate
+            ? order.createdAt.toDate().toLocaleString()
+            : "N/A";
         dateCell.textContent = date;
         row.appendChild(dateCell);
 
         // Total
-        const totalCell = document.createElement('td');
+        const totalCell = document.createElement("td");
         totalCell.textContent = `${order.total || 0} $`;
         row.appendChild(totalCell);
 
         // Items
-        const itemsCell = document.createElement('td');
+        const itemsCell = document.createElement("td");
         if (order.items && Array.isArray(order.items)) {
-          itemsCell.innerHTML = order.items.map(item =>
-            `<div>${item.name} x${item.quantity} - ${item.price} $</div>`
-          ).join("");
+          itemsCell.innerHTML = order.items
+            .map(
+              (item) =>
+                `<div>${item.name} x${item.quantity} - ${item.price} $</div>`
+            )
+            .join("");
         } else {
           itemsCell.textContent = "No items";
         }
@@ -666,12 +729,12 @@ export async function displayAdminOrders() {
       });
     }
   } catch (error) {
-    console.error('Error fetching admin orders:', error);
-    const row = document.createElement('tr');
-    const cell = document.createElement('td');
+    console.error("Error fetching admin orders:", error);
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
     cell.colSpan = 5;
-    cell.className = 'text-center text-danger';
-    cell.textContent = 'Error loading orders: ' + error.message;
+    cell.className = "text-center text-danger";
+    cell.textContent = "Error loading orders: " + error.message;
     row.appendChild(cell);
     adminOrdersList.appendChild(row);
   }
