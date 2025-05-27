@@ -91,63 +91,69 @@
     </div> -->
 
 
+<section class="container my-5">
+  <div class="filter-panel-modern bg-white rounded-4 shadow p-4">
+    <div class="row g-4 align-items-center">
 
-
-
-    <div class="price-filter-modern bg-white rounded-4 shadow-sm p-4 mt-4">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <label for="priceRange" class="form-label fw-bold text-dark mb-0">
-          💰 Max Price:
-        </label>
-        <span id="priceValue" class="text-success fw-bold fs-5">1000</span> $
-      </div>
-      <input type="range" class="form-range" id="priceRange" min="0" max="1000000" value="1000000" step="10" />
-    </div>
-
-
-    <section class="container my-5">
-      <div class="filter-panel-modern bg-white rounded-4 shadow p-4">
-        <div class="row g-4 align-items-center">
-
-          <!-- Search -->
-          <div class="col-md-5">
-            <label for="searchInput" class="form-label fw-bold text-dark">🔍 Search Books</label>
-            <div class="input-group">
-              <input type="text" class="form-control rounded-start" placeholder="Enter book title..." id="searchInput">
-              <button class="btn btn-warning rounded-end" id="searchBtn">Search</button>
-            </div>
-          </div>
-
-          <!-- Sort -->
-          <div class="col-md-3">
-            <label class="form-label fw-bold text-dark">🔃 Sort By</label>
-            <select class="form-select" id="sortingDropdown">
-              <option value="price-asc">Price (Low to High)</option>
-              <option value="price-desc">Price (High to Low)</option>
-              <!-- <option value="name-asc">Name (A to Z)</option>
-              <option value="name-desc">Name (Z to A)</option> -->
-            </select>
-          </div>
-
-
-          <!-- Category -->
-          <div class="col-md-4">
-            <label for="categoryFilter" class="form-label fw-bold text-dark">📚 Book Categories</label>
-            <select class="form-select" id="categoryFilter">
-              <option value="all">All Categories</option>
-              <option value="Fantasy">Fantasy</option>
-              <option value="Science Fiction">Science Fiction</option>
-              <option value="Action & Adventure">Action & Adventure</option>
-              <option value="Detective & Mystery">Detective & Mystery</option>
-              <option value="Romance">Romance</option>
-              <option value="Horror">Horror</option>
-              <option value="Historical Fiction">Historical Fiction</option>
-              <option value="Short Story">Short Story</option>
-            </select>
-          </div>
+      <!-- Search -->
+      <div class="col-md-5">
+        <label for="searchInput" class="form-label fw-bold text-dark">🔍 Search Books</label>
+        <div class="input-group">
+          <input type="text" class="form-control rounded-start" placeholder="Enter book title..." id="searchInput">
+          <button class="btn btn-warning rounded-end" id="searchBtn">Search</button>
         </div>
       </div>
-    </section>
+
+      <!-- Sort -->
+      <div class="col-md-3">
+        <label class="form-label fw-bold text-dark">🔃 Sort By</label>
+        <select class="form-select" id="sortingDropdown">
+          <option value="price-asc">Price (Low to High)</option>
+          <option value="price-desc">Price (High to Low)</option>
+        </select>
+      </div>
+
+      <!-- Category -->
+      <div class="col-md-4">
+        <label for="categoryFilter" class="form-label fw-bold text-dark">📚 Book Categories</label>
+        <select class="form-select" id="categoryFilter">
+          <option value="all">All Categories</option>
+          <option value="Fantasy">Fantasy</option>
+          <option value="Science Fiction">Science Fiction</option>
+          <option value="Action & Adventure">Action & Adventure</option>
+          <option value="Detective & Mystery">Detective & Mystery</option>
+          <option value="Romance">Romance</option>
+          <option value="Horror">Horror</option>
+          <option value="Historical Fiction">Historical Fiction</option>
+          <option value="Short Story">Short Story</option>
+        </select>
+      </div>
+
+      <!-- Price Filter (Full width below) -->
+      <div class="col-12">
+        <div class="price-filter-modern p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <label for="priceRange" class="form-label fw-bold fs-5 text-dark mb-0">
+              💰 Max Price
+            </label>
+            <span id="priceValue" class="text-success fw-bold fs-5">1000</span>
+            <span class="text-muted ms-1 fs-6">$</span>
+          </div>
+          <input
+            type="range"
+            class="form-range custom-range"
+            id="priceRange"
+            min="0"
+            max="10000"
+            value="1000"
+            step="10"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
     <hr class="my-5" />
     <section class="container">
       <h3 class="text-center fw-bold text-dark mb-4" id="titleProducts">
@@ -174,10 +180,12 @@
       </div>
 
       <div class="text-center mt-4">
-        <button class="btn btn-warning btn-lg rounded-pill px-5" id="loadMoreBtn">
-          🔄 Load More
-        </button>
-      </div>
+        <div class="d-flex justify-content-center mt-5 mb-5">
+  <button class="btn btn-warning btn-lg rounded-pill px-5 shadow-sm" id="loadMoreBtn">
+    🔄 Load More
+  </button>
+</div>
+
     </section>
 
 

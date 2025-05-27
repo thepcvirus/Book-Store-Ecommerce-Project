@@ -603,18 +603,23 @@ body {
 
 
 
+
+
+
 .filter-panel-modern {
   border: 1px solid #e0e0e0;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
 }
 
 .filter-panel-modern .form-label {
   font-weight: 600;
-  font-size: 1rem;
+  color: #2c3e50;
 }
 
-.filter-panel-modern .form-select,
-.filter-panel-modern .form-control {
+.filter-panel-modern .form-control,
+.filter-panel-modern .form-select {
   border-radius: 10px;
   padding: 10px 14px;
   font-size: 0.95rem;
@@ -632,22 +637,43 @@ body {
   background-color: #f39c12;
 }
 
-
-
-
-
-
-
+/* Price Filter Inside Panel */
 .price-filter-modern {
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+  border-top: 1px solid #ddd;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
 }
 
-.price-filter-modern .form-label {
-  font-weight: 600;
-  font-size: 1rem;
+/* Range Styling */
+input[type="range"].custom-range {
+  height: 8px;
+  border-radius: 10px;
+  background: linear-gradient(to right, #27ae60, #2ecc71);
+  appearance: none;
+  transition: background 0.3s ease;
 }
 
-.price-filter-modern #priceValue {
-  color: #27ae60;
+input[type="range"].custom-range::-webkit-slider-thumb {
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #27ae60;
+  border: 2px solid #fff;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+input[type="range"].custom-range::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+input[type="range"].custom-range::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #27ae60;
+  border: none;
+  cursor: pointer;
 }
