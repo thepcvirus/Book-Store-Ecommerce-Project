@@ -89,34 +89,29 @@ export function createNavbar() {
   container.appendChild(collapseDiv);
   nav.appendChild(container);
 
+  // navbar static
 
-   // navbar static
-    
   let lastScrollTop = 0;
-  const navbar = document.querySelector('nav.navbar');
+  const navbar = document.querySelector("nav.navbar");
 
-  window.addEventListener('scroll', () => {
+  window.addEventListener("scroll", () => {
     const currentScroll = window.scrollY;
 
     if (currentScroll > lastScrollTop && currentScroll > 80) {
       // Scrolling down
-      navbar.classList.add('navbar-partial');
-      navbar.classList.remove('navbar-visible');
+      navbar.classList.add("navbar-partial");
+      navbar.classList.remove("navbar-visible");
     } else {
       // Scrolling up
-      navbar.classList.remove('navbar-partial');
-      navbar.classList.add('navbar-visible');
+      navbar.classList.remove("navbar-partial");
+      navbar.classList.add("navbar-visible");
     }
 
     lastScrollTop = currentScroll;
   });
 
-
-
   return nav;
 }
-
-
 
 export function createProductCard(
   DivID,
@@ -470,123 +465,180 @@ export async function displayBooksSorted(sortType = null) {
     bookContainer.appendChild(errorMsg);
   }
 }
+//edit 994
+// دالة fetchNextBooks (بدون تغيير، لأنها شغالة صح مع زر "Load More")
+async function fetchNextBooks({
+  query,
+  dynamicLimit,
+  shownBookIds,
+  lastVisibleCombined,
+}) {
+  let books = [];
+  let localLastVisible = lastVisibleCombined;
 
-// Unified filter function for category, search, and price.
+  try {
+    let q = query;
+    if (localLastVisible) {
+      q = q.startAfter(localLastVisible);
+    }
+    let snapshot = await q.limit(dynamicLimit).get();
+    console.log("Snapshot size:", snapshot.size); // سجل للتحقق
+    console.log("Shown book IDs before:", [...shownBookIds]); // سجل للتحقق
+
+    if (!snapshot.empty) {
+      localLastVisible = snapshot.docs[snapshot.docs.length - 1];
+      let newBooks = snapshot.docs
+        .map((doc) => {
+          let book = doc.data();
+          book.id = doc.id;
+          return book;
+        })
+        .filter((book) => !shownBookIds.has(book.id));
+
+      newBooks.forEach((book) => shownBookIds.add(book.id));
+      books.push(...newBooks);
+      console.log("Fetched books:", books.length); // سجل للتحقق
+    }
+
+    // تحقق مما إذا كان هناك المزيد من الكتب
+    let hasMore = snapshot.size >= dynamicLimit;
+
+    console.log("Has more:", hasMore); // سجل للتحقق
+    return { books, lastVisible: localLastVisible, hasMore };
+  } catch (error) {
+    console.error("Error fetching next books:", error);
+    return { books: [], lastVisible: localLastVisible, hasMore: false };
+  }
+}
+
+// دالة filterBooksCombined المعدلة
 let lastVisibleCombined = null;
 let shownBookIds = new Set();
+let searchResults = [];
+let currentSearchIndex = 0;
 
 export async function filterBooksCombined({
   bookContainerId = "ProductsList",
   category = "all",
   searchTerm = "",
-  maxPrice = 100000,
-  sortType = "name-asc",
+  maxPrice = 1000,
+  sortType = "price-asc",
   append = false,
 } = {}) {
   let db = firebase.firestore();
   let bookContainer = document.getElementById(bookContainerId);
+
+  // إعادة تعيين متغيرات الـ pagination عند بدء فلتر جديد
   if (!append) {
     bookContainer.innerHTML = "";
     lastVisibleCombined = null;
     shownBookIds = new Set();
+    searchResults = [];
+    currentSearchIndex = 0;
+    console.log(
+      "Reset pagination - Category:",
+      category,
+      "Sort:",
+      sortType,
+      "Search:",
+      searchTerm,
+      "MaxPrice:",
+      maxPrice
+    ); // سجل للتحقق
   }
+
   let query = db.collection("cars");
   if (category && category !== "all") {
-    query = query.where("gener", "==", category);
+    query = query.where("gener", "==", category); // استخدام gener كما أكدت
+    console.log("Filtering by category:", category); // سجل للتحقق
   }
+
   let dynamicLimit = 9;
-  if (category === "all" && searchTerm && searchTerm.trim() !== "") {
+  let isSearch = searchTerm && searchTerm.trim() !== "";
+  if (isSearch) {
     dynamicLimit = 50;
+    console.log("Search mode - Term:", searchTerm); // سجل للتحقق
   }
 
-  // sorting and filtering
-  if (
-    (maxPrice !== undefined && maxPrice !== null && maxPrice < 1000) ||
-    (category && category !== "all")
-  ) {
-    query = query.orderBy("price"); // ASC فقط
-    if (maxPrice !== undefined && maxPrice !== null && maxPrice < 1000) {
-      query = query.where("price", "<=", maxPrice);
-    }
-    if (sortType === "name-desc" || sortType === "name-asc") {
-      query = query.orderBy("name", sortType === "name-desc" ? "desc" : "asc");
-    }
-  } else {
-    if (sortType === "price-desc") {
-      query = query.orderBy("price", "desc");
-    } else if (sortType === "price-asc") {
-      query = query.orderBy("price", "asc");
-    } else if (sortType === "name-desc") {
-      query = query.orderBy("name", "desc");
-    } else {
-      query = query.orderBy("name", "asc");
-    }
+  // تطبيق الترتيب والفلترة
+  if (maxPrice !== undefined && maxPrice !== null && maxPrice < 100000) {
+    query = query.where("price", "<=", maxPrice);
+    console.log("Filtering by maxPrice:", maxPrice); // سجل للتحقق
   }
 
-  query = query.limit(dynamicLimit);
-  if (append && lastVisibleCombined) {
-    query = query.startAfter(lastVisibleCombined);
+  // تطبيق الترتيب بناءً على sortType في كل الحالات
+  if (sortType === "price-desc") {
+    query = query.orderBy("price", "desc");
+  } else if (sortType === "price-asc") {
+    query = query.orderBy("price", "asc");
   }
-  let snapshot = await query.get();
-  lastVisibleCombined = snapshot.docs[snapshot.docs.length - 1];
+  console.log("Sorting by:", sortType); // سجل للتحقق
 
-  let filteredBooks = snapshot.docs.map((doc) => {
-    let book = doc.data();
-    book.id = doc.id;
-    return book;
+  // جلب الكتب
+  const {
+    books: nextBooks,
+    lastVisible,
+    hasMore,
+  } = await fetchNextBooks({
+    query,
+    dynamicLimit,
+    shownBookIds,
+    lastVisibleCombined,
   });
+  lastVisibleCombined = lastVisible;
 
-  // فلترة البحث النصي
-  if (searchTerm && searchTerm.trim() !== "") {
+  // إذا كان هناك بحث نصي
+  if (isSearch) {
     const searchTermLower = searchTerm.toLowerCase().trim();
-    filteredBooks = filteredBooks.filter(
+    // تحديث searchResults مع الأخذ في الاعتبار الفلاتر
+    searchResults = append ? searchResults : nextBooks; // إعادة تعيين searchResults إذا لم يكن append
+    searchResults = searchResults.filter(
       (book) =>
         (book.name && book.name.toLowerCase().includes(searchTermLower)) ||
         (book.author && book.author.toLowerCase().includes(searchTermLower))
     );
-  }
+    console.log("Search results count:", searchResults.length); // سجل للتحقق
 
-  // منع التكرار
-  filteredBooks = filteredBooks.filter((book) => !shownBookIds.has(book.id));
-  filteredBooks.forEach((book) => shownBookIds.add(book.id));
-
-  if (
-    ((maxPrice !== undefined && maxPrice !== null && maxPrice < 1000) ||
-      (category && category !== "all")) &&
-    sortType === "price-desc"
-  ) {
-    filteredBooks = filteredBooks.reverse();
-  }
-
-  // عرض رسالة لو مفيش نتائج
-  if (filteredBooks.length === 0 && !append) {
-    let alert = document.createElement("p");
-    alert.className = "text-center";
-    alert.textContent = "No books found.";
-    bookContainer.appendChild(alert);
-    const loadMoreBtn = document.getElementById("loadMoreBtn");
-    if (loadMoreBtn) loadMoreBtn.style.display = "none";
-    return;
-  }
-
-  // عرض الكتب
-  filteredBooks.forEach((book) => {
-    createProductCard(
-      bookContainerId,
-      book.url_image,
-      book.name,
-      book.author,
-      book.gener,
-      book.price,
-      book
+    let booksToShow = searchResults.slice(
+      currentSearchIndex,
+      currentSearchIndex + 9
     );
-  });
+    booksToShow.forEach((book) => {
+      createProductCard(
+        bookContainerId,
+        book.url_image,
+        book.name,
+        book.author,
+        book.gener,
+        book.price,
+        book
+      );
+      shownBookIds.add(book.id);
+    });
+    currentSearchIndex += booksToShow.length;
+    console.log("Search books shown:", booksToShow.length); // سجل للتحقق
+  } else {
+    // عرض الكتب بدون بحث نصي
+    nextBooks.forEach((book) => {
+      createProductCard(
+        bookContainerId,
+        book.url_image,
+        book.name,
+        book.author,
+        book.gener,
+        book.price,
+        book
+      );
+      shownBookIds.add(book.id);
+    });
+    console.log("Non-search books shown:", nextBooks.length); // سجل للتحقق
+  }
 
-  // زر تحميل المزيد
+  // إدارة زر "Load More"
   const loadMoreBtn = document.getElementById("loadMoreBtn");
   if (loadMoreBtn) {
     loadMoreBtn.style.display =
-      snapshot.size === dynamicLimit && filteredBooks.length > 0
+      hasMore || (isSearch && currentSearchIndex < searchResults.length)
         ? "block"
         : "none";
     loadMoreBtn.onclick = () =>
@@ -598,8 +650,27 @@ export async function filterBooksCombined({
         sortType,
         append: true,
       });
+    console.log("Load More button display:", loadMoreBtn.style.display); // سجل للتحقق
+  }
+
+  // عرض رسالة إذا لم يتم العثور على كتب
+  if (nextBooks.length === 0 && !isSearch && !append) {
+    let alert = document.createElement("p");
+    alert.className = "text-center";
+    alert.textContent = "No books found.";
+    bookContainer.appendChild(alert);
+    if (loadMoreBtn) loadMoreBtn.style.display = "none";
+  } else if (isSearch && searchResults.length === 0 && !append) {
+    let alert = document.createElement("p");
+    alert.className = "text-center";
+    alert.textContent = "No books found.";
+    bookContainer.appendChild(alert);
+    if (loadMoreBtn) loadMoreBtn.style.display = "none";
   }
 }
+//end edit 994
+// Unified filter function for category, search, and price.
+
 export function CheckAdmin(emailToCheck) {
   const registeredEmails = [
     "thepcvirus@gmail.com",

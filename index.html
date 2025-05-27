@@ -42,54 +42,7 @@
 
 
   <div class="row">
-    <!-- <section>
-      <h3 class="text-center">Your Cart</h3>
-      <div id="bookContainer" class="book-grid"></div>
-    </section>
-
-    <div class="col-12 cart-panel p-4 my-4 bg-white rounded shadow-sm">
-      <h4 class="mb-4 text-center fw-bold">🛒 Your Cart</h4>
-      <div class="table-responsive">
-        <table class="table table-hover align-middle" id="CartList">
-          <thead class="table-light">
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Quantity</th>
-              <th>Price</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>Sample Book</td>
-              <td><input type="number" class="form-control w-50 mx-auto" value="1" /></td>
-              <td>$10</td>
-              <td><button class="btn btn-outline-danger btn-sm">Delete</button></td>
-            </tr> -->
-    <!-- <tr>
-              <td>2</td>
-              <td>Sample Book 2</td>
-              <td><input type="number" class="form-control w-50 mx-auto" value="1" /></td>
-              <td>$12</td>
-              <td><button class="btn btn-outline-danger btn-sm">Delete</button></td>
-            </tr>
-          </tbody>
-        </table>
-      </div> -->
-
-    <!-- <div class="text-center mt-4">
-      <button class="btn btn-warning btn-lg rounded-pill px-5" id="checkoutBtn">
-        ✅ Check Out
-      </button>
-    </div> -->
-
-    <!-- <div class="text-center mt-3">
-        <h5>Total: <span id="totalCost" class="text-success fw-bold">0</span> USD</h5>
-        <div id="paypal-button-container" class="mt-3"></div>
-      </div>
-    </div> -->
+    
 
 
     <section class="container my-5">
@@ -113,6 +66,10 @@
               <option value="price-desc">Price (High to Low)</option>
             </select>
           </div>
+          <!-- <div class="col-md-3">
+              <button class="btn btn-outline-secondary" id="resetFiltersBtn">Reset</button>
+
+          </div> -->
 
           <!-- Category -->
           <div class="col-md-4">
@@ -140,10 +97,11 @@
                 <span id="priceValue" class="text-success fw-bold fs-5">1000</span>
                 <span class="text-muted ms-1 fs-6">$</span>
               </div>
-              <input type="range" class="form-range custom-range" id="priceRange" min="0" max="10000" value="1000"
+              <input type="range" class="form-range custom-range" id="priceRange" min="0" max="1000" value="1000"
                 step="10" />
             </div>
           </div>
+             <button class="btn btn-outline-secondary" id="resetFiltersBtn">Reset</button>
         </div>
       </div>
     </section>
@@ -223,9 +181,6 @@
       if (!localStorage.getItem("budget")) {
         localStorage.setItem("budget", "1000");
       }
-      // document
-      //   .getElementById("checkoutBtn")
-      //   .addEventListener("click", checkout);
 
       //osama edit first
       // Add this event listener for category filter
@@ -285,10 +240,20 @@
         .getElementById("categoryFilter")
         .addEventListener("change", function () {
           // Reset pagination variables
-          window.lastVisibleCombined = null;
-          window.shownBookIds = new Set();
-          const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
-          filterBooksCombined({ category, searchTerm, maxPrice, sortType, append: false });
+          const filters= getCurrentFilters();
+          if (filters.category ==="all"){
+            if(searchInput) searchInput.value ="";
+            if(priceRange){
+              priceRange.value=1000;
+              if (priceValue) priceValue.textContent = 1000; 
+
+            }
+          }
+          filterBooksCombined({...filters ,append:false})
+          // window.lastVisibleCombined = null;
+          // window.shownBookIds = new Set();
+          // const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+          // filterBooksCombined({ category, searchTerm, maxPrice, sortType, append: false });
         });
 
       // press search button 
@@ -296,7 +261,28 @@
         const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
         filterBooksCombined({ category, searchTerm, maxPrice, sortType });
       });
+      //button for reset 
+      const resetFiltersBtn = document.getElementById("resetFiltersBtn"); // Make sure this is defined outside DOMContentLoaded or at the top of it.
 
+    if (resetFiltersBtn) {
+      resetFiltersBtn.addEventListener("click", () => {
+        // 1. Reset all filter UI elements to their default states
+        if (searchInput) searchInput.value = "";
+        if (categoryFilter) categoryFilter.value = "all";
+        if (sortingDropdown) sortingDropdown.value = "price-asc"; // Set to your default sort option (e.g., "Price (Low to High)")
+        if (priceRange) {
+          priceRange.value = 10000; // Reset to the correct default max price (ensure this matches your HTML input's max attribute)
+          if (priceValue) priceValue.textContent = 10000; // Update the displayed price value
+        }
+
+        // 2. Get the *newly reset* filter values
+        const updatedFilters = getCurrentFilters();
+
+        // 3. Call filterBooksCombined with the new, default filters
+        //    'append: false' ensures a full refresh and not just adding more books.
+        filterBooksCombined({ ...updatedFilters, append: false });
+      });
+    }
       // عند الضغط على Enter في البحث
       document
         .getElementById("searchInput")
