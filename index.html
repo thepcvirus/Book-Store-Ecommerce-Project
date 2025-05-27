@@ -62,6 +62,7 @@
           <div class="col-md-3">
             <label class="form-label fw-bold text-dark">🔃 Sort By</label>
             <select class="form-select" id="sortingDropdown">
+
               <option value="price-asc">Price (Low to High)</option>
               <option value="price-desc">Price (High to Low)</option>
             </select>
@@ -272,10 +273,10 @@
         // 1. Reset all filter UI elements to their default states
         if (searchInput) searchInput.value = "";
         if (categoryFilter) categoryFilter.value = "all";
-        if (sortingDropdown) sortingDropdown.value = "price-asc"; // Set to your default sort option (e.g., "Price (Low to High)")
+        if (sortingDropdown) sortingDropdown.value = "createdA-desc"; // Set to your default sort option (e.g., "Price (Low to High)")
         if (priceRange) {
-          priceRange.value = 10000; // Reset to the correct default max price (ensure this matches your HTML input's max attribute)
-          if (priceValue) priceValue.textContent = 10000; // Update the displayed price value
+          priceRange.value = 1000; // Reset to the correct default max price (ensure this matches your HTML input's max attribute)
+          if (priceValue) priceValue.textContent = 1000; // Update the displayed price value
         }
 
         // 2. Get the *newly reset* filter values

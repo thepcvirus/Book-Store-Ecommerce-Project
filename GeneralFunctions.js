@@ -522,7 +522,7 @@ export async function filterBooksCombined({
   category = "all",
   searchTerm = "",
   maxPrice = 1000,
-  sortType = "price-asc",
+  sortType = "pric-asc",
   append = false,
 } = {}) {
   let db = firebase.firestore();
@@ -562,18 +562,17 @@ export async function filterBooksCombined({
 
   // تطبيق الترتيب والفلترة
   if (maxPrice !== undefined && maxPrice !== null && maxPrice < 100000) {
-    query = query.where("price", "<=", maxPrice);
-    console.log("Filtering by maxPrice:", maxPrice); // سجل للتحقق
+    query = query.where("price", "<=", maxPrice).where("price", ">=", 0); // استبعاد القيم السلبية أو null
+    console.log("Filtering by maxPrice:", maxPrice);
   }
 
-  // تطبيق الترتيب بناءً على sortType في كل الحالات
+  // تطبيق الترتيب بناءً على sortType
   if (sortType === "price-desc") {
     query = query.orderBy("price", "desc");
   } else if (sortType === "price-asc") {
     query = query.orderBy("price", "asc");
   }
-  console.log("Sorting by:", sortType); // سجل للتحقق
-
+  console.log("Sorting by:", sortType);
   // جلب الكتب
   const {
     books: nextBooks,
