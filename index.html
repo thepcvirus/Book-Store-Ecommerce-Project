@@ -91,68 +91,61 @@
     </div> -->
 
 
-<section class="container my-5">
-  <div class="filter-panel-modern bg-white rounded-4 shadow p-4">
-    <div class="row g-4 align-items-center">
+    <section class="container my-5">
+      <div class="filter-panel-modern bg-white rounded-4 shadow p-4">
+        <div class="row g-4 align-items-center">
 
-      <!-- Search -->
-      <div class="col-md-5">
-        <label for="searchInput" class="form-label fw-bold text-dark">🔍 Search Books</label>
-        <div class="input-group">
-          <input type="text" class="form-control rounded-start" placeholder="Enter book title..." id="searchInput">
-          <button class="btn btn-warning rounded-end" id="searchBtn">Search</button>
-        </div>
-      </div>
-
-      <!-- Sort -->
-      <div class="col-md-3">
-        <label class="form-label fw-bold text-dark">🔃 Sort By</label>
-        <select class="form-select" id="sortingDropdown">
-          <option value="price-asc">Price (Low to High)</option>
-          <option value="price-desc">Price (High to Low)</option>
-        </select>
-      </div>
-
-      <!-- Category -->
-      <div class="col-md-4">
-        <label for="categoryFilter" class="form-label fw-bold text-dark">📚 Book Categories</label>
-        <select class="form-select" id="categoryFilter">
-          <option value="all">All Categories</option>
-          <option value="Fantasy">Fantasy</option>
-          <option value="Science Fiction">Science Fiction</option>
-          <option value="Action & Adventure">Action & Adventure</option>
-          <option value="Detective & Mystery">Detective & Mystery</option>
-          <option value="Romance">Romance</option>
-          <option value="Horror">Horror</option>
-          <option value="Historical Fiction">Historical Fiction</option>
-          <option value="Short Story">Short Story</option>
-        </select>
-      </div>
-
-      <!-- Price Filter (Full width below) -->
-      <div class="col-12">
-        <div class="price-filter-modern p-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <label for="priceRange" class="form-label fw-bold fs-5 text-dark mb-0">
-              💰 Max Price
-            </label>
-            <span id="priceValue" class="text-success fw-bold fs-5">1000</span>
-            <span class="text-muted ms-1 fs-6">$</span>
+          <!-- Search -->
+          <div class="col-md-5">
+            <label for="searchInput" class="form-label fw-bold text-dark">🔍 Search Books</label>
+            <div class="input-group">
+              <input type="text" class="form-control rounded-start" placeholder="Enter book title..." id="searchInput">
+              <button class="btn btn-warning rounded-end" id="searchBtn">Search</button>
+            </div>
           </div>
-          <input
-            type="range"
-            class="form-range custom-range"
-            id="priceRange"
-            min="0"
-            max="10000"
-            value="1000"
-            step="10"
-          />
+
+          <!-- Sort -->
+          <div class="col-md-3">
+            <label class="form-label fw-bold text-dark">🔃 Sort By</label>
+            <select class="form-select" id="sortingDropdown">
+              <option value="price-asc">Price (Low to High)</option>
+              <option value="price-desc">Price (High to Low)</option>
+            </select>
+          </div>
+
+          <!-- Category -->
+          <div class="col-md-4">
+            <label for="categoryFilter" class="form-label fw-bold text-dark">📚 Book Categories</label>
+            <select class="form-select" id="categoryFilter">
+              <option value="all">All Categories</option>
+              <option value="Fantasy">Fantasy</option>
+              <option value="Science Fiction">Science Fiction</option>
+              <option value="Action & Adventure">Action & Adventure</option>
+              <option value="Detective & Mystery">Detective & Mystery</option>
+              <option value="Romance">Romance</option>
+              <option value="Horror">Horror</option>
+              <option value="Historical Fiction">Historical Fiction</option>
+              <option value="Short Story">Short Story</option>
+            </select>
+          </div>
+
+          <!-- Price Filter (Full width below) -->
+          <div class="col-12">
+            <div class="price-filter-modern p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <label for="priceRange" class="form-label fw-bold fs-5 text-dark mb-0">
+                  💰 Max Price
+                </label>
+                <span id="priceValue" class="text-success fw-bold fs-5">1000</span>
+                <span class="text-muted ms-1 fs-6">$</span>
+              </div>
+              <input type="range" class="form-range custom-range" id="priceRange" min="0" max="10000" value="1000"
+                step="10" />
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
     <hr class="my-5" />
     <section class="container">
@@ -181,10 +174,10 @@
 
       <div class="text-center mt-4">
         <div class="d-flex justify-content-center mt-5 mb-5">
-  <button class="btn btn-warning btn-lg rounded-pill px-5 shadow-sm" id="loadMoreBtn">
-    🔄 Load More
-  </button>
-</div>
+          <button class="btn btn-warning btn-lg rounded-pill px-5 shadow-sm" id="loadMoreBtn">
+            🔄 Load More
+          </button>
+        </div>
 
     </section>
 
@@ -273,35 +266,35 @@
       import { filterBooksCombined } from "./GeneralFunctions.js";
 
       function getCurrentFilters() {
-      return {
-        category: document.getElementById("categoryFilter").value,
-        searchTerm: document.getElementById("searchInput").value.trim(),
-        maxPrice: Number(document.getElementById("priceRange").value),
-            sortType: document.getElementById("sortingDropdown").value, 
+        return {
+          category: document.getElementById("categoryFilter").value,
+          searchTerm: document.getElementById("searchInput").value.trim(),
+          maxPrice: Number(document.getElementById("priceRange").value),
+          sortType: document.getElementById("sortingDropdown").value,
 
-      };
-    }
+        };
+      }
       // sorting 
       document.getElementById("sortingDropdown").addEventListener("change", () => {
-  const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
-  filterBooksCombined({ category, searchTerm, maxPrice, sortType, append: false });
-  });
-  // change category  
-     document
-  .getElementById("categoryFilter")
-  .addEventListener("change", function () {
-    // Reset pagination variables
-    window.lastVisibleCombined = null;
-    window.shownBookIds = new Set();
-    const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
-    filterBooksCombined({ category, searchTerm, maxPrice, sortType, append: false });
-  });
+        const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice, sortType, append: false });
+      });
+      // change category  
+      document
+        .getElementById("categoryFilter")
+        .addEventListener("change", function () {
+          // Reset pagination variables
+          window.lastVisibleCombined = null;
+          window.shownBookIds = new Set();
+          const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+          filterBooksCombined({ category, searchTerm, maxPrice, sortType, append: false });
+        });
 
       // press search button 
       document.getElementById("searchBtn").addEventListener("click", () => {
-      const { category, searchTerm, maxPrice ,sortType} = getCurrentFilters();
-      filterBooksCombined({ category, searchTerm, maxPrice, sortType });
-    });
+        const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice, sortType });
+      });
 
       // عند الضغط على Enter في البحث
       document
@@ -311,9 +304,9 @@
             document.getElementById("searchBtn").click();
           }
         });
-        document.getElementById("loadMoreBtn").addEventListener("click", () => {
-        const { category, searchTerm, maxPrice ,sortType} = getCurrentFilters();
-        filterBooksCombined({ category, searchTerm, maxPrice,sortType, append: true });
+      document.getElementById("loadMoreBtn").addEventListener("click", () => {
+        const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice, sortType, append: true });
       });
 
       // change price   
@@ -331,12 +324,12 @@
           filterBooksCombined({ category, searchTerm, maxPrice });
         });
       }
-      
+
 
       // أول تحميل للصفحة
       window.addEventListener("DOMContentLoaded", () => {
-        const { category, searchTerm, maxPrice ,sortType} = getCurrentFilters();
-        filterBooksCombined({ category, searchTerm, maxPrice,sortType });
+        const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice, sortType });
         loadCart();
       });
     </script>

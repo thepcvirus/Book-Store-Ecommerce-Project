@@ -294,9 +294,11 @@ export function removeFromCart(bookId) {
   const user = firebase.auth().currentUser;
   if (!user) return;
   let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
-  cart = cart.filter((book) => book.id !== bookId);
   if (confirm(`Are you sure you want to remove book from your cart? `)) {
+    cart = cart.filter((book) => book.id !== bookId);
     localStorage.setItem(`cart_${user.uid}`, JSON.stringify(cart));
+    loadCart();
+  } else {
     loadCart();
   }
 }
@@ -309,6 +311,13 @@ export function paypalPayment(totalAmount, /*orderId,*/ userId) {
     window.location.href = "login.html";
     return;
   }
+
+  // Clear existing PayPal buttons
+  const paypalContainer = document.getElementById("paypal-button-container");
+  if (paypalContainer) {
+    paypalContainer.innerHTML = "";
+  }
+
   paypal
     .Buttons({
       style: {
@@ -357,6 +366,7 @@ export function paypalPayment(totalAmount, /*orderId,*/ userId) {
       },
       onCancel: function (data) {
         alert("Payment cancelled.");
+        loadCart();
       },
       onError: function (err) {
         alert("An error occurred during payment. Please try again.");
