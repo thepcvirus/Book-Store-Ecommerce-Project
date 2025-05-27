@@ -283,17 +283,17 @@
         }
       });
 
-      document.getElementById("logoutBtn").addEventListener("click", () => {
-        auth
-          .signOut()
-          .then(() => {
-            alert("Logging out");
-            window.location.href = "login.html";
-          })
-          .catch((error) => {
-            alert("error", error.message);
-          });
-      });
+      // document.getElementById("logoutBtn").addEventListener("click", () => {
+      //   auth
+      //     .signOut()
+      //     .then(() => {
+      //       alert("Logging out");
+      //       window.location.href = "login.html";
+      //     })
+      //     .catch((error) => {
+      //       alert("error", error.message);
+      //     });
+      // });
 
       let RbookForm = document.getElementById("R_bookForm");
       RbookForm.addEventListener("submit", async function (e) {
