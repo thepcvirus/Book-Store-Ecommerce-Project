@@ -52,7 +52,7 @@
 
             <div class="mb-3">
                 <label for="price" class="form-label">Price ($)</label>
-                <input type="text" class="form-control" id="R_price" required>
+                <input type="number" class="form-control" id="R_price" required>
             </div>
 
             <div class="mb-3">
@@ -167,7 +167,7 @@
                     let RbookUpdatedAuthor = document.getElementById("R_bookAuthor").value.trim();
                     let RbookCapitalizeAuthor = RcapitalizeBookName(RbookUpdatedAuthor);
                     // update book price with validation
-                    let RbookUpdatedPrice = document.getElementById("R_price").value.trim();
+                    let RbookUpdatedPrice = Number(document.getElementById("R_price").value.trim());
                     if (!RisPriceInteger(RbookUpdatedPrice)) {
                         alert("please enter a positive integer price");
                         return;
