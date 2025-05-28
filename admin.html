@@ -118,16 +118,15 @@
 
         <div class="col-md-4">
           <label for="R_bookGener" class="form-label">Genre</label>
-          <select class="form-select" id="R_bookGener">
-            <option value="Fantasy">Fantasy</option>
+          <input type="text" class="form-control" id="R_bookGener" placeholder="Enter category"/>
+            <!-- <option value="Fantasy">Fantasy</option>
             <option value="Science Fiction">Science Fiction</option>
             <option value="Action & Adventure">Action & Adventure</option>
             <option value="Detective & Mystery">Detective & Mystery</option>
             <option value="Romance">Romance</option>
             <option value="Horror">Horror</option>
             <option value="Historical Fiction">Historical Fiction</option>
-            <option value="Short Story">Short Story</option>
-          </select>
+            <option value="Short Story">Short Story</option> -->
         </div>
 
         <div class="col-md-4">
@@ -231,7 +230,7 @@
       }
 
       import { firebaseConfig as firebaseConfig } from "./ConfigFile.js";
-      import { CheckAdmin, displayAdminOrders } from "./GeneralFunctions.js";
+      import { CheckAdmin, displayAdminOrders, getCategories } from "./GeneralFunctions.js";
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
       const database = firebase.firestore();
@@ -299,71 +298,60 @@
       //       alert("error", error.message);
       //     });
       // });
+let RbookForm = document.getElementById("R_bookForm");
+RbookForm.addEventListener("submit", async function (e) {
+  e.preventDefault();
 
-      let RbookForm = document.getElementById("R_bookForm");
-      RbookForm.addEventListener("submit", async function (e) {
-        e.preventDefault();
+  let RbookName = document.getElementById("R_bookName").value.trim();
+  let RbookNameCapital = RcapitalizeBookName(RbookName);
+  let RbookAuthor = document.getElementById("R_bookAuthor").value.trim();
+  let RbookAuthorCapital = RcapitalizeBookName(RbookAuthor);
+  let RbookGener = document.getElementById("R_bookGener").value.trim();
+  let RbookPrice = Number(document.getElementById("R_price").value.trim());
+  if (!RisPriceInteger(RbookPrice)) {
+    alert("Please enter a positive integer price");
+    return;
+  }
+  let RbookImage = await UploadImage("imageUpload");
+  let RbookDescription = document.getElementById("R_description").value.trim();
 
-        // get the values from the form and delete spaces from it
-        // get book name and make it capital to be the same at every book
-        let RbookName = document.getElementById("R_bookName").value.trim();
-        let RbookNameCapital = RcapitalizeBookName(RbookName);
-        // get book author and make it's first letter from every word capital
-        let RbookAuthor = document.getElementById("R_bookAuthor").value.trim();
-        let RbookAuthorCapital = RcapitalizeBookName(RbookAuthor);
-        // get book genre
-        let RbookGener = document.getElementById("R_bookGener").value.trim();
-        // get book price
-        let RbookPrice = Number(document.getElementById("R_price").value.trim());        // check if book price is integer
-        if (!RisPriceInteger(RbookPrice)) {
-          alert("please enter a positive integer price");
-          return;
-        }
-        // get book url_image
+  // تنسيق الفئة (الحرف الأول كبير)
+  RbookGener = RbookGener.charAt(0).toUpperCase() + RbookGener.slice(1).toLowerCase();
 
-        let RbookImage = await UploadImage("imageUpload", storage);
-        //let RbookImage = document.getElementById("R_bookImage").value.trim();
-        // get book description
-        let RbookDescription = document
-          .getElementById("R_description")
-          .value.trim();
-        // get book status
-        // let RbookStatus = document.getElementById("R_status").value;
-        // for test
-        // console.log({ RbookNameCapital, RbookPrice, RbookImage, RbookDescription, RbookStatus });
+  // جلب الفئات الفريدة
+  const categories = await getCategories();
 
-        try {
-          // return books from fire store and check dublicated
-          let RbooksCollection = database.collection("cars");
-          let RquerySnapshot = await RbooksCollection.where(
-            "name",
-            "==",
-            RbookNameCapital
-          ).get();
-          if (!RquerySnapshot.empty) {
-            alert("book already exists");
-            return;
-          }
-          await RbooksCollection.add({
-            name: RbookNameCapital,
-            author: RbookAuthorCapital,
-            url_image: RbookImage,
-            price: RbookPrice,
-            description: RbookDescription,
-            gener: RbookGener,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          });
-          alert("book added successfully");
-          RbookForm.reset();
-          // Refresh the book list and count
-          await refreshBooksCollection();
-          await displayBookCount();
-          //window.location.href = "R_dashboard.html";
-        } catch (error) {
-          console.error("Error: ", error);
-          alert("failed to add book");
-        }
-      });
+  try {
+    let RbooksCollection = database.collection("cars");
+    let RquerySnapshot = await RbooksCollection.where("name", "==", RbookNameCapital).get();
+    if (!RquerySnapshot.empty) {
+      alert("Book already exists");
+      return;
+    }
+    await RbooksCollection.add({
+      name: RbookNameCapital,
+      author: RbookAuthorCapital,
+      url_image: RbookImage,
+      price: RbookPrice,
+      description: RbookDescription,
+      gener: RbookGener,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    // تنبيه بناءً على ما إذا كانت الفئة جديدة
+    if (!categories.includes(RbookGener)) {
+      alert(`Added new category: ${RbookGener}`);
+      localStorage.setItem("updateCategories", "true")
+    } else {
+      alert(`Book added to existing category: ${RbookGener}`);
+    }
+    RbookForm.reset();
+    await refreshBooksCollection();
+    await displayBookCount();
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Failed to add book: " + error.message);
+  }
+});
       // capitalize book name
       function RcapitalizeBookName(bookName) {
         return bookName

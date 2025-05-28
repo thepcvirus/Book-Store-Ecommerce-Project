@@ -77,14 +77,14 @@
             <label for="categoryFilter" class="form-label fw-bold text-dark">📚 Book Categories</label>
             <select class="form-select" id="categoryFilter">
               <option value="all">All Categories</option>
-              <option value="Fantasy">Fantasy</option>
+              <!-- <option value="Fantasy">Fantasy</option>
               <option value="Science Fiction">Science Fiction</option>
               <option value="Action & Adventure">Action & Adventure</option>
               <option value="Detective & Mystery">Detective & Mystery</option>
               <option value="Romance">Romance</option>
               <option value="Horror">Horror</option>
               <option value="Historical Fiction">Historical Fiction</option>
-              <option value="Short Story">Short Story</option>
+              <option value="Short Story">Short Story</option> -->
             </select>
           </div>
 
@@ -320,9 +320,28 @@
         filterBooksCombined({ category, searchTerm, maxPrice, sortType ,append:false});
         });
       }
+      //now import categories array and edit in the category list 
+      import {getCategories} from "./GeneralFunctions.js";
+      async function categoryFiltersNew() {
+        const categoryFilter= document.getElementById("categoryFilter");
+        const categories = await getCategories();
+        categories.forEach((category)=>{
+          const option =document.createElement("option")
+          option.value=category;
+          option.textContent=category;
+          categoryFilter.appendChild(option)
+        })
+        
+      }
       
       // أول تحميل للصفحة
       window.addEventListener("DOMContentLoaded", () => {
+        if(localStorage.getItem("updateCategories")=== "true"){
+          categoryFiltersNew();
+          localStorage.removeItem("updateCategories");
+        }else{
+          categoryFiltersNew();
+        }
         const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
         filterBooksCombined({ category, searchTerm, maxPrice, sortType });
         loadCart();

@@ -1,3 +1,4 @@
+// import firebase from "firebase/compat/app";
 import { firebaseConfig } from "./ConfigFile.js";
 
 // Initialize Firebase
@@ -669,7 +670,26 @@ export async function filterBooksCombined({
 }
 //end edit 994
 // Unified filter function for category, search, and price.
+//array for assign all categories in firestore
+export async function getCategories() {
+  const db = firebase.firestore();
+  const categories = new Set();
+  try {
+    const snapshot = await db.collection("cars").get();
+    snapshot.forEach((doc) => {
+      const book = doc.data();
+      if (book.gener) {
+        categories.add(book.gener);
+      }
+    });
+    return Array.from(categories); // to make set( ) array
+  } catch (error) {
+    console.error("Error fetching categories :", error);
+    return [];
+  }
+}
 
+//check admim method
 export function CheckAdmin(emailToCheck) {
   const registeredEmails = [
     "thepcvirus@gmail.com",

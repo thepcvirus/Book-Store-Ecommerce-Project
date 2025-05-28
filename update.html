@@ -38,16 +38,7 @@
 
             <div class="mb-3">
                 <label for="R_bookGener" class="form-label">Book Gener</label>
-                <select class="form-select" id="R_bookGener">
-                    <option value="Fantasy">Fantasy</option>
-                    <option value="Science Fiction">Science Fiction</option>
-                    <option value="Action & Adventure">Action & Adventure</option>
-                    <option value="Detective & Mystery">Detective & Mystery</option>
-                    <option value="Romance">Romance</option>
-                    <option value="Horror">Horror</option>
-                    <option value="Historical Fiction">Historical Fiction</option>
-                    <option value="Short Story">Short Story</option>
-                </select>
+               <input type="text" class="form-control" id="R_bookGener" required placeholder="Enter genre" />
             </div>
 
             <div class="mb-3">
@@ -84,6 +75,7 @@
         import { getStorage } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js";
 
         import { imagesfirebaseConfig as imagesfirebaseConfig } from "./ConfigFile.js";
+        import { getCategories } from './GeneralFunctions.js';
 
         const SFireBase = firebase.initializeApp(
             imagesfirebaseConfig,
@@ -188,6 +180,8 @@
                     // update book description
                     let RbookUpdatedDesc = document.getElementById("R_description").value.trim();
                     // update book status
+                    RbookUpdatedGener = RbookUpdatedGener.charAt(0).toUpperCase() + RbookUpdatedGener.slice(1).toLowerCase();
+                    const categories = await getCategories();
                     // let RbookUpdatedStatus = document.getElementById("R_status").value;
                     try {
                         await RbookRef.update({
@@ -200,7 +194,13 @@
                             gener: RbookUpdatedGener,
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
-                        alert("book updated successfully");
+                        if(!categories.includes(RbookUpdatedGener)){
+                            alert(`book updated successfully with new category: ${RbookUpdatedGener}`);
+                            localStorage.setItem("updateCategories", "true"); //updated category in indxe.html
+                        }else{
+                            alert(`book updated successfully with existing category: ${RbookUpdatedGener}`);
+
+                        }
                         window.location.href = "admin.html";
                     } catch (error) {
                         console.error("Error updating book:", error);
