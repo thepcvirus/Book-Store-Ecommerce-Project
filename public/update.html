@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+</html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Book</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-storage-compat.js"></script>
+    <!-- Firebase config -->
+</head>
+
+<body>
+    <script type="module">
+        import { createNavbar } from './GeneralFunctions.js';
+        document.body.prepend(createNavbar());
+    </script>
+
+    <div class="container mt-5">
+        <h2 class="mb-4 text-center">Update Book</h2>
+        <form id="R_bookForm">
+            <div class="mb-3">
+                <label for="bookName" class="form-label">Book Name</label>
+                <input type="text" class="form-control" id="R_bookName" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="bookAuthor" class="form-label">Book Author</label>
+                <input type="text" class="form-control" id="R_bookAuthor" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="R_bookGener" class="form-label">Book Gener</label>
+               <input type="text" class="form-control" id="R_bookGener" required placeholder="Enter genre" />
+            </div>
+
+            <div class="mb-3">
+                <label for="price" class="form-label">Price ($)</label>
+                <input type="number" class="form-control" id="R_price" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="bookImage" class="form-label">Book Image</label>
+                <!-- <input type="text" class="form-control" id="R_bookImage"> -->
+                <input type="file" id="imageUpload" accept="image/*" >
+            </div>
+
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="R_description" rows="3"></textarea>
+            </div>
+
+            <!-- <div class="mb-3">
+                <label for="availability" class="form-label">Availability</label>
+                <select class="form-select" id="R_status">
+                    <option value="available">Available</option>
+                    <option value="not-available">Not Available</option>
+                </select>
+            </div> -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-success w-50 px-4 py-2">Submit</button>
+            </div>
+        </form>
+    </div>
+    <script type="module">
+        import { firebaseConfig as firebaseConfig } from './ConfigFile.js';
+
+        import { getStorage } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js";
+
+        import { imagesfirebaseConfig as imagesfirebaseConfig } from "./ConfigFile.js";
+        import { getCategories } from './GeneralFunctions.js';
+
+        const SFireBase = firebase.initializeApp(
+            imagesfirebaseConfig,
+            "SFireBase"
+        );
+        const storage = SFireBase.storage();
+
+        function UploadImage(ImgInputFieldID) {
+            return new Promise((resolve, reject) => {
+                const imageUpload = document.getElementById(ImgInputFieldID);
+                const file = imageUpload.files[0];
+
+                if (!file) {
+                    reject("Please select an image first");
+                    return;
+                }
+                const uuid = crypto.randomUUID(); // or use a UUID library
+                const extension = file.name.split('.').pop();
+                const newFileName = `${uuid}.${extension}`;
+                const storageRef = storage.ref();
+                //const imageRef = storageRef.child(`images/${file.name}`);
+                const imageRef = storageRef.child(`images/${newFileName}`);
+                const uploadTask = imageRef.put(file);
+
+                uploadTask.on(
+                    "state_changed",
+                    (snapshot) => {
+                        const progress =
+                            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        console.log(`Uploading: ${Math.round(progress)}%`);
+                    },
+                    (error) => {
+                        console.error("Upload failed:", error);
+                        reject(error);
+                    },
+                    () => {
+                        uploadTask.snapshot.ref
+                            .getDownloadURL()
+                            .then(resolve)
+                            .catch(reject);
+                    }
+                );
+            });
+        }
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.firestore();
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                let Rurl = new URLSearchParams(window.location.search);
+                let RbookId = Rurl.get("id");
+
+                if (!RbookId) {
+                    alert("Ther is no book id");
+                    return;
+                }
+                let RbookRef = database.collection("cars").doc(RbookId);
+                let Rdoc = await RbookRef.get();
+                if (!Rdoc.exists) {
+                    alert("book not found");
+                    return;
+                }
+                let Rdata = Rdoc.data();
+                // return the old value about the book in the form
+                document.getElementById("R_bookName").value = Rdata.name || "";
+                document.getElementById("R_bookAuthor").value = Rdata.author || "";
+                document.getElementById("R_bookGener").value = Rdata.gener || "";
+                document.getElementById("R_price").value = Rdata.price || "";
+                //document.getElementById("R_bookImage").value = Rdata.url_image || "";
+                document.getElementById("R_description").value = Rdata.description || "";
+                // document.getElementById("R_status").value = Rdata.status || "available";
+                let imageSavedURL = Rdata.url_image || "";
+                document.getElementById("R_bookForm").addEventListener("submit", async (e) => {
+                    e.preventDefault();
+                    // update book name with capitalize it
+                    let RbookUpdatedName = document.getElementById("R_bookName").value.trim();
+                    let RbookCapitalizeName = RcapitalizeBookName(RbookUpdatedName);
+                    // update book author with capitalize it
+                    let RbookUpdatedAuthor = document.getElementById("R_bookAuthor").value.trim();
+                    let RbookCapitalizeAuthor = RcapitalizeBookName(RbookUpdatedAuthor);
+                    // update book price with validation
+                    let RbookUpdatedPrice = Number(document.getElementById("R_price").value.trim());
+                    if (!RisPriceInteger(RbookUpdatedPrice)) {
+                        alert("please enter a positive integer price");
+                        return;
+                    }
+                    // update book url_image
+                    const fileCount = document.getElementById('imageUpload').files.length;
+                    let RbookUpdatedImage = "";
+                    if(fileCount > 0){
+                        RbookUpdatedImage = await UploadImage("imageUpload", storage);
+                    }
+                    else{
+                        RbookUpdatedImage = imageSavedURL;
+                    }
+                    
+                    //let RbookUpdatedImage = document.getElementById("R_bookImage").value.trim();
+                    // update book gener
+                    let RbookUpdatedGener = document.getElementById("R_bookGener").value.trim();
+                    // update book description
+                    let RbookUpdatedDesc = document.getElementById("R_description").value.trim();
+                    // update book status
+                    RbookUpdatedGener = RbookUpdatedGener.charAt(0).toUpperCase() + RbookUpdatedGener.slice(1).toLowerCase();
+                    const categories = await getCategories();
+                    // let RbookUpdatedStatus = document.getElementById("R_status").value;
+                    try {
+                        await RbookRef.update({
+                            name: RbookCapitalizeName,
+                            author: RbookCapitalizeAuthor,
+                            price: RbookUpdatedPrice,
+                            url_image: RbookUpdatedImage,
+                            description: RbookUpdatedDesc,
+                            // status: RbookUpdatedStatus,
+                            gener: RbookUpdatedGener,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        if(!categories.includes(RbookUpdatedGener)){
+                            alert(`book updated successfully with new category: ${RbookUpdatedGener}`);
+                            localStorage.setItem("updateCategories", "true"); //updated category in indxe.html
+                        }else{
+                            alert(`book updated successfully with existing category: ${RbookUpdatedGener}`);
+
+                        }
+                        window.location.href = "admin.html";
+                    } catch (error) {
+                        console.error("Error updating book:", error);
+                        alert("failed to update book");
+                    }
+                });
+            } catch (error) {
+                console.error("Error loading book data:", error);
+                alert("error loading book data");
+            }
+        });
+
+
+        // capitalize book name
+        function RcapitalizeBookName(bookName) {
+            return bookName
+                .toLowerCase()
+                .split(' ')
+                .filter(word => word)
+                .map(word => word[0].toUpperCase() + word.slice(1))
+                .join(' ');
+        }
+        // check if price is integer or not
+        function RisPriceInteger(price) {
+            let num = Number(price);
+            if (Number.isInteger(num) && num > 0) {
+                return true;
+            }
+            return false;
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js">
+    </script>
+</body>
+
+</html>

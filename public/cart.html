@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Cart</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+   <script
+    src="https://www.paypal.com/sdk/js?client-id=AUfaltD2k-zDTIvW9PWXSYbCAhipu0Hvwv5Ktfte4FInp_Rz4_kQO8xspI0cdZud1vV2TqYrDmtCk8NU&currency=USD"></script>
+</head>
+
+<body style="background-color: #f4f6f8;">
+  <script type="module">
+    import { createNavbar } from "./GeneralFunctions.js";
+    document.body.prepend(createNavbar());
+  </script>
+
+  <div class="container mt-5">
+    <h2 class="text-center fw-bold text-dark mb-4">🛒 Your Cart</h2>
+
+    <div class="cart-panel p-4 bg-white rounded shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle" id="CartList">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Cart items inserted dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="text-center mt-4">
+        <button class="btn btn-warning btn-lg rounded-pill px-5" id="checkoutBtn">
+          ✅ Check Out
+        </button>
+      </div>
+
+      <div class="text-center mt-3">
+        <h5>Total: <span id="totalCost" class="text-success fw-bold">0</span> USD</h5>
+        <div id="paypal-button-container" class="mt-3"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { firebaseConfig } from "./ConfigFile.js";
+    import { loadCart, calculateTotal, paypalPayment } from "./GeneralFunctions.js";
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        loadCart();
+      } else {
+        alert("Please log in first.");
+        window.location.href = "login.html";
+      }
+    });
+
+    document.getElementById("checkoutBtn").addEventListener("click", () => {
+      const user = auth.currentUser;
+      const cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+      const total = calculateTotal(cart);
+      if (cart.length === 0) return alert("Cart is empty");
+      paypalPayment(total, null, user.uid);
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

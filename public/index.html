@@ -1,90 +1,365 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
+<html lang="en">
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/11.8.1/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/11.8.1/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/11.8.1/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+<head>
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Hello Handsome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="login.html">login</a>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous" />
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script
+    src="https://www.paypal.com/sdk/js?client-id=AUfaltD2k-zDTIvW9PWXSYbCAhipu0Hvwv5Ktfte4FInp_Rz4_kQO8xspI0cdZud1vV2TqYrDmtCk8NU&currency=USD"></script>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+</head>
+
+<body>
+  <header class="hero-section d-flex align-items-center text-center text-white">
+    <div class="container">
+      <h1 class="display-4 fw-bold animate__animated animate__fadeInDown">Welcome to Ketaby</h1>
+      <p class="lead animate__animated animate__fadeInUp animate__delay-1s">
+        Discover, shop, and enjoy your favorite books!
+      </p>
+      <a href="#ProductsList"
+        class="btn btn-warning btn-lg rounded-pill mt-3 animate__animated animate__fadeInUp animate__delay-2s">
+        📚 Browse Books
+      </a>
     </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
+  </header>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
 
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
+  <script type="module">
+    import { createNavbar } from "./GeneralFunctions.js";
+    document.body.prepend(createNavbar());
+  </script>
+
+
+
+
+  <div class="row">
+    
+
+
+    <section class="container my-5">
+      <div class="filter-panel-modern bg-white rounded-4 shadow p-4">
+        <div class="row g-4 align-items-center">
+
+          <!-- Search -->
+          <div class="col-md-5">
+            <label for="searchInput" class="form-label fw-bold text-dark">🔍 Search Books</label>
+            <div class="input-group">
+              <input type="text" class="form-control rounded-start" placeholder="Enter book title..." id="searchInput">
+              <button class="btn btn-warning rounded-end" id="searchBtn">Search</button>
+            </div>
+          </div>
+
+          <!-- Sort -->
+          <div class="col-md-3">
+            <label class="form-label fw-bold text-dark">🔃 Sort By</label>
+            <select class="form-select" id="sortingDropdown">
+
+              <option value="price-asc">Price (Low to High)</option>
+              <option value="price-desc">Price (High to Low)</option>
+            </select>
+          </div>
+          <!-- <div class="col-md-3">
+              <button class="btn btn-outline-secondary" id="resetFiltersBtn">Reset</button>
+
+          </div> -->
+
+          <!-- Category -->
+          <div class="col-md-4">
+            <label for="categoryFilter" class="form-label fw-bold text-dark">📚 Book Categories</label>
+            <select class="form-select" id="categoryFilter">
+              <option value="all">All Categories</option>
+              <!-- <option value="Fantasy">Fantasy</option>
+              <option value="Science Fiction">Science Fiction</option>
+              <option value="Action & Adventure">Action & Adventure</option>
+              <option value="Detective & Mystery">Detective & Mystery</option>
+              <option value="Romance">Romance</option>
+              <option value="Horror">Horror</option>
+              <option value="Historical Fiction">Historical Fiction</option>
+              <option value="Short Story">Short Story</option> -->
+            </select>
+          </div>
+
+          <!-- Price Filter (Full width below) -->
+          <div class="col-12">
+            <div class="price-filter-modern p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <label for="priceRange" class="form-label fw-bold fs-5 text-dark mb-0">
+                  💰 Max Price
+                </label>
+                <span id="priceValue" class="text-success fw-bold fs-5">1000</span>
+                <span class="text-muted ms-1 fs-6">$</span>
+              </div>
+              <input type="range" class="form-range custom-range" id="priceRange" min="0" max="1000" value="1000"
+                step="10" />
+            </div>
+         <div class="d-flex justify-content-center mt-4">
+  <button class="btn reset-button" id="resetFiltersBtn">
+    ♻️ Reset Filters
+  </button>
+</div>
+
+      </div>
+    </section>
+
+    <hr class="my-5" />
+    <section class="container">
+      <h3 class="text-center fw-bold text-dark mb-4" id="titleProducts">
+        📚 All Products
+      </h3>
+
+      <div class="row justify-content-center" id="ProductsList">
+        <!-- Example Card -->
+        <div class="card Product_Card col-12 col-sm-6 col-md-4 col-lg-3 m-3">
+          <img src="0356.png" class="card-img-top" alt="..." />
+          <div class="card-body Data_Section">
+            <h5 class="card-title">Book Name</h5>
+            <p class="Auth_Name mb-1">✍️ Author Name</p>
+            <p class="Genre mb-2">📖 Genre</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="Price text-danger fw-bold fs-5">500$</span>
+              <button class="btn Add_To_Cart btn-success btn-sm rounded-pill px-3">
+                🛒 Add To Cart
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Cards will be injected dynamically -->
+      </div>
+
+      <div class="text-center mt-4">
+        <div class="d-flex justify-content-center mt-5 mb-5">
+          <button class="btn btn-warning btn-lg rounded-pill px-5 shadow-sm" id="loadMoreBtn">
+            🔄 Load More
+          </button>
+        </div>
+
+    </section>
+
+
+    <script type="module">
+      import { firebaseConfig as firebaseConfig } from "./ConfigFile.js";
+
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      let database = firebase.firestore();
+
+      // Add auth state change listener
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          // User is signed in, load their cart
+          loadCart();
         }
       });
+
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        auth
+          .signOut()
+          .then(() => {
+            alert("Logging out");
+            window.location.href = "login.html";
+          })
+          .catch((error) => {
+            alert("error", error.message);
+          });
+      });
+      import { createProductCard } from "./GeneralFunctions.js";
+
+      import { addTableRow } from "./GeneralFunctions.js";
+      import { calculateTotal } from "./GeneralFunctions.js";
+      import { loadCart } from "./GeneralFunctions.js";
+
+      // addTableRow('CartList', 1, 'Book Name', 25.99);
+      // addTableRow('CartList', 1, 'Book Name', 25.99);
+      // addTableRow('CartList', 1, 'Book Name', 25.99);
+
+      // budget for test
+      if (!localStorage.getItem("budget")) {
+        localStorage.setItem("budget", "1000");
+      }
+
+      //osama edit first
+      // Add this event listener for category filter
+
+      // Add this event listener for load more button
+
+      //osama edit last
+
+      // import paypal function
+      import { paypalPayment } from "./GeneralFunctions.js";
+      // start checkout functionnnnnnn
+      async function checkout() {
+        const user = firebase.auth().currentUser;
+        if (!user) {
+          alert("Please login first");
+          window.location.href = "login.html";
+          return;
+        }
+
+        let cart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+        let total = calculateTotal(cart);
+
+        if (cart.length === 0) {
+          alert("Your cart is empty");
+          return;
+        }
+
+        try {
+          // Initialize PayPal payment
+          paypalPayment(total, null, user.uid);
+        } catch (error) {
+          console.error("Error during checkout:", error);
+          alert("Something went wrong during checkout. Please try again.");
+        }
+      }
+
+      // 
+
+      import { filterBooksCombined } from "./GeneralFunctions.js";
+
+      function getCurrentFilters() {
+        return {
+          category: document.getElementById("categoryFilter").value,
+          searchTerm: document.getElementById("searchInput").value.trim(),
+          maxPrice: Number(document.getElementById("priceRange").value),
+          sortType: document.getElementById("sortingDropdown").value,
+
+        };
+      }
+      // sorting 
+      document.getElementById("sortingDropdown").addEventListener("change", () => {
+        const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice, sortType, append: false });
+      });
+      // change category  
+      document
+        .getElementById("categoryFilter")
+        .addEventListener("change", function () {
+          // Reset pagination variables
+          //const filters= getCurrentFilters();
+          const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+          // if (filters.category ==="all"){
+          //   // if(searchInput) searchInput.value ="";
+          //   // if(priceRange){
+          //   //   priceRange.value=priceRange.max;
+          //   //   if (priceValue) priceValue.textContent = priceRange.max; 
+
+          //   // }
+          // }
+          // filterBooksCombined({...filters ,append:false})
+
+          filterBooksCombined({ category, searchTerm, maxPrice, sortType ,append:false});
+          // window.lastVisibleCombined = null;
+          // window.shownBookIds = new Set();
+          // const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+          // filterBooksCombined({ category, searchTerm, maxPrice, sortType, append: false });
+        });
+
+      // press search button 
+      document.getElementById("searchBtn").addEventListener("click", () => {
+        const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice, sortType ,append:false});
+      });
+      //button for reset 
+      const resetFiltersBtn = document.getElementById("resetFiltersBtn"); // Make sure this is defined outside DOMContentLoaded or at the top of it.
+
+    if (resetFiltersBtn) {
+      resetFiltersBtn.addEventListener("click", () => {
+        // 1. Reset all filter UI elements to their default states
+        if (searchInput) searchInput.value = "";
+        if (categoryFilter) categoryFilter.value = "all";
+        if (sortingDropdown) sortingDropdown.value = "createdA-desc"; // Set to your default sort option (e.g., "Price (Low to High)")
+        if (priceRange) {
+          priceRange.value = priceRange.max; // Reset to the correct default max price (ensure this matches your HTML input's max attribute)
+          if (priceValue) priceValue.textContent = priceRange.max; // Update the displayed price value
+        }
+
+        // 2. Get the *newly reset* filter values
+        const updatedFilters = getCurrentFilters();
+
+        // 3. Call filterBooksCombined with the new, default filters
+        //    'append: false' ensures a full refresh and not just adding more books.
+        filterBooksCombined({ ...updatedFilters, append: false });
+      });
+    }
+      // عند الضغط على Enter في البحث
+      document
+        .getElementById("searchInput")
+        .addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            document.getElementById("searchBtn").click();
+          }
+        });
+      document.getElementById("loadMoreBtn").addEventListener("click", () => {
+        const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice, sortType, append: true });
+      });
+
+      // change price   
+      const priceSlider = document.getElementById("priceRange");
+      const priceValue = document.getElementById("priceValue");
+
+      if (priceSlider && priceValue) {
+        //    change price title with moving 
+        priceSlider.addEventListener("input", () => {
+          priceValue.textContent = priceSlider.value;
+        });
+        //     
+        priceSlider.addEventListener("change", () => {
+          // const { category, searchTerm, maxPrice } = getCurrentFilters();
+          // filterBooksCombined({ category, searchTerm, maxPrice });
+          const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice, sortType ,append:false});
+        });
+      }
+      //now import categories array and edit in the category list 
+      import {getCategories} from "./GeneralFunctions.js";
+      async function categoryFiltersNew() {
+        const categoryFilter= document.getElementById("categoryFilter");
+        const categories = await getCategories();
+        categories.forEach((category)=>{
+          const option =document.createElement("option")
+          option.value=category;
+          option.textContent=category;
+          categoryFilter.appendChild(option)
+        })
+        
+      }
+      
+      // أول تحميل للصفحة
+      window.addEventListener("DOMContentLoaded", () => {
+        if(localStorage.getItem("updateCategories")=== "true"){
+          categoryFiltersNew();
+          localStorage.removeItem("updateCategories");
+        }else{
+          categoryFiltersNew();
+        }
+        const { category, searchTerm, maxPrice, sortType } = getCurrentFilters();
+        filterBooksCombined({ category, searchTerm, maxPrice, sortType });
+        loadCart();
+      }); 
     </script>
-  </body>
+
+    <footer class="footer mt-5 py-4 bg-dark text-light text-center">
+      <div class="container">
+        <p class="mb-1">&copy; 2025 Your Ketapy. All rights reserved.</p>
+        <div>
+          <a href="#" class="text-light mx-2">Privacy Policy</a> |
+          <a href="#" class="text-light mx-2">Terms of Service</a>
+        </div>
+      </div>
+    </footer>
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+
 </html>
