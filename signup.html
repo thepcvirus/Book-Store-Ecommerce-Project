@@ -119,6 +119,7 @@
             return database.collection("users").doc(user.uid).set({
               username: userName,
               email: email,
+              role: "user",
               //imageUrl: imageUrl,
               createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             });
