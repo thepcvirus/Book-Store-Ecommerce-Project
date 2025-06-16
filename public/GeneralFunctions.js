@@ -222,15 +222,18 @@ export function createProductCard(
     console.error(`Element with id "${DivID}" not found`);
   }
 }
-
-export function addTableRow(tableId, number, name, price, book) {
+export function addTableRow(tableId, name, price, book) {
   const row = document.createElement("tr");
-  const numberCell = document.createElement("td");
-  numberCell.textContent = number || "";
-  row.appendChild(numberCell);
+
+  // Remove ID cell (was: numberCell)
+  // const numberCell = document.createElement("td");
+  // numberCell.textContent = number || "";
+  // row.appendChild(numberCell);
+
   const nameCell = document.createElement("td");
   nameCell.textContent = name || "";
   row.appendChild(nameCell);
+
   let btnGroup = document.createElement("div");
   btnGroup.className = "btn-group";
   btnGroup.role = "group";
@@ -238,30 +241,39 @@ export function addTableRow(tableId, number, name, price, book) {
   minusBtn.className = "btn btn-sm btn-outline-secondary";
   minusBtn.textContent = "-";
   minusBtn.onclick = () => decreaseQuantity(book.id);
+
   let quantitySpan = document.createElement("span");
   quantitySpan.className = "mx-2";
   quantitySpan.textContent = book.quantity;
+
   let plusBtn = document.createElement("button");
   plusBtn.className = "btn btn-sm btn-outline-secondary";
   plusBtn.textContent = "+";
   plusBtn.onclick = () => increaseQuantity(book.id);
+
   btnGroup.appendChild(minusBtn);
   btnGroup.appendChild(quantitySpan);
   btnGroup.appendChild(plusBtn);
-  row.appendChild(btnGroup);
+
+  const quantityCell = document.createElement("td");
+  quantityCell.appendChild(btnGroup);
+  row.appendChild(quantityCell);
+
   const priceCell = document.createElement("td");
   priceCell.textContent = price ? `${price}$` : "0$";
   row.appendChild(priceCell);
+
   const deleteCell = document.createElement("td");
   const deleteButton = document.createElement("button");
   deleteButton.className = "btn btn-danger";
   deleteButton.textContent = "Remove";
   deleteButton.onclick = () => removeFromCart(book.id);
-  deleteCell.appendChild(deleteButton);
-  row.appendChild(deleteCell);
   deleteButton.addEventListener("click", function () {
     row.remove();
   });
+  deleteCell.appendChild(deleteButton);
+  row.appendChild(deleteCell);
+
   const table = document.getElementById(tableId);
   if (table) {
     const tbody = table.querySelector("tbody") || table;
@@ -327,7 +339,7 @@ export function loadCart() {
   let total = calculateTotal(cart);
   if (totalCostEl) totalCostEl.textContent = ` ${total} $`;
   cart.forEach((book) => {
-    addTableRow("CartList", book.id, book.name, book.price, book);
+addTableRow("CartList", book.name, book.price, book);
   });
 }
 
