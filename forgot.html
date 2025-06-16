@@ -46,8 +46,8 @@
 
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth(); // For Authentication
-      const database = firebase.firestore();
+      const auth = firebase.auth();
+      const database = firebase.firestore(); // سنحتاج إلى قاعدة البيانات الآن
 
       document
         .getElementById("forgotpassword")
@@ -60,55 +60,45 @@
 
           if (!email) {
             messageDiv.innerHTML =
-              '<div class="alert alert-danger">Enter a valid email</div>';
+              '<div class="alert alert-danger">Please enter a valid email.</div>';
             return;
           }
 
-          // Check if email in Firestore
+          // الخطوة 1: التحقق من وجود الإيميل في Firestore
           database
             .collection("users")
             .where("email", "==", email)
             .get()
             .then((querySnapshot) => {
+              // إذا كانت نتيجة البحث فارغة، فهذا يعني أن المستخدم غير موجود
               if (querySnapshot.empty) {
-                messageDiv.innerHTML = `<div class="alert alert-danger">Email is not registered.</div>`;
-                setTimeout(() => {
-                  messageDiv.innerHTML = "";
-                }, 4000);
+                messageDiv.innerHTML = `<div class="alert alert-danger">You are not a registered user.</div>`;
                 return;
               }
 
-              // Send password reset email
+              // الخطوة 2: إذا كان المستخدم موجودًا، أرسل إيميل إعادة التعيين
               auth
                 .sendPasswordResetEmail(email)
                 .then(() => {
-                  console.log("Password reset email sent");
-                  const success = document.getElementById("title");
-                  success.textContent = "Email sent successfully ✅";
+                  const title = document.getElementById("title");
+                  title.textContent = "Email Sent Successfully ✅";
                   const message = document.querySelector("p");
                   message.textContent =
-                    "You will be redirected to the login page in 5 seconds ...";
-                  const button = document.querySelector("button");
-                  button.remove();
-                  document.getElementById("forgotpassword").reset();
-
-                  setTimeout(() => {
-                    window.location.href = "login.html";
-                  }, 5000);
+                    "A password reset link has been sent to your email.";
+                  document.getElementById("forgotpassword").style.display =
+                    "none";
                 })
                 .catch((error) => {
-                  console.error("Reset password error:", error.message);
-                  let errorMessage = error.message;
-
+                  console.error("Reset password error:", error);
                   messageDiv.innerHTML =
-                    '<div class="alert alert-danger">Error: ' +
-                    errorMessage +
+                    '<div class="alert alert-danger">An error occurred: ' +
+                    error.message +
                     "</div>";
                 });
             })
             .catch((error) => {
-              console.error("Firestore error:", error.message);
-              messageDiv.innerHTML = `<div class="alert alert-danger">Check your internet connection or try again later.</div>`;
+              console.error("Firestore query error:", error);
+              messageDiv.innerHTML = `<div class="alert alert-danger">An error occurred while checking your email. Please try again.</div>`;
             });
         });
     </script>
