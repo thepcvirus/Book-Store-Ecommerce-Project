@@ -41,12 +41,13 @@
           />
         </div>
         <div class="col-12 mb-3">
-          <div class="form-check">
+          <!-- <div class="form-check">
             <input type="checkbox" class="form-check-input" id="keepLogged" />
             <label class="form-check-label" for="keepLogged"
               >Keep Me Logged In</label
             >
-          </div>
+          </div> -->
+          <div class="col-12" id="loginError"></div>
           <a
             href="forgot.html"
             class="text-custom float-end"
@@ -54,6 +55,7 @@
             >Forgot Password?</a
           >
         </div>
+
         <div class="col-12">
           <!-- <button type="submit" class="btn btn-custom" onclick="window.location.href='index.html'">Login</button> -->
           <button type="submit" class="btn btn-custom">Login</button>
@@ -79,53 +81,14 @@
     </div>
 
     <script type="module">
-      // const firebaseConfig = {
-      //   apiKey: "AIzaSyAEpHidRTkCegpQmOzHy6hV7iApvAJIFoM",
-      //   authDomain: "test-de06d.firebaseapp.com",
-      //   projectId: "test-de06d",
-      //   storageBucket: "test-de06d.firebasestorage.app",
-      //   messagingSenderId: "308036633924",
-      //   appId: "1:308036633924:web:1894faeee93a0815b14311",
-      //   measurementId: "G-XKSNCZ34EL",
-      // };
-
       import { firebaseConfig as firebaseConfig } from "./ConfigFile.js";
-      //singin with google
-      // window.signInWithGoogle = function () {
-      //   const provider = new firebase.auth.GoogleAuthProvider();
-      //   auth
-      //     .signInWithPopup(provider)
-      //     .then((result) => {
-      //       const user = result.user;
-      //       alert("تم تسجيل الدخول: " + user.email);
-      //       // Redirect or handle user as needed
-      //       window.location.href = "profile.html";
-      //     })
-      //     .catch((error) => {
-      //       alert("Error with sign in: " + error.message);
-      //     });
-      // };
 
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth(); // For Authentication
       const database = firebase.firestore(); // For Firestore (not used here, but for consistency)
       console.log("Hi");
-      //  Handle form submission
-      // document.getElementById("loginForm").addEventListener("submit", (e) => {
-      //   e.preventDefault();
-      //   const email = document.getElementById("email").value;
-      //   const password = document.getElementById("password").value;
-      //   auth
-      //     .signInWithEmailAndPassword(email, password)
-      //     .then(() => {
-      //       alert("login success");
-      //       window.location.href = "profile.html";
-      //     })
-      //     .catch((error) => {
-      //       alert("Wrong Password", error.message);
-      //     });
-      // const adminEmails = ["oo@gmail.com", "admin2@example.com"];
+
       function checkUserRole(user) {
         database
           .collection("users")
@@ -149,6 +112,8 @@
         provider.setCustomParameters({
           prompt: "select_account",
         });
+        const loginErrorDiv = document.getElementById("loginError");
+        loginErrorDiv.innerHTML = "";
         auth
           .signInWithPopup(provider)
           .then((result) => {
@@ -187,7 +152,13 @@
               });
           })
           .catch((error) => {
-            alert("Error with sign in: " + error.message);
+            console.log("google sign in error:", error.code);
+            const message = "error with signin with google ";
+            loginErrorDiv.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+
+            setTimeout(() => {
+              loginErrorDiv.innerHTML = "";
+            }, 2000);
           });
       };
 
@@ -196,6 +167,10 @@
         e.preventDefault();
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
+        const loginErrorDiv = document.getElementById("loginError");
+
+        loginErrorDiv.innerHTML = "";
+
         auth
           .signInWithEmailAndPassword(email, password)
           .then((userCredential) => {
@@ -203,7 +178,13 @@
             checkUserRole(user);
           })
           .catch((error) => {
-            alert("error in email or password" + error.message);
+            console.log("login Error", error.code);
+            const message = "wrong email or password!";
+
+            loginErrorDiv.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+            setTimeout(() => {
+              loginErrorDiv.innerHTML = "";
+            }, 2000);
           });
       });
     </script>

@@ -80,13 +80,19 @@
               auth
                 .sendPasswordResetEmail(email)
                 .then(() => {
-                  const title = document.getElementById("title");
-                  title.textContent = "Email Sent Successfully ✅";
+                  console.log("Password reset email sent");
+                  const success = document.getElementById("title");
+                  success.textContent = "Email sent successfully ✅";
                   const message = document.querySelector("p");
                   message.textContent =
-                    "A password reset link has been sent to your email.";
-                  document.getElementById("forgotpassword").style.display =
-                    "none";
+                    "You will be redirected to the login page in 5 seconds ...";
+                  const button = document.querySelector("button");
+                  button.remove();
+                  document.getElementById("forgotpassword").reset();
+
+                  setTimeout(() => {
+                    window.location.href = "login.html";
+                  }, 5000);
                 })
                 .catch((error) => {
                   console.error("Reset password error:", error);
